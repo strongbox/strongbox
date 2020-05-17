@@ -4,19 +4,31 @@ import org.carlspring.strongbox.config.NpmLayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NpmTestArtifact;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
+import org.carlspring.strongbox.testing.artifact.LicenseType;
 import org.carlspring.strongbox.testing.repository.NpmRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
 import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
@@ -43,7 +55,10 @@ class NpmArtifactGeneratorTest
                                                  id = "npm-test-view",
                                                  versions = "1.0.0",
                                                  scope = "@carlspring",
-                                                 bytesSize = 2048)
+                                                 bytesSize = 2048,
+                                                 licenses = {@LicenseConfiguration(license = LicenseType.APACHE_2_0,
+                                                                                   destinationPath = "LICENSE-Apache-2.0.md"),
+                                                            @LicenseConfiguration(license = LicenseType.MIT)})
                                 Path path)
             throws Exception
     {
@@ -61,5 +76,76 @@ class NpmArtifactGeneratorTest
 
         // File size
         assertThat(Files.size(path)).isGreaterThan(2048);
+        
+      //License checks
+        checkLicenses(path);
     }
+    
+    public void checkLicenses(Path artifactPath) 
+            throws FileNotFoundException, IOException 
+     {
+       //1) Check that the license are located in the expected locations
+         
+         assertThat(containsLicense(artifactPath, "LICENSE"))
+         .as("Did not find a license that was expected at the default location!")
+         .isTrue();
+         
+         assertThat(containsLicense(artifactPath, "LICENSE-Apache-2.0.md"))
+         .as("Did not find a license that was expected at the specified location!")
+         .isTrue();
+         
+        // 3) Check that the package.json contains the list of licenses
+         
+         ObjectMapper objectMapper = new ObjectMapper();
+         String jsonPath = artifactPath.getParent().toString() +"/package.json";
+         PackageJson json = objectMapper.readValue(new File(jsonPath), PackageJson.class);
+         
+         assertThat(json.getLicenses().isEmpty())
+         .as("Could not discover any licenses in the package.json file!")
+         .isFalse(); 
+         
+         License apache = new License("Apache 2.0","http://www.apache.org/licenses/LICENSE-2.0");
+         License mit = new License("MIT License","https://opensource.org/licenses/MIT");
+         
+         assertThat(equals(json.getLicenses().get(0),apache))
+         .as("" + json.getLicenses().get(0))
+         .isTrue();
+         
+         assertThat(equals(json.getLicenses().get(1), mit))
+         .as("Failed to locate a definition for the 'MIT' license in the package.json file!")
+         .isTrue();
+         
+    } 
+     
+    private boolean equals(License license1, License license2)
+     {
+        if (license1.getType().contentEquals(license2.getType()) && license1.getUrl().contentEquals(license2.getUrl())) 
+        {
+            return true;
+        }
+        return false;
+     }
+
+    public boolean containsLicense(Path path, String s)
+             throws FileNotFoundException, IOException
+     {
+         TarArchiveInputStream  tarInput = new TarArchiveInputStream(new GzipCompressorInputStream(new FileInputStream(path.toString())));
+         TarArchiveEntry currentEntry = tarInput.getNextTarEntry();
+         
+         while (currentEntry != null) 
+         {
+             if (currentEntry.getName().equals(s)) 
+             {
+                 tarInput.close();
+                 return true;
+             }
+             
+             currentEntry = tarInput.getNextTarEntry();
+         }
+         
+         tarInput.close();
+         return false;
+     } 
+          
 }
+
