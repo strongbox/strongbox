@@ -9,7 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
@@ -80,7 +79,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         EntityTraversal<Vertex, E> nextTraversal = nextAdapter.fold();
         if (depth == 0)
         {
-            return __.choose(__.hasLabel(nextAdapter.label()),
+            return __.choose(t -> nextAdapter.label().equals(((Vertex) t).label()),
                              __.map(nextTraversal),
                              fold(iterator, depth));
         }
@@ -90,7 +89,7 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                                                       .map(fold(adaptersHierarchy.descendingIterator(),
                                                                 depth - 1));
 
-        return __.choose(__.hasLabel(nextAdapter.label()),
+        return __.choose(t -> nextAdapter.label().equals(((Vertex) t).label()),
                          __.project("parent", "child")
                            .by(nextTraversal)
                            .by(childTraversal)

@@ -48,8 +48,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         {
             ArtifactTag tag = optionalTag.get();
             artifactsTraversal = artifactsTraversal.filter(__.outE(Edges.ARTIFACT_HAS_TAGS)
-                                     .otherV()
-                                     .has("uuid", tag.getName()));
+                                                             .otherV()
+                                                             .has("uuid", tag.getName()));
         }
         
         return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
