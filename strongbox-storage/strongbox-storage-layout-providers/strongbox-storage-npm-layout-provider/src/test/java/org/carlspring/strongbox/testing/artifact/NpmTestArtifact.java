@@ -68,5 +68,7 @@ public @interface NpmTestArtifact
      * The {@link org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates} scope.
      */
     String scope() default "";
-    
+
+    LicenseConfiguration[] licenses() default {};
+
 }
