@@ -14,6 +14,7 @@ import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.metadata.MetadataMerger;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
@@ -33,9 +34,7 @@ import org.apache.maven.index.artifact.Gav;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 
 /**
  * @author Przemyslaw Fusik
@@ -251,15 +250,16 @@ abstract class BaseMavenMetadataExpirationTest
 
     protected FileTime oneHourAgo()
     {
-        LocalDateTime dateTime = LocalDateTime.now().minusHours(1).withNano(0);
+        LocalDateTime dateTime = LocalDateTimeInstance.now().minusHours(1).withNano(0);
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
+
         return FileTime.from(instant);
     }
 
     protected RepositoryPath resolveSiblingChecksum(final RepositoryPath repositoryPath,
                                                     final EncryptionAlgorithmsEnum checksumAlgorithm)
     {
-        LayoutFileSystemProvider provider = (LayoutFileSystemProvider) repositoryPath.getFileSystem().provider();
+        LayoutFileSystemProvider provider = repositoryPath.getFileSystem().provider();
         return provider.getChecksumPath(repositoryPath, checksumAlgorithm.getAlgorithm());
     }
 

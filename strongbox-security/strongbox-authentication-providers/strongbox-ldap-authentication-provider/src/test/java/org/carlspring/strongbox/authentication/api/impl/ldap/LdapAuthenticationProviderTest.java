@@ -1,9 +1,12 @@
 package org.carlspring.strongbox.authentication.api.impl.ldap;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
+import org.carlspring.strongbox.config.UsersConfig;
+import org.carlspring.strongbox.users.domain.SystemRole;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import javax.inject.Inject;
 import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.List;
@@ -18,8 +21,6 @@ import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.users.domain.SystemRole;
 
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.env.PropertiesPropertySource;
 import org.springframework.core.env.PropertySource;
@@ -35,6 +36,7 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ContextHierarchy;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Przemyslaw Fusik
@@ -50,8 +52,6 @@ import org.springframework.test.context.ContextHierarchy;
 public class LdapAuthenticationProviderTest
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(LdapAuthenticationProviderTest.class);
-
     @Inject
     private ContextSource contextSource;
 
@@ -63,14 +63,16 @@ public class LdapAuthenticationProviderTest
 
     @Test
     public void embeddedLdapServerCreationContainsExpectedContextSourceAndData()
-        throws Exception
+            throws Exception
     {
         LdapTemplate template = new LdapTemplate(contextSource);
         Object ldapObject = template.lookup("uid=przemyslaw.fusik,ou=Users");
 
         assertThat(ldapObject).isNotNull();
         assertThat(ldapObject).isInstanceOf(DirContextAdapter.class);
+
         DirContextAdapter dirContextAdapter = (DirContextAdapter) ldapObject;
+
         assertThat(dirContextAdapter.getDn().toString()).isEqualTo("uid=przemyslaw.fusik,ou=Users");
         assertThat(dirContextAdapter.getNameInNamespace()).isEqualTo("uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com");
     }
@@ -148,4 +150,5 @@ public class LdapAuthenticationProviderTest
             return new PropertiesPropertySource(STRONGBOX_AUTHENTICATION_PROVIDERS, properties);
         }
     }
+
 }

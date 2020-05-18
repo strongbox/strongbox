@@ -1,11 +1,5 @@
 package org.carlspring.strongbox.authentication;
 
-import java.time.LocalDateTime;
-import java.util.Optional;
-
-import javax.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
@@ -14,9 +8,13 @@ import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetails;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
+import javax.transaction.Transactional;
+import java.util.Optional;
+
+import org.apache.commons.lang3.StringUtils;
 import org.janusgraph.core.SchemaViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -29,8 +27,7 @@ import org.springframework.stereotype.Component;
 public class DatabaseExternalUsersCacheManager extends DatabaseUserService implements StrongboxExternalUsersCacheManager
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseExternalUsersCacheManager.class);
-    
+
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p1.username")
     public User cacheExternalUserDetails(String sourceId,
@@ -59,7 +56,7 @@ public class DatabaseExternalUsersCacheManager extends DatabaseUserService imple
             userEntry.setEnabled(user.isEnabled());
             userEntry.setRoles(user.getRoles());
             userEntry.setSecurityTokenKey(user.getSecurityTokenKey());
-            userEntry.setLastUpdated(LocalDateTime.now());
+            userEntry.setLastUpdated(LocalDateTimeInstance.now());
             userEntry.setSourceId(sourceId);
 
             return userRepository.save(userEntry);

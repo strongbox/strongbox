@@ -1,22 +1,5 @@
 package org.carlspring.strongbox.authentication;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.authentication.api.AuthenticationItem;
 import org.carlspring.strongbox.authentication.api.AuthenticationItemConfigurationManager;
 import org.carlspring.strongbox.authentication.api.AuthenticationItems;
@@ -28,6 +11,19 @@ import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.UserDetailsMapper;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -160,7 +156,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
         LocalDateTime userLastUpdate = Optional.ofNullable(user.getLastUpdated())
                                                .orElse(LocalDateTime.MIN);
         LocalDateTime userExpireDate = userLastUpdate.plusSeconds(externalUsersInvalidateSeconds);
-        LocalDateTime nowDate = LocalDateTime.now();
+        LocalDateTime nowDate = LocalDateTimeInstance.now();
 
         return StringUtils.isBlank(user.getSourceId()) || nowDate.isBefore(userExpireDate);
     }
