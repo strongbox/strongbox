@@ -1,22 +1,7 @@
 package org.carlspring.strongbox.repository;
 
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
-
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
-import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.data.criteria.Paginator;
@@ -27,7 +12,6 @@ import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.providers.repository.RepositorySearchRequest;
 import org.carlspring.strongbox.providers.repository.event.RemoteRepositorySearchEvent;
 import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
-import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
@@ -35,12 +19,21 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageEntry;
 import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepository;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericReleaseVersionValidator;
 import org.carlspring.strongbox.storage.validation.artifact.version.GenericSnapshotVersionValidator;
 import org.carlspring.strongbox.storage.validation.deployment.RedeploymentValidator;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
 import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -66,9 +59,6 @@ public class NugetRepositoryFeatures
     private ConfigurationManager configurationManager;
 
     @Inject
-    private ArtifactRepository artifactEntityRepository;
-
-    @Inject
     private ArtifactTagService artifactTagService;
 
     @Inject
@@ -91,6 +81,7 @@ public class NugetRepositoryFeatures
     
     private Set<String> defaultMavenArtifactCoordinateValidators;
 
+
     @PostConstruct
     public void init()
     {
@@ -101,7 +92,7 @@ public class NugetRepositoryFeatures
 
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId)
-            throws ArtifactTransportException, IOException
+            throws IOException
     {
         downloadRemoteFeed(storageId, repositoryId, new NugetSearchRequest());
     }
@@ -109,17 +100,21 @@ public class NugetRepositoryFeatures
     public void downloadRemoteFeed(String storageId,
                                    String repositoryId,
                                    NugetSearchRequest nugetSearchRequest)
-            throws ArtifactTransportException, IOException
+            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
 
-        Optional<NugetRepositoryConfiguration> repositoryConfiguration = Optional.ofNullable((NugetRepositoryConfiguration) ((RepositoryData)repository).getRepositoryConfiguration());
+        Optional<NugetRepositoryConfiguration> repositoryConfiguration = Optional.ofNullable((NugetRepositoryConfiguration) repository.getRepositoryConfiguration());
         Integer remoteFeedPageSize = repositoryConfiguration.map(c -> c.getRemoteFeedPageSize())
                                                             .orElse(REMOTE_FEED_PAGE_SIZE);
+
         for (int i = 0; true; i++)
         {
-            if (!downloadRemoteFeed(storageId, repositoryId, nugetSearchRequest, i * remoteFeedPageSize,
+            if (!downloadRemoteFeed(storageId,
+                                    repositoryId,
+                                    nugetSearchRequest,
+                                    i * remoteFeedPageSize,
                                     remoteFeedPageSize))
             {
                 break;
@@ -132,7 +127,6 @@ public class NugetRepositoryFeatures
                                       NugetSearchRequest nugetSearchRequest,
                                       long skip,
                                       int top)
-            throws IOException
     {
         Storage storage = getConfiguration().getStorage(storageId);
         Repository repository = storage.getRepository(repositoryId);
@@ -185,7 +179,7 @@ public class NugetRepositoryFeatures
     }
 
     private void parseFeed(Repository repository,
-                           PackageFeed packageFeed) throws IOException
+                           PackageFeed packageFeed)
     {
         String repositoryId = repository.getId();
         String storageId = repository.getStorage().getId();
@@ -200,13 +194,15 @@ public class NugetRepositoryFeatures
             String packageVersion = packageEntry.getProperties().getVersion().toString();
 
             NugetArtifactCoordinates c = new NugetArtifactCoordinates(packageId, packageVersion, "nupkg");
-            
+
+            LocalDateTime now = LocalDateTimeInstance.now();
+
             ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
             remoteArtifactEntry.setStorageId(storageId);
             remoteArtifactEntry.setRepositoryId(repositoryId);
             remoteArtifactEntry.setArtifactCoordinates(c);
-            remoteArtifactEntry.setLastUsed(LocalDateTime.now());
-            remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
+            remoteArtifactEntry.setLastUsed(now);
+            remoteArtifactEntry.setLastUpdated(now);
             remoteArtifactEntry.setDownloadCount(0);
             remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 
@@ -247,7 +243,7 @@ public class NugetRepositoryFeatures
         }
 
         @EventListener
-        public void handle(RemoteRepositorySearchEvent event) throws IOException
+        public void handle(RemoteRepositorySearchEvent event)
         {
             if (nugetSearchRequest == null)
             {

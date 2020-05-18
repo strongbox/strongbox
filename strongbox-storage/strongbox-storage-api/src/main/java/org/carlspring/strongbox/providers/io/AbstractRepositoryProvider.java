@@ -23,11 +23,7 @@ import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
-import org.carlspring.strongbox.io.LayoutOutputStream;
-import org.carlspring.strongbox.io.RepositoryStreamCallback;
-import org.carlspring.strongbox.io.RepositoryStreamReadContext;
-import org.carlspring.strongbox.io.RepositoryStreamWriteContext;
-import org.carlspring.strongbox.io.StreamUtils;
+import org.carlspring.strongbox.io.*;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryOutputStream;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
@@ -39,6 +35,17 @@ import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.services.ArtifactTagService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import org.apache.commons.io.output.CountingOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -171,10 +178,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifactEntry.setStorageId(storageId);
         artifactEntry.setRepositoryId(repositoryId);
 
+        LocalDateTime now = LocalDateTimeInstance.now();
+
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         artifactEntry.setArtifactCoordinates(coordinates);
-
-        LocalDateTime now = LocalDateTime.now();
         artifactEntry.setCreated(now);
         artifactEntry.setLastUpdated(now);
         artifactEntry.setLastUsed(now);
@@ -188,7 +195,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
         logger.debug("Complete writing [{}]", repositoryPath);
         
-        if (RepositoryFiles.isArtifact(repositoryPath)) {
+        if (RepositoryFiles.isArtifact(repositoryPath))
+        {
             if (ctx.getArtifactExists())
             {
                 artifactEventListenerRegistry.dispatchArtifactUpdatedEvent(repositoryPath);
@@ -197,7 +205,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
             {
                 artifactEventListenerRegistry.dispatchArtifactStoredEvent(repositoryPath);
             }            
-        } else if (RepositoryFiles.isMetadata(repositoryPath))
+        }
+        else if (RepositoryFiles.isMetadata(repositoryPath))
         {
             artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(repositoryPath);
         }
@@ -222,6 +231,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void onAfterRead(RepositoryStreamReadContext ctx)
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
+
         logger.debug("Complete reading [{}]", repositoryPath);
         
         artifactEventListenerRegistry.dispatchArtifactDownloadedEvent(repositoryPath);
@@ -279,7 +289,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     
     @Override
     public RepositoryPath fetchPath(Path repositoryPath)
-        throws IOException
+            throws IOException
     {
         return fetchPath((RepositoryPath)repositoryPath);
     }
@@ -290,20 +300,19 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
                                         String repositoryId,
                                         Predicate predicate)
     {
-        Predicate result = Predicate.of(ExpOperator.EQ.of("storageId",
-                                                          storageId))
-                                    .and(Predicate.of(ExpOperator.EQ.of("repositoryId",
-                                                                        repositoryId)));
+        Predicate result = Predicate.of(ExpOperator.EQ.of("storageId", storageId))
+                                    .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repositoryId)));
         if (predicate.isEmpty())
         {
             return result;
         }
+
         return result.and(predicate);
     }
 
     protected Selector<ArtifactEntity> createSelector(String storageId,
-                                                     String repositoryId,
-                                                     Predicate p)
+                                                      String repositoryId,
+                                                      Predicate p)
     {
         Selector<ArtifactEntity> selector = new Selector<>(ArtifactEntity.class);
         selector.where(createPredicate(storageId, repositoryId, p));

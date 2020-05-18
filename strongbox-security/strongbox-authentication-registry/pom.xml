@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>strongbox-authentication-registry</artifactId>
-    <version>1.0-PR-62-SNAPSHOT</version>
+	<version>1.0-PR-62-SNAPSHOT</version>
 
     <name>Strongbox: Authentication Registry</name>
 
@@ -80,6 +80,7 @@
             <artifactId>strongbox-ldap-authentication-provider</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.unboundid</groupId>
             <artifactId>unboundid-ldapsdk</artifactId>

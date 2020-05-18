@@ -26,6 +26,8 @@ import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
 
@@ -117,6 +119,7 @@ public class InMemoryUserService implements UserService
             {
                 userDto.setPassword(user.getPassword());
             }
+
             userDto.setUsername(user.getUsername());
             userDto.setEnabled(user.isEnabled());
             userDto.setRoles(user.getRoles()
@@ -124,7 +127,7 @@ public class InMemoryUserService implements UserService
                                  .map(SecurityRole::getRoleName)
                                  .collect(Collectors.toSet()));
             userDto.setSecurityTokenKey(user.getSecurityTokenKey());
-            userDto.setLastUpdate(LocalDateTime.now());
+            userDto.setLastUpdate(LocalDateTimeInstance.now());
 
             users.putIfAbsent(user.getUsername(), userDto);
 
