@@ -83,7 +83,7 @@ class NpmArtifactGeneratorTest
     
     public void checkLicenses(Path artifactPath) 
             throws FileNotFoundException, IOException 
-     {
+    {
        //1) Check that the license are located in the expected locations
          
          assertThat(containsLicense(artifactPath, "LICENSE"))
