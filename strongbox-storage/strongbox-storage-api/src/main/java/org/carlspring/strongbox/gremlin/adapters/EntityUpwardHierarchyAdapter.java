@@ -3,11 +3,13 @@ package org.carlspring.strongbox.gremlin.adapters;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,39 +65,79 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
     @Override
     public EntityTraversal<Vertex, E> fold()
     {
-        return __.map(fold(adaptersHierarchy.descendingIterator(),
-                           maxHierarchyDepth));
+        Optional<EntityTraversal<?, E>> upwardTraversal = fold(Collections.singleton((A) getRootAdapter()).iterator(),
+                                                               maxHierarchyDepth);
+        return __.map(upwardTraversal.get());
     }
 
-    private EntityTraversal<?, E> fold(Iterator<A> iterator,
-                                       int depth)
+    private Optional<EntityTraversal<?, E>> fold(Iterator<A> iterator,
+                                                 int depth)
     {
         if (!iterator.hasNext())
         {
-            return __.<Vertex>V(-1).constant(null);
+            return Optional.empty();
         }
 
         A nextAdapter = iterator.next();
         EntityTraversal<Vertex, E> nextTraversal = nextAdapter.fold();
-        if (depth == 0)
+        Optional<EntityTraversal<?, E>> upwardTraversal = fold(iterator, depth);
+
+        if (upwardTraversal.isPresent())
         {
-            return __.choose(t -> nextAdapter.label().equals(((Vertex) t).label()),
-                             __.map(nextTraversal),
-                             fold(iterator, depth));
+            // Get child iterator
+            Iterator<A> childIterator = adaptersHierarchy.descendingIterator();
+            // Skip root adapter
+            childIterator.next();
+            // Get child traversal
+            if (depth == 0)
+            {
+                return Optional.of(__.choose(t -> nextAdapter.label().equals(((Vertex) t).label()),
+                                             __.map(nextTraversal),
+                                             upwardTraversal.get()));
+            }
+            Optional<EntityTraversal<Vertex, E>> childTraversal = fold(childIterator, depth - 1).map(t -> __.inE(Edges.EXTENDS)
+                                                                                                            .outV()
+                                                                                                            .map(t));
+            if (!childTraversal.isPresent())
+            {
+                return Optional.of(__.choose(t -> nextAdapter.label().equals(((Vertex) t).label()),
+                                             __.map(nextTraversal),
+                                             upwardTraversal.get()));
+            }
+
+            return Optional.of(__.choose(t -> nextAdapter.label().equals(((Vertex) t).label()),
+                                         __.project("parent", "child")
+                                           .by(nextTraversal)
+                                           .by(childTraversal.get())
+                                           .sideEffect(this::parentWithChild)
+                                           .select("child"),
+                                         upwardTraversal.get()));
         }
+        else
+        {
+            // Get child iterator
+            Iterator<A> childIterator = adaptersHierarchy.descendingIterator();
+            // Skip root adapter
+            childIterator.next();
+            // Get child traversal
+            if (depth == 0)
+            {
+                return Optional.of(__.map(nextTraversal));
+            }
+            Optional<EntityTraversal<Vertex, E>> childTraversal = fold(childIterator, depth - 1).map(t -> __.inE(Edges.EXTENDS)
+                                                                                                            .outV()
+                                                                                                            .map(t));
+            if (!childTraversal.isPresent())
+            {
+                return Optional.of(__.map(nextTraversal));
+            }
 
-        EntityTraversal<Vertex, E> childTraversal = __.inE(Edges.EXTENDS)
-                                                      .outV()
-                                                      .map(fold(adaptersHierarchy.descendingIterator(),
-                                                                depth - 1));
-
-        return __.choose(t -> nextAdapter.label().equals(((Vertex) t).label()),
-                         __.project("parent", "child")
-                           .by(nextTraversal)
-                           .by(childTraversal)
-                           .sideEffect(this::parentWithChild)
-                           .select("child"),
-                         fold(iterator, depth));
+            return Optional.of(__.project("parent", "child")
+                                 .by(nextTraversal)
+                                 .by(childTraversal.get())
+                                 .sideEffect(this::parentWithChild)
+                                 .select("child"));
+        }
     }
 
     private void parentWithChild(Traverser<Map<String, Object>> t)
