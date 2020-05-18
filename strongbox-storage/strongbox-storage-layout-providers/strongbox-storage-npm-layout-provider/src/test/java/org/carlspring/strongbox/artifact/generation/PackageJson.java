@@ -7,37 +7,34 @@ import org.json.JSONArray;
 public class PackageJson
 {
     private String name;
+
     private String version;
+
     private ArrayList<String> keywords;
+
     private ArrayList<License> licenses;
+
     private ArrayList<String> contributors;
+
     private ArrayList<String> maintainers;
+
     private ArrayList<String> files;
+
     private ArrayList<String> man;
+
     private ArrayList<String> bundledDependencies;
+
     private ArrayList<String> os;
+
     private ArrayList<String> cpu;
+
     private JSONArray dist;
-    
-    public PackageJson() {
-        
-    }
-    public PackageJson(String name, String version, ArrayList<String> keywords, ArrayList<License> licenses,
-                        ArrayList<String> contributors, ArrayList<String> maintainers, ArrayList<String> files,
-                        ArrayList<String> man, ArrayList<String> bundlesDependencies, ArrayList<String> os, ArrayList<String> cpu, JSONArray dist)
+
+
+
+    public PackageJson() 
     {
-        this.name = name;
-        this.version = version;
-        this.keywords = keywords;
-        this.licenses = licenses;
-        this.contributors = contributors;
-        this.maintainers = maintainers;
-        this.files = files;
-        this.man = man;
-        this.bundledDependencies = bundledDependencies;
-        this.os = os;
-        this.cpu = cpu;
-        this.dist = dist;
+        
     }
 
     public String getName()

@@ -3,13 +3,16 @@ package org.carlspring.strongbox.artifact.generation;
 public class License
 {
     private String type;
+
     private String url;
-    
+
+
+
     public License()
     {
 
     }
-    
+
     public License(String type, String url)
     {
         this.setType(type);
