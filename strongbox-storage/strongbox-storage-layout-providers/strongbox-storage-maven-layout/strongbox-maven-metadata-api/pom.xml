@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>strongbox-maven-metadata-api</artifactId>
-    <version>1.0-PR-62-SNAPSHOT</version>
+    <version>1.0-issues-1775-SNAPSHOT</version>
 
     <name>Strongbox: Metadata [Maven API]</name>
 

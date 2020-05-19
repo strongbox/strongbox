@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>strongbox-client</artifactId>
-    <version>1.0-PR-62-SNAPSHOT</version>
+    <version>1.0-issues-1775-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Client</name>
