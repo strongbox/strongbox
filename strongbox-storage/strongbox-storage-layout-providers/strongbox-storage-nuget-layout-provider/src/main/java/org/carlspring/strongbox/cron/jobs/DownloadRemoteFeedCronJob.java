@@ -66,7 +66,8 @@ public class DownloadRemoteFeedCronJob
 
     public static boolean shouldDownloadRemoteRepositoryFeed()
     {
-        return System.getProperty("strongbox.nuget.download.feed") == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.nuget.download.feed"));
+        //return System.getProperty("strongbox.nuget.download.feed") == null ||
+        //       Boolean.parseBoolean(System.getProperty("strongbox.nuget.download.feed"));
+        return false;
     }
 }

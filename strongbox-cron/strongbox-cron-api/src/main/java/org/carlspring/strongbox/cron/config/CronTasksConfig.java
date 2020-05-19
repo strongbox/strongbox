@@ -36,6 +36,7 @@ public class CronTasksConfig
         SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
         schedulerFactoryBean.setJobFactory(springBeanJobFactory());
         schedulerFactoryBean.setTaskExecutor(cronJobTaskExecutor());
+        schedulerFactoryBean.setAutoStartup(false);
         
         return schedulerFactoryBean;
     }

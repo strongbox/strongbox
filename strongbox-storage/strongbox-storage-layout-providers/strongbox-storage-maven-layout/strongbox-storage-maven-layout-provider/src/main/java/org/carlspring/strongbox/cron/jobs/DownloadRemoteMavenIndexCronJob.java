@@ -79,7 +79,7 @@ public class DownloadRemoteMavenIndexCronJob
         boolean shouldDownloadIndexes = shouldDownloadAllRemoteRepositoryIndexes();
         boolean shouldDownloadRepositoryIndex = shouldDownloadRepositoryIndex(storageId, repositoryId);
 
-        return shouldDownloadIndexes || shouldDownloadRepositoryIndex;
+        return false;
     }
 
     @Override
