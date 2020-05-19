@@ -71,7 +71,8 @@ public class FetchRemoteNpmChangesFeedCronJob
 
     public static boolean shouldDownloadRemoteChangesFeed()
     {
-        return System.getProperty("strongbox.npm.remote.changes.enabled") == null ||
-               Boolean.parseBoolean(System.getProperty("strongbox.npm.remote.changes.enabled"));
+        //return System.getProperty("strongbox.npm.remote.changes.enabled") == null ||
+        //       Boolean.parseBoolean(System.getProperty("strongbox.npm.remote.changes.enabled"));
+        return false;
     }
 }
