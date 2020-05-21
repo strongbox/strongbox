@@ -6,6 +6,7 @@ import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractO
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -13,8 +14,10 @@ import javax.inject.Inject;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
@@ -51,7 +54,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                                                              .otherV()
                                                              .has("uuid", tag.getName()));
         }
-        
+
         return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
@@ -63,7 +66,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                                        .fold())
                  .map(this::map);
     }
-    
+
     @Override
     public EntityTraversal<Vertex, ArtifactIdGroup> fold()
     {
@@ -85,30 +88,32 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactIdGroup entity)
     {
-        EntityTraversal<Vertex, Vertex> saveArtifacstTraversal = __.<Vertex>identity();
-        String storedArtifact = Vertices.ARTIFACT + ":" + UUID.randomUUID();
+        String storedArtifactIdGroup = Vertices.ARTIFACT_ID_GROUP + ":" + UUID.randomUUID();
+        EntityTraversal<Vertex, Vertex> connectArtifacstTraversal = null;
         for (Artifact artifact : entity.getArtifacts())
         {
-            //cascading create Artifacts only
-            if (artifact.getNativeId() != null)
+            if (artifact.getNativeId() == null)
             {
                 continue;
             }
-            UnfoldEntityTraversal<Vertex, Vertex> unfoldArtifactTraversal = artifactAdapter.unfold(artifact);
-            saveArtifacstTraversal = saveArtifacstTraversal.V(artifact)
-                                                           .saveV(artifact.getUuid(),
-                                                                  unfoldArtifactTraversal)
-                                                           .aggregate(storedArtifact);
+            connectArtifacstTraversal = connectArtifacstTraversal == null ? __.V(artifact) : connectArtifacstTraversal.V(artifact);
+            connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).from(storedArtifactIdGroup).outV();
+            for (ArtifactTag artifactTag : artifact.getTagSet())
+            {
+                connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                                     .from(storedArtifactIdGroup)
+                                                                     .property(Properties.TAG_NAME, artifactTag.getName())
+                                                                     .outV();
+
+            }
         }
 
-        String storedArtifactIdGroup = Vertices.ARTIFACT_ID_GROUP + ":" + UUID.randomUUID();
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Vertex>map(unfoldArtifactGroup(entity))
-                                                            .store(storedArtifactIdGroup)
-                                                            .sideEffect(saveArtifacstTraversal.select(storedArtifact)
-                                                                                              .unfold()
-                                                                                              .addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                                                                              .from(__.select(storedArtifactIdGroup)
-                                                                                                      .unfold()));
+                                                            .as(storedArtifactIdGroup)
+                                                            .sideEffect(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).drop())
+                                                            .flatMap(connectArtifacstTraversal)
+                                                            .fold()
+                                                            .map(t -> t.get().iterator().next());
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_ID_GROUP, entity, unfoldTraversal);
     }
@@ -116,8 +121,9 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     private EntityTraversal<Vertex, Vertex> unfoldArtifactGroup(ArtifactIdGroup entity)
     {
         EntityTraversal<Vertex, Vertex> t = __.identity();
-        //Skip update as ArtifactIdGroup assumed to be immutable 
-        if (entity.getNativeId() != null) {
+        // Skip update as ArtifactIdGroup assumed to be immutable
+        if (entity.getNativeId() != null)
+        {
             return t;
         }
 
