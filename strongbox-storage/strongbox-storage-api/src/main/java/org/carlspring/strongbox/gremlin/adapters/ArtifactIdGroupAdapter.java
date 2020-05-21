@@ -6,7 +6,6 @@ import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractO
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -14,7 +13,6 @@ import javax.inject.Inject;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Properties;
@@ -61,7 +59,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                  .by(__.enrichPropertyValue("storageId"))
                  .by(__.enrichPropertyValue("repositoryId"))
                  .by(__.enrichPropertyValue("name"))
-                 .by(artifactsTraversal.map(artifactAdapter.fold())
+                 .by(artifactsTraversal.dedup()
+                                       .map(artifactAdapter.fold())
                                        .map(EntityTraversalUtils::castToObject)
                                        .fold())
                  .map(this::map);
@@ -89,28 +88,34 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactIdGroup entity)
     {
         String storedArtifactIdGroup = Vertices.ARTIFACT_ID_GROUP + ":" + UUID.randomUUID();
-        EntityTraversal<Vertex, Vertex> connectArtifacstTraversal = null;
+        EntityTraversal<Vertex, Vertex> connectArtifacstTraversal = __.identity();
         for (Artifact artifact : entity.getArtifacts())
         {
             if (artifact.getNativeId() == null)
             {
-                continue;
+                throw new IllegalArgumentException(
+                        String.format("There is no cascade operations on related [%s] entities, consider to persist [%s] first.",
+                                      Artifact.class.getSimpleName(),
+                                      artifact.getUuid()));
             }
-            connectArtifacstTraversal = connectArtifacstTraversal == null ? __.V(artifact) : connectArtifacstTraversal.V(artifact);
-            connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).from(storedArtifactIdGroup).outV();
+            connectArtifacstTraversal = connectArtifacstTraversal.V(artifact);
+            connectArtifacstTraversal.optional(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).drop())
+                                     .addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                     .from(storedArtifactIdGroup)
+                                     .inV();
             for (ArtifactTag artifactTag : artifact.getTagSet())
             {
                 connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                                                                      .from(storedArtifactIdGroup)
                                                                      .property(Properties.TAG_NAME, artifactTag.getName())
-                                                                     .outV();
+                                                                     .inV();
 
             }
+            connectArtifacstTraversal.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).outV();
         }
 
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Vertex>map(unfoldArtifactGroup(entity))
                                                             .as(storedArtifactIdGroup)
-                                                            .sideEffect(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).drop())
                                                             .flatMap(connectArtifacstTraversal)
                                                             .fold()
                                                             .map(t -> t.get().iterator().next());

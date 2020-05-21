@@ -15,6 +15,7 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
@@ -55,17 +56,9 @@ public class ArtifactIdGroupRepositoryTest
         String repositoryId = "repository-aigrt-csw";
         String pathTemplate = "path/to/resource/aigrt-csw-%s.jar";
 
-        RawArtifactCoordinates artifactCoordinatesOne = new RawArtifactCoordinates();
-        artifactCoordinatesOne.setId(String.format(pathTemplate, "10"));
-        ArtifactEntity artifactEntityOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesOne);
-
-        RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
-        artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        ArtifactEntity artifactEntityTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
-
-        RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
-        artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
-        ArtifactEntity artifactEntityThree = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesThree);
+        ArtifactEntity artifactEntityOne = createArtifact(storageId, repositoryId, pathTemplate, "10");
+        ArtifactEntity artifactEntityTwo = createArtifact(storageId, repositoryId, pathTemplate, "20");
+        ArtifactEntity artifactEntityThree = createArtifact(storageId, repositoryId, pathTemplate, "30");
 
         // Create
         ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId, "path/to/resource/aigrt-csw");
@@ -96,14 +89,17 @@ public class ArtifactIdGroupRepositoryTest
         artifactEntityOne.setNativeId(null);
         artifactRepository.delete(artifactEntityTwo);
         artifactEntityTwo.setNativeId(null);
-        
+
         artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
                                                          .map(ArtifactIdGroupEntity.class::cast)
                                                          .get();
         assertThat(artifactIdGroupEntity.getArtifacts()).containsOnly(artifactEntityThree);
 
+        // ArtifactTag relation
         ArtifactTag latestVersionTag = artifactTagRepository.save(new ArtifactTagEntity(ArtifactTag.LAST_VERSION));
         artifactEntityOne.getTagSet().add(latestVersionTag);
+        artifactRepository.save(artifactEntityOne);
+
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
         artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
         assertThat(artifactIdGroupEntity.getUuid()).isNotNull();
@@ -112,6 +108,11 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupEntity.getArtifacts()).containsOnly(artifactEntityOne, artifactEntityThree);
         assertThat(artifactIdGroupEntity.getArtifacts()).filteredOnAssertions(a -> assertThat(a.getTagSet()).contains(latestVersionTag))
                                                         .hasSize(1);
+
+        assertThat(g.E()
+                    .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                    .sideEffect(t -> System.out.println(t.get().property(Properties.TAG_NAME).orElse("no-tag")))
+                    .toList()).hasSize(3);
 
         artifactRepository.delete(artifactEntityOne);
         artifactEntityOne.setNativeId(null);
@@ -126,13 +127,9 @@ public class ArtifactIdGroupRepositoryTest
                     .hasNext()).isFalse();
 
         // Delete
-        artifactIdGroupEntity.addArtifact(artifactEntityOne);
-        artifactIdGroupEntity.addArtifact(artifactEntityTwo);
-        artifactIdGroupEntity.addArtifact(artifactEntityThree);
-        artifactIdGroupRepository.save(artifactIdGroupEntity);
         artifactIdGroupRepository.delete(artifactIdGroupEntity);
-        artifactIdGroupEntity.setNativeId(null);
         assertThat(artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())).isEmpty();
+
         assertThat(g.V()
                     .label()
                     .toSet()).hasSize(3)
@@ -142,6 +139,19 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(g.E()
                     .count()
                     .next()).isEqualTo(3L);
+    }
+
+    private ArtifactEntity createArtifact(String storageId,
+                                          String repositoryId,
+                                          String pathTemplate,
+                                          String version)
+    {
+        RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
+        artifactCoordinates.setId(String.format(pathTemplate, version));
+        ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
+        artifactRepository.save(artifactEntity);
+
+        return artifactEntity;
     }
 
     @Test
@@ -154,21 +164,15 @@ public class ArtifactIdGroupRepositoryTest
         String pathTemplate = "path/to/resource/aigrt-fosw-%s.jar";
 
         // First group
-        RawArtifactCoordinates artifactCoordinatesOne = new RawArtifactCoordinates();
-        artifactCoordinatesOne.setId(String.format(pathTemplate, "10"));
-        ArtifactEntity artifactEntityOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesOne);
-
-        RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
-        artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        ArtifactEntity artifactEntityTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
-
-        RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
-        artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
-        ArtifactEntity artifactEntityThree = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesThree);
+        ArtifactEntity artifactEntityOne = createArtifact(storageId, repositoryId, pathTemplate, "10");
+        ArtifactEntity artifactEntityTwo = createArtifact(storageId, repositoryId, pathTemplate, "20");
+        ArtifactEntity artifactEntityThree = createArtifact(storageId, repositoryId, pathTemplate, "30");
 
         ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId,
                 "path/to/resource/aigrt-fosw");
-        assertThat(artifactIdGroupRepository.findAllArtifactsInGroup(storageId, repositoryId, "path/to/resource/aigrt-fosw")).isEmpty();
+        assertThat(artifactIdGroupRepository.findAllArtifactsInGroup(storageId,
+                                                                     repositoryId,
+                                                                     "path/to/resource/aigrt-fosw")).isEmpty();
 
         artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
@@ -178,13 +182,8 @@ public class ArtifactIdGroupRepositoryTest
 
         // Second group
         pathTemplate = "path/to/resource/aigrt-fosw-another-%s.jar";
-        RawArtifactCoordinates artifactCoordinatesAnotherOne = new RawArtifactCoordinates();
-        artifactCoordinatesAnotherOne.setId(String.format(pathTemplate, "10"));
-        ArtifactEntity artifactEntityAnotherOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesAnotherOne);
-
-        RawArtifactCoordinates artifactCoordinatesAnotherTwo = new RawArtifactCoordinates();
-        artifactCoordinatesAnotherTwo.setId(String.format(pathTemplate, "20"));
-        Artifact artifactEntityAnotherTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesAnotherTwo);
+        ArtifactEntity artifactEntityAnotherOne = createArtifact(storageId, repositoryId, pathTemplate, "10");
+        ArtifactEntity artifactEntityAnotherTwo = createArtifact(storageId, repositoryId, pathTemplate, "20");
 
         ArtifactIdGroupEntity artifactIdGroupEntityAnother = new ArtifactIdGroupEntity(storageId, repositoryId,
                 "path/to/resource/aigrt-fosw-another");
@@ -193,8 +192,8 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupRepository.save(artifactIdGroupEntityAnother);
 
         Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findAllArtifactsInGroup(storageId,
-                                                                                              repositoryId,
-                                                                                              "path/to/resource/aigrt-fosw");
+                                                                                                              repositoryId,
+                                                                                                              "path/to/resource/aigrt-fosw");
         assertThat(artifactIdGroupOptional).isNotEmpty();
         assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
         assertThat(artifactIdGroupOptional.get().getStorageId()).isEqualTo(storageId);
@@ -219,8 +218,8 @@ public class ArtifactIdGroupRepositoryTest
                     .next()).isEqualTo(2);
 
         artifactIdGroupOptional = artifactIdGroupRepository.findAllArtifactsInGroup(storageId,
-                                                                    repositoryId,
-                                                                    "path/to/resource/aigrt-fosw");
+                                                                                    repositoryId,
+                                                                                    "path/to/resource/aigrt-fosw");
         assertThat(artifactIdGroupOptional).isNotEmpty();
         assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
         assertThat(artifactIdGroupOptional.get().getArtifacts()).isEmpty();
@@ -237,21 +236,15 @@ public class ArtifactIdGroupRepositoryTest
         String pathTemplate = "path/to/resource/aigrt-fasw-%s.jar";
 
         // First group
-        RawArtifactCoordinates artifactCoordinatesOne = new RawArtifactCoordinates();
-        artifactCoordinatesOne.setId(String.format(pathTemplate, "10"));
-        ArtifactEntity artifactEntityOne = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesOne);
-
-        RawArtifactCoordinates artifactCoordinatesTwo = new RawArtifactCoordinates();
-        artifactCoordinatesTwo.setId(String.format(pathTemplate, "20"));
-        Artifact artifactEntityTwo = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesTwo);
-
-        RawArtifactCoordinates artifactCoordinatesThree = new RawArtifactCoordinates();
-        artifactCoordinatesThree.setId(String.format(pathTemplate, "30"));
-        ArtifactEntity artifactEntityThree = new ArtifactEntity(storageId, repositoryId, artifactCoordinatesThree);
+        ArtifactEntity artifactEntityOne = createArtifact(storageId, repositoryId, pathTemplate, "10");
+        ArtifactEntity artifactEntityTwo = createArtifact(storageId, repositoryId, pathTemplate, "20");
+        ArtifactEntity artifactEntityThree = createArtifact(storageId, repositoryId, pathTemplate, "30");
 
         ArtifactIdGroupEntity artifactIdGroupEntity = new ArtifactIdGroupEntity(storageId, repositoryId,
                 "path/to/resource/aigrt-fasw");
-        assertThat(artifactIdGroupRepository.findAllArtifactsInGroup(storageId, repositoryId, "path/to/resource/aigrt-fasw")).isEmpty();
+        assertThat(artifactIdGroupRepository.findAllArtifactsInGroup(storageId,
+                                                                     repositoryId,
+                                                                     "path/to/resource/aigrt-fasw")).isEmpty();
 
         artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
