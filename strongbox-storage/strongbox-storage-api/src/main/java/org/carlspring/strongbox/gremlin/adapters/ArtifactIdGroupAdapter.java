@@ -44,13 +44,14 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     public EntityTraversal<Vertex, ArtifactIdGroup> fold(Optional<ArtifactTag> optionalTag)
     {
         EntityTraversal<Vertex, Vertex> artifactsTraversal = __.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                               .not(__.has(Properties.TAG_NAME))
                                                                .inV();
         if (optionalTag.isPresent())
         {
             ArtifactTag tag = optionalTag.get();
-            artifactsTraversal = artifactsTraversal.filter(__.outE(Edges.ARTIFACT_HAS_TAGS)
-                                                             .otherV()
-                                                             .has("uuid", tag.getName()));
+            artifactsTraversal = __.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                   .has(Properties.TAG_NAME, tag.getName())
+                                   .inV();
         }
 
         return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
