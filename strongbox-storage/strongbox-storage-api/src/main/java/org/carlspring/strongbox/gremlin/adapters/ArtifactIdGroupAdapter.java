@@ -43,16 +43,13 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
 
     public EntityTraversal<Vertex, ArtifactIdGroup> fold(Optional<ArtifactTag> optionalTag)
     {
-        EntityTraversal<Vertex, Vertex> artifactsTraversal = __.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                                               .not(__.has(Properties.TAG_NAME))
-                                                               .inV();
-        if (optionalTag.isPresent())
-        {
-            ArtifactTag tag = optionalTag.get();
-            artifactsTraversal = __.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                   .has(Properties.TAG_NAME, tag.getName())
-                                   .inV();
-        }
+        EntityTraversal<Vertex, Vertex> artifactsTraversal = optionalTag.map(ArtifactTag::getName)
+                                                                        .map(tagName -> __.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                                                          .has(Properties.TAG_NAME, tagName)
+                                                                                          .inV())
+                                                                        .orElse(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                                                  .not(__.has(Properties.TAG_NAME))
+                                                                                  .inV());
 
         return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
                  .by(__.id())
@@ -92,22 +89,16 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         EntityTraversal<Vertex, Vertex> connectArtifacstTraversal = __.identity();
         for (Artifact artifact : entity.getArtifacts())
         {
-            if (artifact.getNativeId() == null)
-            {
-                throw new IllegalArgumentException(
-                        String.format("There is no cascade operations on related [%s] entities, consider to persist [%s] first.",
-                                      Artifact.class.getSimpleName(),
-                                      artifact.getUuid()));
-            }
-            connectArtifacstTraversal = connectArtifacstTraversal.V(artifact);
+            connectArtifacstTraversal = connectArtifacstTraversal.V(artifact)
+                                                                 .saveV(artifact.getUuid(), artifactAdapter.unfold(artifact));
             connectArtifacstTraversal.optional(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).drop())
                                      .addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                     .from(storedArtifactIdGroup)
+                                     .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
                                      .inV();
             for (ArtifactTag artifactTag : artifact.getTagSet())
             {
                 connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                                                     .from(storedArtifactIdGroup)
+                                                                     .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
                                                                      .property(Properties.TAG_NAME, artifactTag.getName())
                                                                      .inV();
 
@@ -116,7 +107,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         }
 
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Vertex>map(unfoldArtifactGroup(entity))
-                                                            .as(storedArtifactIdGroup)
+                                                            .store(storedArtifactIdGroup)
                                                             .flatMap(connectArtifacstTraversal)
                                                             .fold()
                                                             .map(t -> t.get().iterator().next());

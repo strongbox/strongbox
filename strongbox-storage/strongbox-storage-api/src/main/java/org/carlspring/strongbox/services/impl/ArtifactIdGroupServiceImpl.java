@@ -92,16 +92,15 @@ public class ArtifactIdGroupServiceImpl
                                               ArtifactIdGroup artifactGroup)
     {
         ArtifactCoordinates lastVersion = null;
-        for (Artifact e : artifacts)
+        for (Artifact artifact : artifacts)
         {
-            if (artifactRepository.artifactEntityExists(e.getStorageId(),
-                                                  e.getRepositoryId(),
-                                                  e.getArtifactCoordinates().buildPath()))
+            if (artifactRepository.artifactEntityExists(artifact.getStorageId(),
+                                                        artifact.getRepositoryId(),
+                                                        artifact.getArtifactCoordinates().buildPath()))
             {
                 continue;
             }
-
-            lastVersion = addArtifactToGroup(artifactGroup, e);
+            lastVersion = addArtifactToGroup(artifactGroup, artifact);
         }
         return lastVersion;
     }
@@ -117,7 +116,7 @@ public class ArtifactIdGroupServiceImpl
 
         artifact.getTagSet().add(lastVersionTag);
         artifactGroup.addArtifact(artifact);
-
+        
         Artifact lastVersionArtifact = artifactGroup.getArtifacts()
                                                     .stream()
                                                     .filter(e -> e.getTagSet().contains(lastVersionTag))
@@ -136,30 +135,16 @@ public class ArtifactIdGroupServiceImpl
                                               .compareTo(a2.getArtifactCoordinates());
         if (artifactCoordinatesComparison > 0)
         {
-            removeLastVersionTag(a2, lastVersionTag);
-
+            a2.getTagSet().remove(lastVersionTag);
             return a1;
         }
         else if (artifactCoordinatesComparison < 0)
         {
-            removeLastVersionTag(a1, lastVersionTag);
-
+            a1.getTagSet().remove(lastVersionTag);
             return a2;
         }
 
         return a1;
-    }
-
-    private Artifact removeLastVersionTag(Artifact artifact,
-                                          ArtifactTag lastVersionTag)
-    {
-        artifact.getTagSet().remove(lastVersionTag);
-        if (artifact.getNativeId() != null)
-        {
-            artifactRepository.merge(artifact);
-        }
-
-        return artifact;
     }
 
     public ArtifactIdGroup findOneOrCreate(String storageId,
