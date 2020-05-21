@@ -183,6 +183,9 @@ public class ArtifactIdGroupRepositoryTest
         // Second group
         pathTemplate = "path/to/resource/aigrt-fosw-another-%s.jar";
         ArtifactEntity artifactEntityAnotherOne = createArtifact(storageId, repositoryId, pathTemplate, "10");
+        ArtifactTag latestVersionTag = artifactTagRepository.save(new ArtifactTagEntity(ArtifactTag.LAST_VERSION));
+        artifactEntityAnotherOne.getTagSet().add(latestVersionTag);
+        artifactRepository.save(artifactEntityAnotherOne);
         ArtifactEntity artifactEntityAnotherTwo = createArtifact(storageId, repositoryId, pathTemplate, "20");
 
         ArtifactIdGroupEntity artifactIdGroupEntityAnother = new ArtifactIdGroupEntity(storageId, repositoryId,
@@ -208,6 +211,7 @@ public class ArtifactIdGroupRepositoryTest
         artifactEntityTwo.setNativeId(null);
         artifactRepository.delete(artifactEntityThree);
         artifactEntityThree.setNativeId(null);
+
         artifactIdGroupEntity = artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())
                                                          .map(ArtifactIdGroupEntity.class::cast)
                                                          .get();
@@ -215,7 +219,7 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                     .count()
-                    .next()).isEqualTo(2);
+                    .next()).isEqualTo(3);
 
         artifactIdGroupOptional = artifactIdGroupRepository.findAllArtifactsInGroup(storageId,
                                                                                     repositoryId,
@@ -224,6 +228,16 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
         assertThat(artifactIdGroupOptional.get().getArtifacts()).isEmpty();
 
+        // Search by tag
+        artifactIdGroupOptional = artifactIdGroupRepository.findArtifactsGroupWithTag(storageId,
+                                                                                    repositoryId,
+                                                                                    "path/to/resource/aigrt-fosw-another",
+                                                                                    Optional.of(latestVersionTag));
+        assertThat(artifactIdGroupOptional).isNotEmpty();
+        assertThat(artifactIdGroupOptional.get().getUuid()).isNotNull();
+        assertThat(artifactIdGroupOptional.get().getStorageId()).isEqualTo(storageId);
+        assertThat(artifactIdGroupOptional.get().getRepositoryId()).isEqualTo(repositoryId);
+        assertThat(artifactIdGroupOptional.get().getArtifacts()).containsOnly(artifactEntityAnotherOne);
     }
 
     @Test
@@ -235,7 +249,6 @@ public class ArtifactIdGroupRepositoryTest
         String repositoryId = "repository-aigrt-fasw";
         String pathTemplate = "path/to/resource/aigrt-fasw-%s.jar";
 
-        // First group
         ArtifactEntity artifactEntityOne = createArtifact(storageId, repositoryId, pathTemplate, "10");
         ArtifactEntity artifactEntityTwo = createArtifact(storageId, repositoryId, pathTemplate, "20");
         ArtifactEntity artifactEntityThree = createArtifact(storageId, repositoryId, pathTemplate, "30");
