@@ -1,14 +1,5 @@
 package org.carlspring.strongbox.repositories;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
@@ -16,6 +7,15 @@ import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +30,10 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
 
     @Inject
     ArtifactAdapter artifactAdapter;
+
     @Inject
     ArtifactEntityQueries queries;
+
 
     @Override
     protected ArtifactAdapter adapter()
@@ -51,8 +53,9 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                        Pageable pagination)
     {
         LocalDateTime date = Optional.ofNullable(lastAccessedTimeInDays)
-                                     .map(v -> LocalDateTime.now().minusDays(lastAccessedTimeInDays))
+                                     .map(v -> LocalDateTimeInstance.now().minusDays(lastAccessedTimeInDays))
                                      .orElse(null);
+
         return findMatching(date, minSizeInBytes, pagination);
     }
 
@@ -85,6 +88,7 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                                .has("storageId", storageId)
                                                .has("repositoryId", repositoryId)
                                                .has("artifactFileExists", true);
+
         return t.hasNext();
     }
 

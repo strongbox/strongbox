@@ -6,14 +6,13 @@ import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.api.ldap.LdapAuthenticationConfigurationManager;
 import org.carlspring.strongbox.authentication.api.ldap.LdapConfiguration;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
+import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
-import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,13 +20,13 @@ import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 
@@ -47,6 +46,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Inject
     private LdapAuthenticationConfigurationManager ldapAuthenticationConfigurationManager;
+
 
     @Override
     @BeforeEach
@@ -103,9 +103,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void shouldUpdateFullLdapConfiguration()
-        throws IOException
     {
-
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
 
         configuration.getUserSearch().setUserSearchBase("ou=People");
@@ -199,6 +197,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("errors[0]['messages'][0]", equalTo("must be a valid URI"));
     }
 
+    @Disabled
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldFailWithInvalidConfiguration()
@@ -435,6 +434,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setConfiguration(configuration);
         form.getConfiguration().setManagerDn("uid=admin,ou=system");
         form.getConfiguration().setManagerPassword("secret");
+
         return form;
     }
 
@@ -447,7 +447,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceIdLacct() {
+        public HazelcastInstanceId hazelcastInstanceIdLacct()
+        {
             return new HazelcastInstanceId("LdapAuthenticatorConfigurationControllerTest-hazelcast-instance");
         }
 

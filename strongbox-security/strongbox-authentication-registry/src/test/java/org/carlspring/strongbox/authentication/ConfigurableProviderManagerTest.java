@@ -1,16 +1,5 @@
 package org.carlspring.strongbox.authentication;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import javax.inject.Inject;
-
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
 import org.carlspring.strongbox.domain.User;
@@ -23,20 +12,25 @@ import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetails;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
+import javax.inject.Inject;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @ActiveProfiles({ "test", "ConfigurableProviderManagerTestConfig" })
@@ -53,9 +47,6 @@ public class ConfigurableProviderManagerTest
     private static final String TEST_DUPLICATE_USER = "test-duplicate";
 
     private static final String TEST_CONCURRENT_USER = "test-concurrent";
-
-    @Value("${users.external.cache.seconds}")
-    private int externalUsersInvalidateSeconds;
 
     @Inject
     @Database
@@ -84,16 +75,18 @@ public class ConfigurableProviderManagerTest
     @Test
     public void testExternalUserShouldBeReplacedWhenExpired()
     {
-        // Given: сached external user
+        // Given: cached external user
         UserDto user = new UserDto();
         user.setUsername(TEST_DUPLICATE_USER);
         user.setPassword("foobarpasswrod");
         user.setSourceId("someExternalUserSourceId");
-        user.setLastUpdate(LocalDateTime.now());
+        user.setLastUpdate(LocalDateTimeInstance.now());
+
         strongboxUserManager.cacheExternalUserDetails("someExternalUserSourceId", new StrongboxUserDetails(user));
         
         // Check that external user cached
         UserDetails userDetails = userDetailsService.loadUserByUsername(TEST_DUPLICATE_USER);
+
         assertThat(userDetails).isNotNull();
         assertThat(userDetails).isInstanceOf(SpringSecurityUser.class);
         assertThat(((SpringSecurityUser)userDetails).getSourceId()).isEqualTo("someExternalUserSourceId");
@@ -103,6 +96,7 @@ public class ConfigurableProviderManagerTest
 
         // Expired user should be replaced with user from yaml
         userDetails = userDetailsService.loadUserByUsername(TEST_DUPLICATE_USER);
+
         assertThat(userDetails).isNotNull();
         assertThat(userDetails.getUsername()).isEqualTo(TEST_DUPLICATE_USER);
         assertThat(userDetails).isInstanceOf(SpringSecurityUser.class);
@@ -193,4 +187,5 @@ public class ConfigurableProviderManagerTest
         }
 
     }
+
 }

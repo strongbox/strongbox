@@ -28,6 +28,8 @@ import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,13 +46,12 @@ import org.springframework.stereotype.Component;
 public class DatabaseUserService implements UserService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseUserService.class);
-
     @Inject
     private SecurityTokenProvider tokenProvider;
     
     @Inject
     protected UserRepository userRepository;
+
 
     @Override
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0")
@@ -117,7 +118,7 @@ public class DatabaseUserService implements UserService
     {
         List<User> resultList = userRepository.findUsersWithRole(roleToRevoke);
 
-        resultList.stream().forEach(user -> {
+        resultList.forEach(user -> {
             user.getRoles().remove(roleToRevoke);
             save(user);
         });
@@ -127,6 +128,8 @@ public class DatabaseUserService implements UserService
     @CacheEvict(cacheNames = CacheName.User.AUTHENTICATIONS, key = "#p0.username")
     public User save(User user)
     {
+        LocalDateTime now = LocalDateTimeInstance.now();
+
         UserEntity userEntity = Optional.ofNullable(findByUsername(user.getUsername())).orElseGet(() -> new UserEntity(user.getUsername()));
 
         if (!StringUtils.isBlank(user.getPassword()))
@@ -136,7 +139,7 @@ public class DatabaseUserService implements UserService
         userEntity.setEnabled(user.isEnabled());
         userEntity.setRoles(user.getRoles());
         userEntity.setSecurityTokenKey(user.getSecurityTokenKey());
-        userEntity.setLastUpdated(LocalDateTime.now());
+        userEntity.setLastUpdated(now);
 
         if (StringUtils.isNotBlank(user.getSourceId()) || StringUtils.isNotBlank(userEntity.getSourceId()))
         {
@@ -150,10 +153,12 @@ public class DatabaseUserService implements UserService
     {
         UserEntity externalUserEntry = findByUsername(username);
         externalUserEntry.setLastUpdated(LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault()));
+
         if (clearSourceId)
         {
             externalUserEntry.setSourceId("empty");
         }
+
         userRepository.save(externalUserEntry);
     }
 

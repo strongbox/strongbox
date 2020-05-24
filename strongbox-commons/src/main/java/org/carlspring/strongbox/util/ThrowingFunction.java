@@ -10,7 +10,7 @@ public interface ThrowingFunction<T, R, E extends Throwable>
 {
     R apply(T t) throws E;
 
-    static <T, R, E extends Throwable> Function<T, R> unchecked(ThrowingFunction<T, R, E> function)
+    static <T, R, E> Function<T, R> unchecked(ThrowingFunction<T, R, Throwable> function)
     {
         return t ->
         {

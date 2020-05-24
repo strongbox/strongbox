@@ -1,29 +1,23 @@
 package org.carlspring.strongbox.repository;
 
+import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.domain.ArtifactEntity;
+import org.carlspring.strongbox.domain.ArtifactTagEntity;
+import org.carlspring.strongbox.npm.metadata.*;
+import org.carlspring.strongbox.services.ArtifactIdGroupService;
+import org.carlspring.strongbox.services.ArtifactTagService;
+import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.inject.Inject;
-
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
-import org.carlspring.strongbox.domain.Artifact;
-import org.carlspring.strongbox.domain.ArtifactEntity;
-import org.carlspring.strongbox.domain.ArtifactTagEntity;
-import org.carlspring.strongbox.npm.metadata.PackageEntry;
-import org.carlspring.strongbox.npm.metadata.PackageFeed;
-import org.carlspring.strongbox.npm.metadata.PackageVersion;
-import org.carlspring.strongbox.npm.metadata.SearchResult;
-import org.carlspring.strongbox.npm.metadata.SearchResults;
-import org.carlspring.strongbox.npm.metadata.Versions;
-import org.carlspring.strongbox.services.ArtifactIdGroupService;
-import org.carlspring.strongbox.services.ArtifactTagService;
-import org.carlspring.strongbox.storage.repository.Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,18 +25,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class NpmPackageFeedParser
 {
 
-    static final Logger logger = LoggerFactory.getLogger(NpmPackageFeedParser.class);
-
     @Inject
     private ArtifactTagService artifactTagService;
 
     @Inject
     private ArtifactIdGroupService repositoryArtifactIdGroupService;
 
+
     @Transactional
     public void parseSearchResult(Repository repository,
                                   SearchResults searchResults)
-        throws IOException
     {
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
 
@@ -71,7 +63,6 @@ public class NpmPackageFeedParser
     @Transactional
     public void parseFeed(Repository repository,
                           PackageFeed packageFeed)
-        throws IOException
     {
         if (packageFeed == null)
         {
@@ -121,12 +112,14 @@ public class NpmPackageFeedParser
     {
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageVersion.getName(), packageVersion.getVersion());
 
+        LocalDateTime now = LocalDateTimeInstance.now();
+
         ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
-        remoteArtifactEntry.setLastUsed(LocalDateTime.now());
-        remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
+        remoteArtifactEntry.setLastUsed(now);
+        remoteArtifactEntry.setLastUpdated(now);
         remoteArtifactEntry.setDownloadCount(0);
         remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 
@@ -143,14 +136,17 @@ public class NpmPackageFeedParser
         String scope = packageEntry.getScope();
         String packageId = NpmArtifactCoordinates.calculatePackageId("unscoped".equals(scope) ? null : scope,
                                                                      packageEntry.getName());
+
         NpmArtifactCoordinates c = NpmArtifactCoordinates.of(packageId, packageEntry.getVersion());
+
+        LocalDateTime now = LocalDateTimeInstance.now();
 
         ArtifactEntity remoteArtifactEntry = new ArtifactEntity(storageId, repositoryId, c);
         remoteArtifactEntry.setStorageId(storageId);
         remoteArtifactEntry.setRepositoryId(repositoryId);
         remoteArtifactEntry.setArtifactCoordinates(c);
-        remoteArtifactEntry.setLastUsed(LocalDateTime.now());
-        remoteArtifactEntry.setLastUpdated(LocalDateTime.now());
+        remoteArtifactEntry.setLastUsed(now);
+        remoteArtifactEntry.setLastUpdated(now);
         remoteArtifactEntry.setDownloadCount(0);
         remoteArtifactEntry.setArtifactFileExists(Boolean.FALSE);
 

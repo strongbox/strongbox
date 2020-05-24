@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-issues-1775-SNAPSHOT</version>
+        <version>1.0-issues-1775-jdk11-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-cron-tasks</artifactId>
-    <version>1.0-issues-1775-SNAPSHOT</version>
+    <version>1.0-issues-1775-jdk11-SNAPSHOT</version>
     
     <name>Strongbox: Cron [Tasks]</name>
 
@@ -159,12 +159,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-protocol-ldap</artifactId>
+            <groupId>com.unboundid</groupId>
+            <artifactId>unboundid-ldapsdk</artifactId>
+            <version>5.0.1</version>
+            <scope>test</scope>
         </dependency>
         
     </dependencies>

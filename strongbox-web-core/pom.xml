@@ -8,12 +8,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-issues-1775-SNAPSHOT</version>
+        <version>1.0-issues-1775-jdk11-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-web-core</artifactId>
-    <version>1.0-issues-1775-SNAPSHOT</version>
+    <version>1.0-issues-1775-jdk11-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Web Core</name>
@@ -466,12 +466,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-protocol-ldap</artifactId>
+            <groupId>com.unboundid</groupId>
+            <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
 
         <dependency>
