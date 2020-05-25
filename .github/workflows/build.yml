@@ -7,20 +7,7 @@ on:
     branches:
       - issues-1775-jdk11
 jobs:
-  build:
-    runs-on: ${{ matrix.operating-system }}
-    strategy:
-      matrix:
-        operating-system: [ubuntu-latest]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Install Maven settings.xml
-        uses: wei/curl@master
-        with:
-         args: -o settings.xml https://strongbox.github.io/assets/resources/maven/settings.xml
-
-  test:
+  build-and-test:
     runs-on: ${{ matrix.operating-system }}
     strategy:
       matrix:
@@ -29,9 +16,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install Maven settings.xml
+        uses: wei/curl@master
+        with:
+         args: -o settings.xml https://strongbox.github.io/assets/resources/maven/settings.xml
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
-      - name: Build and test with Maven
+      - name: Build and run unit and integration tests with Maven
         run: mvn clean install -Dintegration.tests -s settings.xml
