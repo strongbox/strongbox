@@ -1,5 +1,11 @@
 name: Build and run unit + integration tests with JDK11
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - issues-1775-jdk11
+  pull_request:
+    branches:
+      - issues-1775-jdk11
 jobs:
   build:
     runs-on: ${{ matrix.operating-system }}
