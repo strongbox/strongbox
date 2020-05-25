@@ -18,7 +18,7 @@ jobs:
       - name: Install Maven settings.xml
         uses: wei/curl@master
         with:
-         args: https://strongbox.github.io/assets/resources/maven/settings.xml
+         args: -o settings.xml https://strongbox.github.io/assets/resources/maven/settings.xml
 
   test:
     runs-on: ${{ matrix.operating-system }}
