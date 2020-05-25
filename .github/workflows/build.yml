@@ -15,6 +15,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install Maven settings.xml
+        uses: wei/curl@master
+        with:
+         args: https://strongbox.github.io/assets/resources/maven/settings.xml
 
   test:
     runs-on: ${{ matrix.operating-system }}
@@ -30,4 +34,4 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Build and test with Maven
-        run: mvn clean install -Dintegration.tests
+        run: mvn clean install -Dintegration.tests -s settings.xml
