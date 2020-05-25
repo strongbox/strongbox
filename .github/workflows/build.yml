@@ -19,10 +19,16 @@ jobs:
       - name: Install Maven settings.xml
         uses: wei/curl@master
         with:
-         args: -o settings.xml https://strongbox.github.io/assets/resources/maven/settings.xml
+          args: -o settings.xml https://strongbox.github.io/assets/resources/maven/settings.xml
       - name: Setup Java ${{ matrix.java }}
         uses: actions/setup-java@v1
         with:
           java-version: ${{ matrix.java }}
+      - uses: actions/cache@v1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
       - name: Build and run unit and integration tests with Maven
         run: mvn clean install -Dintegration.tests -s settings.xml
