@@ -92,7 +92,11 @@ started with our project:
 
 We'd also like to thank our sponsors for generously providing us with licenses for our opensource initiative!
 
-[![][yourkit-logo]]([yourkit-link])
+[![][jprofiler-logo]][jprofiler-link]
+
+[JProfiler][jprofiler-link] generously supports Strongbox with its full-featured Java Profiler that provides ways to investigate bottlenecks, memory leaks, CPU loads, threading and performance issues.
+
+[![][yourkit-logo]][yourkit-link]
 
 [YourKit][yourkit-link] supports open source projects with innovative and intelligent tools for monitoring and profiling Java and .NET applications. YourKit is the creator of [YourKit Java Profiler][yourkit-java-profiler-link], [YourKit .NET Profiler][yourkit-dotnet-profiler-link] and [YourKit YouMonitor][yourkit-monitor-link].
 
@@ -141,6 +145,9 @@ We'd also like to thank our sponsors for generously providing us with licenses f
 [release-deb]: https://github.com/strongbox/strongbox/releases/download/1.0-SNAPSHOT/strongbox-distribution-1.0-SNAPSHOT.deb
 
 [<--# Sponsors -->]: #
+[jprofiler-logo]: https://www.ej-technologies.com/images/product_banners/jprofiler_large.png
+[jprofiler-link]: https://www.ej-technologies.com/products/jprofiler/overview.html
+
 [yourkit-logo]: https://www.yourkit.com/images/yklogo.png
 [yourkit-link]: https://www.yourkit.com
 [yourkit-java-profiler-link]: https://www.yourkit.com/java/profiler
