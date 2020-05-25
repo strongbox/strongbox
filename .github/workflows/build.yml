@@ -1,0 +1,27 @@
+name: Build and run unit + integration tests with JDK11
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+  test:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest]
+        java: [ 11.0.3 ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Java ${{ matrix.java }}
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Build and test with Maven
+        run: mvn clean install -Dintegration.tests
