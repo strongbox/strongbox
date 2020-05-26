@@ -23,7 +23,6 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
@@ -104,7 +103,6 @@ public class NpmArtifactControllerTestIT
         resolveArtifact(artifactPath);
     }
 
-    @Disabled // We'll have to investigate the cause for this
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testViewArtifactViaProxy(@Remote(url = REMOTE_URL)
@@ -133,7 +131,6 @@ public class NpmArtifactControllerTestIT
         assertThat(artifactEntry.getArtifactFileExists()).isFalse();
     }
 
-    @Disabled // We'll have to investigate the cause for this
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testSearchArtifactViaProxy(@Remote(url = REMOTE_URL)
