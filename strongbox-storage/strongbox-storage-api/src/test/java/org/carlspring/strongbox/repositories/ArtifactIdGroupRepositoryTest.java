@@ -98,7 +98,7 @@ public class ArtifactIdGroupRepositoryTest
         // ArtifactTag relation
         ArtifactTag latestVersionTag = artifactTagRepository.save(new ArtifactTagEntity(ArtifactTag.LAST_VERSION));
         artifactEntityOne.getTagSet().add(latestVersionTag);
-        artifactRepository.save(artifactEntityOne);
+        //artifactRepository.save(artifactEntityOne);
 
         artifactIdGroupEntity.addArtifact(artifactEntityOne);
         artifactIdGroupEntity = artifactIdGroupRepository.save(artifactIdGroupEntity);
@@ -112,7 +112,7 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                     .sideEffect(t -> System.out.println(t.get().property(Properties.TAG_NAME).orElse("no-tag")))
-                    .toList()).hasSize(3);
+                    .toList()).hasSize(2);
 
         artifactRepository.delete(artifactEntityOne);
         artifactEntityOne.setNativeId(null);
@@ -184,7 +184,6 @@ public class ArtifactIdGroupRepositoryTest
         ArtifactEntity artifactEntityAnotherOne = createArtifact(storageId, repositoryId, pathTemplate, "10");
         ArtifactTag latestVersionTag = artifactTagRepository.save(new ArtifactTagEntity(ArtifactTag.LAST_VERSION));
         artifactEntityAnotherOne.getTagSet().add(latestVersionTag);
-        artifactRepository.save(artifactEntityAnotherOne);
         ArtifactEntity artifactEntityAnotherTwo = createArtifact(storageId, repositoryId, pathTemplate, "20");
 
         ArtifactIdGroupEntity artifactIdGroupEntityAnother = new ArtifactIdGroupEntity(storageId, repositoryId,
@@ -193,6 +192,7 @@ public class ArtifactIdGroupRepositoryTest
         artifactIdGroupEntityAnother.addArtifact(artifactEntityAnotherTwo);
         artifactIdGroupRepository.save(artifactIdGroupEntityAnother);
 
+        //Should find first group with all artifacts
         Optional<ArtifactIdGroup> artifactIdGroupOptional = artifactIdGroupRepository.findAllArtifactsInGroup(storageId,
                                                                                                               repositoryId,
                                                                                                               "path/to/resource/aigrt-fosw");

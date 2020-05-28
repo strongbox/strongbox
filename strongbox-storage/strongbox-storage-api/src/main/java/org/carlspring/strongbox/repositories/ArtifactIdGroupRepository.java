@@ -124,7 +124,7 @@ interface ArtifactIdGroupQueries
     @Query(value = "MATCH (aig:`ArtifactIdGroup`) " +
                    "WHERE aig.storageId=$storageId and aig.repositoryId=$repositoryId " +
                    "WITH aig " +
-                   "OPTIONAL MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
+                   "OPTIONAL MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
                    "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates " +
                    "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
                    "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
@@ -141,7 +141,7 @@ interface ArtifactIdGroupQueries
                  "MATCH (aig:`ArtifactIdGroup`) " +
                  "WHERE aig.storageId=storageRepositoryId[0] and aig.repositoryId=storageRepositoryId[1] and aig.name CONTAINS $artifactId " +
                  "WITH aig " +
-                 "MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
+                 "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
                  "UNWIND keys(genericCoordinates) AS coordinate " +
                  "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
                  "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
@@ -155,7 +155,7 @@ interface ArtifactIdGroupQueries
            "MATCH (aig:`ArtifactIdGroup`) " +
            "WHERE aig.storageId=storageRepositoryId[0] and aig.repositoryId=storageRepositoryId[1] and aig.name CONTAINS $artifactId " +
            "WITH aig " +
-           "MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
+           "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
            "UNWIND keys(genericCoordinates) AS coordinate " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
            "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
@@ -169,7 +169,7 @@ interface ArtifactIdGroupQueries
            "MATCH (aig:`ArtifactIdGroup`) " +
            "WHERE aig.storageId=storageRepositoryId[0] and aig.repositoryId=storageRepositoryId[1] and aig.name CONTAINS $artifactId " +
            "WITH aig " +
-           "MATCH (aig)-[r0]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
+           "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
            "UNWIND keys(genericCoordinates) AS coordinate " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
            "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +

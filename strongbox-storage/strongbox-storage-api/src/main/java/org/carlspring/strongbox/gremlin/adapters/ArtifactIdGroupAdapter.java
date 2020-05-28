@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
-
+import org.apache.cassandra.thrift.Cassandra.AsyncProcessor.system_add_column_family;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -44,11 +44,10 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     public EntityTraversal<Vertex, ArtifactIdGroup> fold(Optional<ArtifactTag> optionalTag)
     {
         EntityTraversal<Vertex, Vertex> artifactsTraversal = optionalTag.map(ArtifactTag::getName)
-                                                                        .map(tagName -> __.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                                        .map(tagName -> __.outE(Edges.ARTIFACT_GROUP_HAS_TAGGED_ARTIFACTS)
                                                                                           .has(Properties.TAG_NAME, tagName)
                                                                                           .inV())
                                                                         .orElse(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                                                                  .not(__.has(Properties.TAG_NAME))
                                                                                   .inV());
 
         return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
@@ -90,32 +89,32 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         for (Artifact artifact : entity.getArtifacts())
         {
             connectArtifacstTraversal = connectArtifacstTraversal.V(artifact)
-                                                                 .saveV(artifact.getUuid(), 
+                                                                 .saveV(artifact.getUuid(),
                                                                         artifactAdapter.unfold(artifact));
             if (artifact.getNativeId() == null)
             {
-                connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                         .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
-                                         .inV();
+                connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                                                     .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
+                                                                     .inV();
 
             }
-            connectArtifacstTraversal.sideEffect(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).has(Properties.TAG_NAME).drop());
+            connectArtifacstTraversal = connectArtifacstTraversal.sideEffect(__.inE(Edges.ARTIFACT_GROUP_HAS_TAGGED_ARTIFACTS).drop());
             for (ArtifactTag artifactTag : artifact.getTagSet())
             {
-                connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_TAGGED_ARTIFACTS)
                                                                      .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
                                                                      .property(Properties.TAG_NAME, artifactTag.getName())
                                                                      .inV();
 
             }
-            connectArtifacstTraversal.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).outV();
+            connectArtifacstTraversal = connectArtifacstTraversal.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).outV();
         }
 
+        
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Vertex>map(unfoldArtifactGroup(entity))
                                                             .store(storedArtifactIdGroup)
                                                             .flatMap(connectArtifacstTraversal)
-                                                            .fold()
-                                                            .map(t -> t.get().iterator().next());
+                                                            .fold().map(t -> t.get().iterator().next());
 
         return new UnfoldEntityTraversal<>(Vertices.ARTIFACT_ID_GROUP, entity, unfoldTraversal);
     }
