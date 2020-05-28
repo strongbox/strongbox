@@ -90,11 +90,16 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         for (Artifact artifact : entity.getArtifacts())
         {
             connectArtifacstTraversal = connectArtifacstTraversal.V(artifact)
-                                                                 .saveV(artifact.getUuid(), artifactAdapter.unfold(artifact));
-            connectArtifacstTraversal.optional(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).drop())
-                                     .addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                     .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
-                                     .inV();
+                                                                 .saveV(artifact.getUuid(), 
+                                                                        artifactAdapter.unfold(artifact));
+            if (artifact.getNativeId() == null)
+            {
+                connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                         .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
+                                         .inV();
+
+            }
+            connectArtifacstTraversal.sideEffect(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS).has(Properties.TAG_NAME).drop());
             for (ArtifactTag artifactTag : artifact.getTagSet())
             {
                 connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)

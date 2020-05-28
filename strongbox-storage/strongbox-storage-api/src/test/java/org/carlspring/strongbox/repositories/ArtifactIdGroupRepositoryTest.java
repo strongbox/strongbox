@@ -149,7 +149,6 @@ public class ArtifactIdGroupRepositoryTest
         RawArtifactCoordinates artifactCoordinates = new RawArtifactCoordinates();
         artifactCoordinates.setId(String.format(pathTemplate, version));
         ArtifactEntity artifactEntity = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
-        artifactRepository.save(artifactEntity);
 
         return artifactEntity;
     }
@@ -219,7 +218,7 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                     .count()
-                    .next()).isEqualTo(3);
+                    .next()).isEqualTo(2);
 
         artifactIdGroupOptional = artifactIdGroupRepository.findAllArtifactsInGroup(storageId,
                                                                                     repositoryId,
