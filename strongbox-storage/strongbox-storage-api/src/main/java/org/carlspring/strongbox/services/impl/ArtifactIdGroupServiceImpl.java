@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import com.google.common.collect.Iterables;
+
 /**
  * @author Przemyslaw Fusik
  * @author sbespalov
@@ -65,41 +67,39 @@ public class ArtifactIdGroupServiceImpl
         {
             List<Artifact> artifacts = artifactIdGroupEntry.getValue();
             String artifactGroupId = artifactIdGroupEntry.getKey();
-            Lock lock = repositoryPathLock.lock(artifactGroupId).writeLock();
-            lock.lock();
-            ArtifactIdGroup artifactGroup = findOneOrCreate(repository.getStorage().getId(),
-                                                            repository.getId(),
-                                                            artifactGroupId,
-                                                            Optional.empty());
-            try
+            ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
+            for (List<Artifact> artifacstBatch : Iterables.partition(artifacts, 50))
             {
-                ArtifactCoordinates lastVersion = saveArtifacts(artifacts, artifactGroup);
-                logger.debug("Last version for group [{}] is [{}] with [{}]",
-                             artifactGroup.getName(),
-                             lastVersion.getVersion(),
-                             lastVersion.getPath());
+                Lock lock = repositoryPathLock.lock(artifactGroupId).writeLock();
+                lock.lock();
+                try
+                {
+                    ArtifactIdGroup artifactGroup = findOneOrCreate(repository.getStorage().getId(),
+                                                                    repository.getId(),
+                                                                    artifactGroupId,
+                                                                    Optional.of(lastVersionTag));
+                    ArtifactCoordinates lastVersion = addArtifactsToGroup(artifacstBatch, artifactGroup);
+                    logger.debug("Last version for group [{}] is [{}] with [{}]",
+                                 artifactGroup.getName(),
+                                 lastVersion.getVersion(),
+                                 lastVersion.getPath());
 
-                artifactIdGroupRepository.merge(artifactGroup);
-            }
-            finally
-            {
-                lock.unlock();
+                    artifactIdGroupRepository.merge(artifactGroup);
+                }
+                finally
+                {
+                    lock.unlock();
+                }
             }
         }
     }
 
-    private ArtifactCoordinates saveArtifacts(List<Artifact> artifacts,
-                                              ArtifactIdGroup artifactGroup)
+    private ArtifactCoordinates addArtifactsToGroup(List<Artifact> artifacts,
+                                                    ArtifactIdGroup artifactGroup)
     {
         ArtifactCoordinates lastVersion = null;
         for (Artifact artifact : artifacts)
         {
-            if (artifactRepository.artifactEntityExists(artifact.getStorageId(),
-                                                        artifact.getRepositoryId(),
-                                                        artifact.getArtifactCoordinates().buildPath()))
-            {
-                continue;
-            }
             lastVersion = addArtifactToGroup(artifactGroup, artifact);
         }
         return lastVersion;
