@@ -324,7 +324,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
               "/storages/{storageId}/{repositoryId}/Search()/$count?searchTerm={searchTerm}&targetFramework=";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(url, storageId, repositoryId, "Test.Search")
+               .get(url, storageId, repositoryId, "Org.Carlspring.Strongbox.Nuget.Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
@@ -341,7 +341,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
               "/storages/{storageId}/{repositoryId}/Search()?$skip={skip}&$top={stop}&searchTerm={searchTerm}&targetFramework=";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
-               .get(url, storageId, repositoryId, 0, 30, "Test.Search")
+               .get(url, storageId, repositoryId, 0, 30, "Org.Carlspring.Strongbox.Nuget.Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
