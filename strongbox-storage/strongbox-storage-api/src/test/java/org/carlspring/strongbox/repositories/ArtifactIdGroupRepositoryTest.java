@@ -266,7 +266,7 @@ public class ArtifactIdGroupRepositoryTest
 
         List<Artifact> artifacts = artifactIdGroupRepository.findArtifacts(storageId,
                                                                            repositoryId,
-                                                                           "aigrt-fasw",
+                                                                           "path/to/resource/aigrt-fasw",
                                                                            Collections.singletonList(String.format(pathTemplate,
                                                                                                                    "10")),
                                                                            0L,
