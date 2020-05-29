@@ -172,14 +172,14 @@ interface ArtifactIdGroupQueries
                                        Pageable page);
 
     //TODO: `OPTIONAL` is workaround for https://github.com/opencypher/cypher-for-gremlin/issues/342 
-    @ExistsQuery("OPTIONAL MATCH (aig:`ArtifactIdGroup`) " +
-                 "WHERE aig.uuid IN $artifactIdGroupIds " +
-                 "WITH aig " +
-                 "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
-                 "UNWIND keys(genericCoordinates) AS coordinate " +
-                 "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
-                 "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
-                 "RETURN exists(artifact.uuid)")
+    @Query("OPTIONAL MATCH (aig:`ArtifactIdGroup`) " +
+           "WHERE aig.uuid IN $artifactIdGroupIds " +
+           "WITH aig " +
+           "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
+           "UNWIND keys(genericCoordinates) AS coordinate " +
+           "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
+           "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
+           "RETURN exists(artifact.uuid)")
     Boolean artifactsExists(@Param("artifactIdGroupIds") Set<String> artifactIdGroupIds,
                             @Param("coordinateValues") Collection<String> coordinateValues);
 
