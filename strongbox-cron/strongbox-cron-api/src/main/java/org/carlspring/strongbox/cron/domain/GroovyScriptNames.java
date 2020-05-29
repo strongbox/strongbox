@@ -5,7 +5,8 @@ import javax.xml.bind.annotation.XmlElement;
 import java.util.Collections;
 import java.util.List;
 
-import jersey.repackaged.com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList;
+
 
 /**
  * @author Przemyslaw Fusik

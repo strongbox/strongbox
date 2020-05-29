@@ -3,7 +3,6 @@ package org.carlspring.strongbox.ext.jersey;
 import javax.ws.rs.core.Application;
 
 import org.glassfish.jersey.internal.AbstractRuntimeDelegate;
-import org.glassfish.jersey.internal.inject.Injections;
 import org.glassfish.jersey.server.ContainerFactory;
 
 /**
@@ -16,13 +15,14 @@ public class CustomJerseyRuntimeDelegateImpl
 
     public CustomJerseyRuntimeDelegateImpl()
     {
-        super(Injections.createLocator("jersey-server-rd-locator", new CustomJerseyHeaderDelegateProviders()));
+        super(new CustomJerseyHeaderDelegateProviders().getProviders());
     }
 
     @Override
     public <T> T createEndpoint(Application application,
                                 Class<T> endpointType)
-            throws IllegalArgumentException, UnsupportedOperationException
+            throws IllegalArgumentException,
+            UnsupportedOperationException
     {
         if (application == null)
         {
