@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -28,7 +29,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Transactional
 public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactIdGroup>
-        implements ArtifactIdGroupQueries
 {
 
     @Inject
@@ -78,15 +78,30 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
                                    String artifactId,
                                    Collection<String> coordinateValues)
     {
-        return queries.artifactsExists(storageRepositoryIds, artifactId, coordinateValues);
+        Set<String> artifactIdGroupIds = storageRepositoryIds.stream()
+                                                             .map(storageRepositoryId -> storageRepositoryId.split(":"))
+                                                             .map(storageRepositoryId -> new ArtifactIdGroupEntity(
+                                                                     storageRepositoryId[0],
+                                                                     storageRepositoryId[1], artifactId))
+                                                             .map(ArtifactIdGroup::getUuid)
+                                                             .collect(Collectors.toSet());
+
+        return queries.artifactsExists(artifactIdGroupIds, coordinateValues);
     }
 
-    @Override
     public Long countArtifacts(Set<String> storageRepositoryIds,
                                String artifactId,
                                Collection<String> coordinateValues)
     {
-        return queries.countArtifacts(storageRepositoryIds, artifactId, coordinateValues);
+        Set<String> artifactIdGroupIds = storageRepositoryIds.stream()
+                                                             .map(storageRepositoryId -> storageRepositoryId.split(":"))
+                                                             .map(storageRepositoryId -> new ArtifactIdGroupEntity(
+                                                                     storageRepositoryId[0],
+                                                                     storageRepositoryId[1], artifactId))
+                                                             .map(ArtifactIdGroup::getUuid)
+                                                             .collect(Collectors.toSet());
+
+        return queries.countArtifacts(artifactIdGroupIds, coordinateValues);
     }
 
     public Long countArtifacts(String storageId,
@@ -94,7 +109,12 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
                                String artifactId,
                                Collection<String> coordinateValues)
     {
-        return queries.countArtifacts(Collections.singleton(storageId + ":" + repositoryId), artifactId, coordinateValues);
+
+        return queries.countArtifacts(Collections.singleton(new ArtifactIdGroupEntity(storageId, repositoryId, artifactId))
+                                                 .stream()
+                                                 .map(ArtifactIdGroup::getUuid)
+                                                 .collect(Collectors.toSet()),
+                                      coordinateValues);
     }
 
     public List<Artifact> findArtifacts(Set<String> storageRepositoryIds,
@@ -103,9 +123,17 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
                                         Long skip,
                                         Integer limit)
     {
-        return queries.findArtifacts(storageRepositoryIds, artifactId, coordinateValues, skip, limit);
+        Set<String> artifactIdGroupIds = storageRepositoryIds.stream()
+                                                             .map(storageRepositoryId -> storageRepositoryId.split(":"))
+                                                             .map(storageRepositoryId -> new ArtifactIdGroupEntity(
+                                                                     storageRepositoryId[0],
+                                                                     storageRepositoryId[1], artifactId))
+                                                             .map(ArtifactIdGroup::getUuid)
+                                                             .collect(Collectors.toSet());
+
+        return queries.findArtifacts(artifactIdGroupIds, coordinateValues, skip, limit);
     }
-    
+
     public List<Artifact> findArtifacts(String storageId,
                                         String repositoryId,
                                         String artifactId,
@@ -113,8 +141,15 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
                                         Long skip,
                                         Integer limit)
     {
-        return queries.findArtifacts(Collections.singleton(storageId + ":" + repositoryId), artifactId, coordinateValues, skip, limit);
+        return queries.findArtifacts(Collections.singleton(new ArtifactIdGroupEntity(storageId, repositoryId, artifactId))
+                                                .stream()
+                                                .map(ArtifactIdGroup::getUuid)
+                                                .collect(Collectors.toSet()),
+                                     coordinateValues,
+                                     skip,
+                                     limit);
     }
+    
 }
 
 @Repository
@@ -136,38 +171,33 @@ interface ArtifactIdGroupQueries
                                        @Param("repositoryId") String repositoryId,
                                        Pageable page);
 
-    @ExistsQuery("UNWIND $storageRepositoryIds as storageRepositoryIdPair " +
-                 "WITH split(storageRepositoryIdPair, ':') as storageRepositoryId " +
-                 "MATCH (aig:`ArtifactIdGroup`) " +
-                 "WHERE aig.storageId=storageRepositoryId[0] and aig.repositoryId=storageRepositoryId[1] and aig.name CONTAINS $artifactId " +
+    //TODO: `OPTIONAL` is workaround for https://github.com/opencypher/cypher-for-gremlin/issues/342 
+    @ExistsQuery("OPTIONAL MATCH (aig:`ArtifactIdGroup`) " +
+                 "WHERE aig.uuid IN $artifactIdGroupIds " +
                  "WITH aig " +
                  "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
                  "UNWIND keys(genericCoordinates) AS coordinate " +
                  "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
                  "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
                  "RETURN exists(artifact.uuid)")
-    Boolean artifactsExists(@Param("storageRepositoryIds") Set<String> storageRepositoryIds,
-                            @Param("artifactId") String artifactId,
+    Boolean artifactsExists(@Param("artifactIdGroupIds") Set<String> artifactIdGroupIds,
                             @Param("coordinateValues") Collection<String> coordinateValues);
 
-    @Query("UNWIND $storageRepositoryIds as storageRepositoryIdPair " +
-           "WITH split(storageRepositoryIdPair, ':') as storageRepositoryId " +
-           "MATCH (aig:`ArtifactIdGroup`) " +
-           "WHERE aig.storageId=storageRepositoryId[0] and aig.repositoryId=storageRepositoryId[1] and aig.name CONTAINS $artifactId " +
+    //TODO: `OPTIONAL` is workaround for https://github.com/opencypher/cypher-for-gremlin/issues/342
+    @Query("OPTIONAL MATCH (aig:`ArtifactIdGroup`) " +
+           "WHERE aig.uuid IN $artifactIdGroupIds " +
            "WITH aig " +
            "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
            "UNWIND keys(genericCoordinates) AS coordinate " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
            "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
            "RETURN count(artifact)")
-    Long countArtifacts(@Param("storageRepositoryIds") Set<String> storageRepositoryIds,
-                        @Param("artifactId") String artifactId,
+    Long countArtifacts(@Param("artifactIdGroupIds") Set<String> artifactIdGroupIds,
                         @Param("coordinateValues") Collection<String> coordinateValues);
     
-    @Query("UNWIND $storageRepositoryIds as storageRepositoryIdPair " +
-           "WITH split(storageRepositoryIdPair, ':') as storageRepositoryId " +
-           "MATCH (aig:`ArtifactIdGroup`) " +
-           "WHERE aig.storageId=storageRepositoryId[0] and aig.repositoryId=storageRepositoryId[1] and aig.name CONTAINS $artifactId " +
+    //TODO: `OPTIONAL` is workaround for https://github.com/opencypher/cypher-for-gremlin/issues/342
+    @Query("OPTIONAL MATCH (aig:`ArtifactIdGroup`) " +
+           "WHERE aig.uuid IN $artifactIdGroupIds " +
            "WITH aig " +
            "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
            "UNWIND keys(genericCoordinates) AS coordinate " +
@@ -178,8 +208,7 @@ interface ArtifactIdGroupQueries
            "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates,  r4, tag " +
            "ORDER BY aig.name, genericCoordinates.version " +
            "SKIP $skip LIMIT $limit")
-    List<Artifact> findArtifacts(@Param("storageRepositoryIds") Set<String> storageRepositoryIds,
-                                 @Param("artifactId") String artifactId,
+    List<Artifact> findArtifacts(@Param("artifactIdGroupIds") Set<String> artifactIdGroupIds,
                                  @Param("coordinateValues") Collection<String> coordinateValues,
                                  @Param("skip") Long skip,
                                  @Param("limit") Integer limit);
