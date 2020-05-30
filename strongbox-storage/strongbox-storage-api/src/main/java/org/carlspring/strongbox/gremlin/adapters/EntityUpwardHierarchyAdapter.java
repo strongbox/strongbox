@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
@@ -21,7 +20,6 @@ import org.carlspring.strongbox.data.domain.EntityHierarchyNode;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
-import org.checkerframework.checker.nullness.Opt;
 
 /**
  * @author sbespalov
@@ -84,10 +82,16 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         EntityTraversal<Vertex, E> result = fold(iterator, depth).map(upwardTraversal -> {
             return foldNode(depth, nextAdapter, Optional.of(upwardTraversal));
         }).orElseGet(() -> {
-            return foldNode(depth, nextAdapter, Optional.empty());
+            return foldTopNode(depth, nextAdapter);
         });
 
         return Optional.of(result);
+    }
+
+    private EntityTraversal<Vertex, E> foldTopNode(int depth,
+                                                   A nodeAdapter)
+    {
+        return foldNode(depth, nodeAdapter, Optional.empty());
     }
 
     private EntityTraversal<Vertex, E> foldNode(int depth,

@@ -425,7 +425,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
-            if (!packageExists)
+            if (Boolean.FALSE.equals(packageExists))
             {
                 // Syncronously fetch remote package feed if ve have no cached
                 // packages
@@ -483,10 +483,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
             Runnable job = () -> fetchRemotePackageFeed(storage.getId(), repository.getId(),
                                                         npmSearchRequest.getPackageId());
-            if (!packagesExists)
+            if (!Boolean.TRUE.equals(packagesExists))
             {
-                // Syncronously fetch remote package feed if ve have no cached
-                // packages
+                // Synchronously fetch remote package feed if there is no cached packages
                 job.run();
             }
             else
@@ -501,10 +500,9 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                    String repositoryId,
                                    RepositorySearchRequest predicate)
     {
-        Long result = artifactIdGroupRepository.countArtifacts(Collections.singleton(storageId + ":" + repositoryId),
-                                                                   predicate.getArtifactId(),
-                                                                   predicate.getCoordinateValues());
-        return Optional.of(result).filter(r -> r > 0).isPresent();
+        return artifactIdGroupRepository.artifactsExists(Collections.singleton(storageId + ":" + repositoryId),
+                                                         predicate.getArtifactId(),
+                                                         predicate.getCoordinateValues());
     }
 
     protected Configuration getConfiguration()

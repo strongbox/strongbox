@@ -67,7 +67,7 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     protected ConfigurationManager configurationManager;
 
     @Inject
-    protected ArtifactRepository artifactEntityRepository;
+    protected ArtifactRepository artifactRepository;
     
     @Inject
     private ArtifactIdGroupService artifactIdGroupService;
@@ -235,8 +235,8 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
     public void commit(RepositoryStreamWriteContext ctx) throws IOException
     {
         RepositoryPath repositoryPath = (RepositoryPath) ctx.getPath();
-        Artifact artifactEntry = repositoryPath.getArtifactEntry();
-        if (artifactEntry == null)
+        Artifact artifact = repositoryPath.getArtifactEntry();
+        if (artifact == null)
         {
             return;
         }
@@ -246,10 +246,10 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(repositoryPath);
         
         CountingOutputStream cos = StreamUtils.findSource(CountingOutputStream.class, ctx.getStream());
-        artifactEntry.setSizeInBytes(cos.getByteCount());
+        artifact.setSizeInBytes(cos.getByteCount());
 
         LayoutOutputStream los = StreamUtils.findSource(LayoutOutputStream.class, ctx.getStream());
-        artifactEntry.setChecksums(los.getDigestMap());
+        artifact.setChecksums(los.getDigestMap());
         
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
         
@@ -257,11 +257,12 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
                                                                                repository.getId(),
                                                                                coordinates.getId(),
                                                                                Optional.of(lastVersionTag));
-        ArtifactCoordinates lastVersion = artifactIdGroupService.addArtifactToGroup(artifactGroup, artifactEntry);
+        ArtifactCoordinates lastVersion = artifactIdGroupService.addArtifactToGroup(artifactGroup, artifact);
         logger.debug("Last version for group [{}] is [{}] with [{}]",
                      artifactGroup.getName(),
                      lastVersion.getVersion(),
                      lastVersion.getPath());
+        
         artifactIdGroupRepository.merge(artifactGroup);
     }
 
