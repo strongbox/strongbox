@@ -425,7 +425,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
             Runnable job = () -> fetchRemoteSearchResult(storageId, repositoryId, npmSearchRequest.getText(),
                                                          npmSearchRequest.getSize());
-            if (!packageExists)
+            if (Boolean.FALSE.equals(packageExists))
             {
                 // Syncronously fetch remote package feed if ve have no cached
                 // packages

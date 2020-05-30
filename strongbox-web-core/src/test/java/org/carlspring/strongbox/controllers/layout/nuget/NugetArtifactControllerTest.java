@@ -324,6 +324,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
               "/storages/{storageId}/{repositoryId}/Search()/$count?searchTerm={searchTerm}&targetFramework=";
         mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                .when()
+               //TODO: we should be able to search by `Test.Search` substring with `Mixed Index`
                .get(url, storageId, repositoryId, "Org.Carlspring.Strongbox.Nuget.Test.Search")
                .then()
                .statusCode(HttpStatus.OK.value())

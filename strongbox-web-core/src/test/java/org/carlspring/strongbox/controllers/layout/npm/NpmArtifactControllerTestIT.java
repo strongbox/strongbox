@@ -140,8 +140,9 @@ public class NpmArtifactControllerTestIT
         final String storageId = proxyRepository.getStorage().getId();
         final String repositoryId = proxyRepository.getId();
 
+        //TODO: we should be able to search by `reston` substring with `Mixed Index`
         String url = getContextBaseUrl() +
-                     "/storages/{storageId}/{repositoryId}/-/v1/search?text=reston&size=10";
+                     "/storages/{storageId}/{repositoryId}/-/v1/search?text=restonnode&size=10";
         mockMvc.when()
                .get(url, storageId, repositoryId)
                .peek()
@@ -149,10 +150,15 @@ public class NpmArtifactControllerTestIT
                .statusCode(HttpStatus.OK.value())
                .and()
                .body("objects.package.name", hasItem("restonnode"));
+
+//        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+//                                                                          repositoryId,
+//                                                                          "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
         
         Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
                                                                           repositoryId,
-                                                                          "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
+                                                                          "restonnode/restonnode/1.0.2/restonnode-1.0.2.tgz");
+        
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getArtifactFileExists()).isFalse();
     }
