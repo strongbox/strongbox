@@ -122,9 +122,9 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                                                    EntityTraversal<Vertex, E> nodeTraversal,
                                                    EntityTraversal<Vertex, E> upwardTraversal)
     {
-        return __.choose(t -> nodeLabel.equals(((Vertex) t).label()),
-                         __.map(nodeTraversal),
-                         upwardTraversal);
+        return __.<Vertex, E>choose(t -> nodeLabel.equals(t.label()),
+                                    __.map(nodeTraversal),
+                                    upwardTraversal);
     }
 
     private EntityTraversal<Vertex, E> childTraversal(EntityTraversal<Vertex, E> childTraversal)

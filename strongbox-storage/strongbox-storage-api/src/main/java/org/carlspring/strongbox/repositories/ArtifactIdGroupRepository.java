@@ -179,7 +179,7 @@ interface ArtifactIdGroupQueries
            "UNWIND keys(genericCoordinates) AS coordinate " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
            "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
-           "RETURN exists(artifact.uuid)")
+           "RETURN exists(artifact.uuid) LIMIT 1")
     Boolean artifactsExists(@Param("artifactIdGroupIds") Set<String> artifactIdGroupIds,
                             @Param("coordinateValues") Collection<String> coordinateValues);
 
