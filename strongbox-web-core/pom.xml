@@ -103,39 +103,97 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
-                    <systemPropertyVariables>
-                        <strongbox.basedir>${project.build.directory}</strongbox.basedir>
-                        <logging.config>${project.build.directory}/strongbox/etc/logback-spring.xml</logging.config>
-                        <logging.debug>true</logging.debug>
-                    </systemPropertyVariables>
-                    <jvmArguments>
-                        -Djdk.attach.allowAttachSelf=true --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED --add-exports java.management.rmi/com.sun.jmx.remote.internal.rmi=ALL-UNNAMED --add-exports java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports java.rmi/sun.rmi.server=ALL-UNNAMED --add-exports java.sql/java.sql=ALL-UNNAMED  --add-opens java.base/java.lang.module=ALL-UNNAMED --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED --add-opens java.base/jdk.internal.math=ALL-UNNAMED --add-opens java.base/jdk.internal.module=ALL-UNNAMED --add-opens java.base/jdk.internal.util.jar=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
-                    </jvmArguments>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <id>spring-boot-repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                        <phase>package</phase>
-
-                        <configuration>
-                            <classifier>spring-boot</classifier>
-                            <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>java-8-build</id>
+            <activation>
+                <property>
+                    <name>jdk.version</name>
+                    <value>8</value>
+                </property>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
+                            <systemPropertyVariables>
+                                <strongbox.basedir>${project.build.directory}</strongbox.basedir>
+                                <logging.config>${project.build.directory}/strongbox/etc/logback-spring.xml</logging.config>
+                                <logging.debug>true</logging.debug>
+                            </systemPropertyVariables>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>spring-boot-repackage</id>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                                <phase>package</phase>
+
+                                <configuration>
+                                    <classifier>spring-boot</classifier>
+                                    <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>java-11-build</id>
+            <activation>
+                <property>
+                    <name>jdk.version</name>
+                    <value>11</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
+                            <systemPropertyVariables>
+                                <strongbox.basedir>${project.build.directory}</strongbox.basedir>
+                                <logging.config>${project.build.directory}/strongbox/etc/logback-spring.xml</logging.config>
+                                <logging.debug>true</logging.debug>
+                            </systemPropertyVariables>
+
+                            <jvmArguments>
+                                -Djdk.attach.allowAttachSelf=true --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED --add-exports java.management.rmi/com.sun.jmx.remote.internal.rmi=ALL-UNNAMED --add-exports java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports java.rmi/sun.rmi.server=ALL-UNNAMED --add-exports java.sql/java.sql=ALL-UNNAMED  --add-opens java.base/java.lang.module=ALL-UNNAMED --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED --add-opens java.base/jdk.internal.math=ALL-UNNAMED --add-opens java.base/jdk.internal.module=ALL-UNNAMED --add-opens java.base/jdk.internal.util.jar=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
+                            </jvmArguments>
+                        </configuration>
+
+                        <executions>
+                            <execution>
+                                <id>spring-boot-repackage</id>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                                <phase>package</phase>
+
+                                <configuration>
+                                    <classifier>spring-boot</classifier>
+                                    <mainClass>org.carlspring.strongbox.app.StrongboxSpringBootApplication</mainClass>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <dependencies>
         <!-- Strongbox dependencies -->
