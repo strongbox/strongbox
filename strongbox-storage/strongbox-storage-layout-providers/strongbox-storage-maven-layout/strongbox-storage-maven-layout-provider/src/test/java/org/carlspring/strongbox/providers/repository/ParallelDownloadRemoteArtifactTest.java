@@ -23,7 +23,6 @@ import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.io.Resource;
@@ -32,7 +31,6 @@ import org.springframework.core.io.Resource;
  * @author sbespalov
  *
  */
-@Disabled
 public class ParallelDownloadRemoteArtifactTest
         extends MockedRestArtifactResolverTestBase
         implements ArtifactResolverContext
