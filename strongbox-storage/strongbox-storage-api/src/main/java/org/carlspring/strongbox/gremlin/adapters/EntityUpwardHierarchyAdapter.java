@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.iterators.FilterIterator;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
@@ -22,10 +23,12 @@ import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 
 /**
+ * Adapts hierarchical entities to the Graph structure. 
+ * 
  * @author sbespalov
  */
 public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & EntityHierarchyNode, A extends EntityUpwardHierarchyNodeAdapter<E>>
-        extends VertexEntityTraversalAdapter<E>
+        implements VertexEntityTraversalAdapter<E>
 {
 
     private final int maxHierarchyDepth;
@@ -40,10 +43,10 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                                         int maxHierarchyDepth)
     {
         this.maxHierarchyDepth = maxHierarchyDepth;
-        adaptersHierarchy = artifactArapters.stream()
-                                            .sorted((a1,
-                                                     a2) -> a1.entityClass().isAssignableFrom(a2.entityClass()) ? 1 : -1)
-                                            .collect(Collectors.toCollection(LinkedList::new));
+        this.adaptersHierarchy = artifactArapters.stream()
+                                                 .sorted((a1,
+                                                          a2) -> a1.entityClass().isAssignableFrom(a2.entityClass()) ? 1 : -1)
+                                                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
     @Override
@@ -62,71 +65,123 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         return adaptersHierarchy.descendingIterator().next();
     }
 
+    protected Deque<A> getAdaptersHierarchy()
+    {
+        return adaptersHierarchy;
+    }
+
     @Override
     public EntityTraversal<Vertex, E> fold()
     {
-        Optional<EntityTraversal<Vertex, E>> upwardTraversal = fold(Collections.singleton((A) getRootAdapter()).iterator(),
+        return fold(Optional.empty());
+    }
+    
+    public EntityTraversal<Vertex, E> fold(Optional<Class<? extends E>> targetClass) {
+        //Fold current vertex starting from root node adapter 
+        Optional<EntityTraversal<Vertex, E>> upwardTraversal = fold(targetClass,
+                                                                    Collections.singleton((A) getRootAdapter()).iterator(),
                                                                     maxHierarchyDepth);
         return __.map(upwardTraversal.get());
     }
 
-    private Optional<EntityTraversal<Vertex, E>> fold(Iterator<A> iterator,
-                                                      int depth)
+    /**
+     * Folds vertex into current hierarchy level entity. Recursively goes
+     * through the all available adapters to find one that could be applied for
+     * current vertex label.
+     * 
+     * @param iterator
+     *            available adapters iterator
+     * @param level
+     *            current hierarchy level
+     * @return hierarchy traversal subtree, or empty if there is no next adapter
+     */
+    private Optional<EntityTraversal<Vertex, E>> fold(Optional<Class<? extends E>> targetClass,
+                                                      Iterator<A> iterator,
+                                                      int level)
     {
-        if (!iterator.hasNext())
+        Iterator<A> filteredIterator = targetClass.map(c -> (Iterator<A>) new FilterIterator<>(iterator,
+                (adapter) -> adapter.entityClass().isAssignableFrom(c))).orElse(iterator);
+        
+        if (!filteredIterator.hasNext())
         {
             return Optional.empty();
         }
 
-        A nextAdapter = iterator.next();
-        EntityTraversal<Vertex, E> result = fold(iterator, depth).map(upwardTraversal -> {
-            return foldNode(depth, nextAdapter, Optional.of(upwardTraversal));
-        }).orElseGet(() -> {
-            return foldTopNode(depth, nextAdapter);
+        A currentAdapter = filteredIterator.next();
+        
+        EntityTraversal<Vertex, E> result = fold(targetClass, filteredIterator, level).map(nextTraversal -> {
+            // If there is upward node then try to fold node with hierarchy
+            // subtree
+            return foldNode(targetClass, level, currentAdapter, Optional.of(nextTraversal));
+        }).orElseGet(() -> {// If there is no upward node then try to fold only
+                            // current node using current adapter
+            return foldNode(targetClass, level, currentAdapter, Optional.empty());
         });
 
         return Optional.of(result);
     }
 
-    private EntityTraversal<Vertex, E> foldTopNode(int depth,
-                                                   A nodeAdapter)
+    /**
+     * Folds current node using provided adapter and then moves traversal up to the
+     * next hierarchy vertex by `extends` edge and in breadth by other possible adapters.
+     * 
+     * @param level
+     *            current hierarchy level
+     * @param currentNodeAdapter
+     *            current adapter
+     * @param nextTraversal
+     *            the traversal that should be applied if current adapter label
+     *            not matches the current vertex label
+     * @return current node traversal with hierarchy subtree above the current level
+     */
+    private EntityTraversal<Vertex, E> foldNode(Optional<Class<? extends E>> targetClass,
+                                                int level,
+                                                A currentNodeAdapter,
+                                                Optional<EntityTraversal<Vertex, E>> nextTraversal)
     {
-        return foldNode(depth, nodeAdapter, Optional.empty());
-    }
-
-    private EntityTraversal<Vertex, E> foldNode(int depth,
-                                                A nodeAdapter,
-                                                Optional<EntityTraversal<Vertex, E>> upwardTraversal)
-    {
-        String nodeLabel = nodeAdapter.label();
-        EntityTraversal<Vertex, E> nodeTraversal = nodeAdapter.fold();
-        EntityTraversal<Vertex, E> topTraversal = upwardTraversal.map(t -> chainUpward(nodeLabel, __.map(nodeTraversal), t))
-                                                                 .orElse(__.map(nodeTraversal));
-        if (depth == 0)
+        String nodeLabel = currentNodeAdapter.label();
+        EntityTraversal<Vertex, E> currentNodeTraversal = currentNodeAdapter.fold();
+        EntityTraversal<Vertex, E> topTraversal = nextTraversal.map(t -> chainNext(nodeLabel, __.map(currentNodeTraversal), t))
+                                                               .orElse(__.map(currentNodeTraversal));
+        if (level == 0)
         {
             return topTraversal;
         }
 
         Iterator<A> childIterator = getChildIterator();
-        return fold(childIterator, depth - 1).map(this::childTraversal)
-                                             .map(childTraversal -> upwardTraversal.map(t -> chainUpward(nodeLabel,
-                                                                                                         nodeTraversal(nodeTraversal,
-                                                                                                                       childTraversal),
-                                                                                                         t))
-                                                                                   .orElse(nodeTraversal(nodeTraversal,
-                                                                                                         childTraversal)))
+        return fold(targetClass, childIterator, level - 1).map(this::childTraversal)
+                                             .map(childTraversal -> nextTraversal.map(t -> chainNext(nodeLabel,
+                                                                                                     nodeTraversal(currentNodeTraversal,
+                                                                                                                   childTraversal),
+                                                                                                     t))
+                                                                                 .orElse(nodeTraversal(currentNodeTraversal,
+                                                                                                       childTraversal)))
                                              .orElse(topTraversal);
     }
 
-    private EntityTraversal<Vertex, E> chainUpward(String nodeLabel,
-                                                   EntityTraversal<Vertex, E> nodeTraversal,
-                                                   EntityTraversal<Vertex, E> upwardTraversal)
+    /**
+     * Makes the traversal branches by the node label. 
+     * 
+     * @param nodeLabel current node label
+     * @param nodeTraversal current traversal
+     * @param nextTraversal next available node traversal
+     * @return branched traversals from current and next node adapters
+     */
+    private EntityTraversal<Vertex, E> chainNext(String nodeLabel,
+                                                 EntityTraversal<Vertex, E> nodeTraversal,
+                                                 EntityTraversal<Vertex, E> nextTraversal)
     {
         return __.<Vertex, E>choose(t -> nodeLabel.equals(t.label()),
                                     __.map(nodeTraversal),
-                                    upwardTraversal);
+                                    nextTraversal);
     }
 
+    /**
+     * Moves traversal up by the hierarchy
+     * 
+     * @param childTraversal child hierarchy traversal
+     * @return traversal moved to next hierarchy vertex
+     */
     private EntityTraversal<Vertex, E> childTraversal(EntityTraversal<Vertex, E> childTraversal)
     {
         return __.inE(Edges.EXTENDS)
@@ -134,6 +189,13 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                  .map(childTraversal);
     }
 
+    /**
+     * Directly folds the current vertex into node entity with it's child entity 
+     * 
+     * @param nodeTraversal current node traversal
+     * @param childTraversal child node traversal
+     * @return traversal with node entity
+     */
     private EntityTraversal<Vertex, E> nodeTraversal(EntityTraversal<Vertex, E> nodeTraversal,
                                                      EntityTraversal<Vertex, E> childTraversal)
     {
@@ -144,10 +206,10 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
                  .<E>select("child");
     }
 
-    private Iterator<A> getChildIterator()
+    protected Iterator<A> getChildIterator()
     {
         // Get child iterator
-        Iterator<A> childIterator = adaptersHierarchy.descendingIterator();
+        Iterator<A> childIterator = getAdaptersHierarchy().descendingIterator();
         // Skip root adapter
         childIterator.next();
 

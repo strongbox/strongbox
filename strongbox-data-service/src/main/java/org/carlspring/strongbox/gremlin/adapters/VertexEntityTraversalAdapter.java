@@ -8,7 +8,7 @@ import org.carlspring.strongbox.data.domain.DomainObject;
  *
  * @param <E>
  */
-public abstract class VertexEntityTraversalAdapter<E extends DomainObject> implements EntityTraversalAdapter<Vertex, E>
+public interface VertexEntityTraversalAdapter<E extends DomainObject> extends EntityTraversalAdapter<Vertex, E>
 {
 
 }

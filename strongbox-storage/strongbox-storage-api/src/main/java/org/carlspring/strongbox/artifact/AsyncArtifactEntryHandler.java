@@ -16,6 +16,7 @@ import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathLock;
+import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.janusgraph.core.JanusGraph;
 import org.slf4j.Logger;
@@ -32,7 +33,8 @@ public abstract class AsyncArtifactEntryHandler
     private RepositoryPathLock repositoryPathLock;
     @Inject
     private JanusGraph janusGraph;
-
+    @Inject
+    private RepositoryPathResolver repositoryPathResolver;
     private final ArtifactEventTypeEnum eventType;
 
     public AsyncArtifactEntryHandler(ArtifactEventTypeEnum eventType)

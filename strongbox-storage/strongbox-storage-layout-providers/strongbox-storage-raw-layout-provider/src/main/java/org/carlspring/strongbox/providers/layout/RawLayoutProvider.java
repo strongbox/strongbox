@@ -26,7 +26,7 @@ public class RawLayoutProvider
 
     private static final Logger logger = LoggerFactory.getLogger(RawLayoutProvider.class);
 
-    public static final String ALIAS = "Raw";
+    public static final String ALIAS = RawArtifactCoordinates.LAYOUT_NAME;
 
     @Inject
     private RawRepositoryManagementStrategy rawRepositoryManagementStrategy;

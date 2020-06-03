@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class UserAdapter extends VertexEntityTraversalAdapter<User>
+public class UserAdapter implements VertexEntityTraversalAdapter<User>
 {
 
     @Override
