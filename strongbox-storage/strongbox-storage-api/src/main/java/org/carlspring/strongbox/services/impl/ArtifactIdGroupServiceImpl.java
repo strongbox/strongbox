@@ -51,9 +51,6 @@ public class ArtifactIdGroupServiceImpl
     private ArtifactIdGroupRepository artifactIdGroupRepository;
 
     @Inject
-    private ArtifactRepository artifactRepository;
-    
-    @Inject
     private RepositoryPathLock repositoryPathLock;
 
     @Override
@@ -74,10 +71,15 @@ public class ArtifactIdGroupServiceImpl
                 lock.lock();
                 try
                 {
-                    ArtifactIdGroup artifactGroup = findOneOrCreate(repository.getStorage().getId(),
-                                                                    repository.getId(),
-                                                                    artifactGroupId,
-                                                                    Optional.of(lastVersionTag));
+                    ArtifactIdGroup artifactGroup = artifactIdGroupRepository.findArtifactsGroupWithTag(repository.getStorage()
+                                                                                                                  .getId(),
+                                                                                                        repository.getId(),
+                                                                                                        artifactGroupId,
+                                                                                                        Optional.of(lastVersionTag))
+                                                                             .orElseGet(() -> create(repository.getStorage().getId(),
+                                                                                                     repository.getId(),
+                                                                                                     artifactGroupId));
+
                     ArtifactCoordinates lastVersion = addArtifactsToGroup(artifacstBatch, artifactGroup);
                     logger.debug("Last version for group [{}] is [{}] with [{}]",
                                  artifactGroup.getName(),
@@ -145,22 +147,6 @@ public class ArtifactIdGroupServiceImpl
         }
 
         return a1;
-    }
-
-    public ArtifactIdGroup findOneOrCreate(String storageId,
-                                           String repositoryId,
-                                           String artifactId,
-                                           Optional<ArtifactTag> tag)
-    {
-        Optional<ArtifactIdGroup> optional = artifactIdGroupRepository.findArtifactsGroupWithTag(storageId, repositoryId, artifactId, tag);
-        if (optional.isPresent())
-        {
-            return optional.get();
-        }
-
-        ArtifactIdGroup artifactGroup = create(storageId, repositoryId, artifactId);
-        
-        return artifactIdGroupRepository.save(artifactGroup);
     }
 
     protected ArtifactIdGroup create(String storageId,

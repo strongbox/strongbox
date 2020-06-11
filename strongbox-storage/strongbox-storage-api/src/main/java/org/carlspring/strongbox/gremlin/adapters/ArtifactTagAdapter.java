@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactTagAdapter extends VertexEntityTraversalAdapter<ArtifactTag>
+public class ArtifactTagAdapter implements VertexEntityTraversalAdapter<ArtifactTag>
 {
 
     @Override

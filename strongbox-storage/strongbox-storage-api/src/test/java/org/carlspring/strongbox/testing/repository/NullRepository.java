@@ -8,8 +8,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.NullLayoutProvider;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
 import org.springframework.core.annotation.AliasFor;
@@ -20,8 +20,8 @@ import org.springframework.core.annotation.AliasFor;
 @Documented
 @Retention(RUNTIME)
 @Target({PARAMETER, ANNOTATION_TYPE})
-@TestRepository(layout = RawArtifactCoordinates.LAYOUT_NAME)
-public @interface RawRepository
+@TestRepository(layout = NullLayoutProvider.ALIAS)
+public @interface NullRepository
 {
 
     @AliasFor(annotation = TestRepository.class)

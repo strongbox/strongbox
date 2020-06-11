@@ -12,6 +12,9 @@ import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutDescription;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutLocator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
@@ -21,7 +24,6 @@ import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.repositories.GremlinVertexRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.neo4j.annotation.ExistsQuery;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -35,6 +37,8 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
     ArtifactIdGroupAdapter adapter;
     @Inject
     ArtifactIdGroupQueries queries;
+    @Inject
+    ConfigurationManager configurationManager;
 
     @Override
     protected ArtifactIdGroupAdapter adapter()
@@ -61,11 +65,17 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
                                                                String artifactId,
                                                                Optional<ArtifactTag> tag)
     {
+        org.carlspring.strongbox.storage.repository.Repository repository = configurationManager.getRepository(storageId, repositoryId);
+        
         ArtifactIdGroup artifactIdGroup = new ArtifactIdGroupEntity(storageId, repositoryId, artifactId);
         EntityTraversal<Vertex, ArtifactIdGroup> t = g().V()
                                                         .hasLabel(Vertices.ARTIFACT_ID_GROUP)
                                                         .has("uuid", artifactIdGroup.getUuid())
-                                                        .map(adapter.fold(tag));
+                                                        .map(adapter.fold(Optional.ofNullable(repository)
+                                                                                  .map(org.carlspring.strongbox.storage.repository.Repository::getLayout)
+                                                                                  .map(ArtifactLayoutLocator.getLayoutByNameEntityMap()::get)
+                                                                                  .map(ArtifactLayoutDescription::getArtifactCoordinatesClass),
+                                                                          tag));
         if (!t.hasNext())
         {
             return Optional.empty();

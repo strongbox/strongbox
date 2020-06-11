@@ -18,6 +18,8 @@ import org.carlspring.strongbox.repository.RepositoryManagementStrategy;
 public class NullLayoutProvider extends AbstractLayoutProvider<RawArtifactCoordinates>
 {
 
+    public static final String ALIAS = "Null Layout";
+    
     @Inject
     private NullRepositoryManagementStrategy nullRepositoryManagementStragegy;
 
@@ -30,7 +32,7 @@ public class NullLayoutProvider extends AbstractLayoutProvider<RawArtifactCoordi
     @Override
     public String getAlias()
     {
-        return RawArtifactCoordinates.LAYOUT_NAME;
+        return ALIAS;
     }
 
     @Override

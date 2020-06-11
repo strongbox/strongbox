@@ -9,6 +9,7 @@ import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLong;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
@@ -37,7 +39,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
+public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
 {
 
     @Inject
@@ -53,6 +55,11 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
 
     @Override
     public EntityTraversal<Vertex, Artifact> fold()
+    {
+        return fold(Optional.empty());
+    }
+
+    public EntityTraversal<Vertex, Artifact> fold(Optional<Class<? extends GenericArtifactCoordinates>> layoutArtifactCoordinatesClass)
     {
         return __.<Vertex, Object>project("id",
                                           "uuid",
@@ -81,7 +88,7 @@ public class ArtifactAdapter extends VertexEntityTraversalAdapter<Artifact>
                  .by(__.enrichPropertyValues("checksums"))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
-                                      .map(artifactCoordinatesAdapter.fold())
+                                      .map(artifactCoordinatesAdapter.fold(layoutArtifactCoordinatesClass))
                                       .map(EntityTraversalUtils::castToObject)))
                  .by(__.outE(Edges.ARTIFACT_HAS_TAGS)
                        .inV()

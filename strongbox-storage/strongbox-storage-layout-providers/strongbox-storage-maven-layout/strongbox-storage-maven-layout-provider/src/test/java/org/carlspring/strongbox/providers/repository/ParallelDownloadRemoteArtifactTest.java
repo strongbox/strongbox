@@ -126,7 +126,7 @@ public class ParallelDownloadRemoteArtifactTest
                                                                        path);
 
         assertThat(repositoryPath.getArtifactEntry()).isNotNull();
-        assertThat(repositoryPath.getArtifactEntry().getDownloadCount()).isEqualTo(Integer.valueOf(concurrency));
+        assertThat(repositoryPath.getArtifactEntry().getDownloadCount()).isGreaterThan(0).isLessThanOrEqualTo(Integer.valueOf(concurrency));
         
         assertThat(concurrentWorkerExecutionCount).as("Worker execution was not concurrent.").isNotEqualTo(concurrency);
     }

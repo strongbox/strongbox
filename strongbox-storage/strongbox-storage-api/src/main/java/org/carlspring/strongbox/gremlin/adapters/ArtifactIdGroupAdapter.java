@@ -9,11 +9,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import org.apache.cassandra.thrift.Cassandra.AsyncProcessor.system_add_column_family;
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.ArtifactTag;
+import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -29,7 +29,7 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<ArtifactIdGroup>
+public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<ArtifactIdGroup>
 {
 
     @Inject
@@ -41,7 +41,8 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
         return Vertices.ARTIFACT_ID_GROUP;
     }
 
-    public EntityTraversal<Vertex, ArtifactIdGroup> fold(Optional<ArtifactTag> optionalTag)
+    public EntityTraversal<Vertex, ArtifactIdGroup> fold(Optional<Class<? extends GenericArtifactCoordinates>> layoutArtifactCoordinatesClass,
+                                                         Optional<ArtifactTag> optionalTag)
     {
         EntityTraversal<Vertex, Vertex> artifactsTraversal = optionalTag.map(ArtifactTag::getName)
                                                                         .map(tagName -> __.outE(Edges.ARTIFACT_GROUP_HAS_TAGGED_ARTIFACTS)
@@ -57,7 +58,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
                  .by(__.enrichPropertyValue("repositoryId"))
                  .by(__.enrichPropertyValue("name"))
                  .by(artifactsTraversal.dedup()
-                                       .map(artifactAdapter.fold())
+                                       .map(artifactAdapter.fold(layoutArtifactCoordinatesClass))
                                        .map(EntityTraversalUtils::castToObject)
                                        .fold())
                  .map(this::map);
@@ -66,7 +67,7 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
     @Override
     public EntityTraversal<Vertex, ArtifactIdGroup> fold()
     {
-        return fold(Optional.empty());
+        return fold(Optional.empty(), Optional.empty());
     }
 
     private ArtifactIdGroup map(Traverser<Map<String, Object>> t)
@@ -91,13 +92,13 @@ public class ArtifactIdGroupAdapter extends VertexEntityTraversalAdapter<Artifac
             connectArtifacstTraversal = connectArtifacstTraversal.V(artifact)
                                                                  .saveV(artifact.getUuid(),
                                                                         artifactAdapter.unfold(artifact));
-            if (artifact.getNativeId() == null)
-            {
-                connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                                                                     .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
-                                                                     .inV();
-
-            }
+            
+            connectArtifacstTraversal.choose(__.inE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS),
+                                             __.identity(),
+                                             __.addE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
+                                             .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
+                                             .inV());
+            
             connectArtifacstTraversal = connectArtifacstTraversal.sideEffect(__.inE(Edges.ARTIFACT_GROUP_HAS_TAGGED_ARTIFACTS).drop());
             for (ArtifactTag artifactTag : artifact.getTagSet())
             {

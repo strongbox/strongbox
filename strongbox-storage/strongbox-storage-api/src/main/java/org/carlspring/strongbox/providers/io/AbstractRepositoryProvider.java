@@ -3,7 +3,6 @@ package org.carlspring.strongbox.providers.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -11,18 +10,17 @@ import java.util.Optional;
 import javax.inject.Inject;
 
 import org.apache.commons.io.output.CountingOutputStream;
-import org.carlspring.strongbox.artifact.ArtifactNotFoundException;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
-import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.Selector;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
+import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;
 import org.carlspring.strongbox.io.LayoutOutputStream;
@@ -43,8 +41,6 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.interceptor.SimpleKey;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.util.Assert;
@@ -252,11 +248,14 @@ public abstract class AbstractRepositoryProvider implements RepositoryProvider, 
         artifact.setChecksums(los.getDigestMap());
         
         ArtifactTag lastVersionTag = artifactTagService.findOneOrCreate(ArtifactTagEntity.LAST_VERSION);
-        
-        ArtifactIdGroup artifactGroup = artifactIdGroupService.findOneOrCreate(storage.getId(),
-                                                                               repository.getId(),
-                                                                               coordinates.getId(),
-                                                                               Optional.of(lastVersionTag));
+
+        ArtifactIdGroup artifactGroup = artifactIdGroupRepository.findArtifactsGroupWithTag(storage.getId(),
+                                                                                            repository.getId(),
+                                                                                            coordinates.getId(),
+                                                                                            Optional.of(lastVersionTag))
+                                                                 .orElseGet(() -> new ArtifactIdGroupEntity(storage.getId(),
+                                                                                                            repository.getId(),
+                                                                                                            coordinates.getId()));
         ArtifactCoordinates lastVersion = artifactIdGroupService.addArtifactToGroup(artifactGroup, artifact);
         logger.debug("Last version for group [{}] is [{}] with [{}]",
                      artifactGroup.getName(),

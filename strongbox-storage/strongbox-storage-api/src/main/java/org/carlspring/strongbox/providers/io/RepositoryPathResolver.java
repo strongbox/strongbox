@@ -3,6 +3,7 @@ package org.carlspring.strongbox.providers.io;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.Objects;
+import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -102,33 +103,29 @@ public class RepositoryPathResolver
         public Artifact getArtifactEntry()
             throws IOException
         {
-            Artifact artifact = super.getArtifactEntry();
-            if (artifact == NullArtifact.INSTANCE)
+            Artifact artifactLocal = super.getArtifactEntry();
+            if (artifactLocal == NullArtifact.INSTANCE)
             {
                 return null;
             }
-            if (artifact != null) 
+            else if (artifactLocal != null)
             {
-                return artifact;
+                return artifactLocal;
             }
-            
+
             if (this.getRepository().isGroupRepository() || !RepositoryFiles.isArtifact(this))
             {
                 artifact = NullArtifact.INSTANCE;
-                
-                return null;
+            }
+            else
+            {
+                artifact = Optional.ofNullable(artifactEntityRepository.findOneArtifact(getRepository().getStorage().getId(),
+                                                                                        getRepository().getId(),
+                                                                                        RepositoryFiles.relativizePath(this)))
+                                   .orElse(NullArtifact.INSTANCE);
             }
 
-            artifact = artifactEntityRepository.findOneArtifact(getRepository().getStorage().getId(),
-                                                                getRepository().getId(),
-                                                                RepositoryFiles.relativizePath(this));
-            if (artifact == null) {
-                artifact = NullArtifact.INSTANCE;
-                
-                return null;                
-            }
-            
-            return artifact;
+            return getArtifactEntry();
             // TODO: we should check this restriction 
 //            if (Files.exists(this) && !Files.isDirectory(this) && RepositoryFiles.isArtifact(this) && result == null)
 //            {

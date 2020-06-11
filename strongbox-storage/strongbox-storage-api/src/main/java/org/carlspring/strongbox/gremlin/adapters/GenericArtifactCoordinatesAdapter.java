@@ -21,8 +21,8 @@ import org.springframework.stereotype.Component;
  * @author sbespalov
  */
 @Component
-public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
-        implements ArtifactCoodrinatesNodeAdapter
+public class GenericArtifactCoordinatesAdapter
+        implements VertexEntityTraversalAdapter<GenericArtifactCoordinates>, ArtifactCoodrinatesNodeAdapter
 {
 
     @Override
@@ -41,11 +41,11 @@ public class GenericArtifactCoordinatesAdapter extends VertexEntityTraversalAdap
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
         return __.<Vertex, Object>project("id", "uuid", "version", "coordinates")
-                .by(__.id())
-                .by(__.enrichPropertyValue("uuid"))
-                .by(__.enrichPropertyValue("version"))
-                .by(__.propertyMap())
-                .map(this::map);    
+                 .by(__.id())
+                 .by(__.enrichPropertyValue("uuid"))
+                 .by(__.enrichPropertyValue("version"))
+                 .by(__.propertyMap())
+                 .map(this::map);
     }
 
     private GenericArtifactCoordinates map(Traverser<Map<String, Object>> t)

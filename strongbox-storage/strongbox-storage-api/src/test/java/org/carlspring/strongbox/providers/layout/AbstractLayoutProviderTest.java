@@ -10,13 +10,11 @@ import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.domain.ArtifactGroup;
@@ -38,7 +36,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -53,9 +50,6 @@ import org.springframework.test.context.TestExecutionListeners;
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
 class AbstractLayoutProviderTest
 {
-
-    @Inject
-    private ApplicationContext ctx;
 
     @Inject
     private PropertiesBooter propertiesBooter;
@@ -128,10 +122,9 @@ class AbstractLayoutProviderTest
         assertThat(artifactGroups).isNotNull();
         assertThat(artifactGroups).isEmpty();
 
-        ArtifactIdGroup repositoryArtifactIdGroup = artifactGroupService.findOneOrCreate("storage0",
-                                                                                         "releases",
-                                                                                         "abs-lay-prov-test",
-                                                                                         Optional.empty());
+        ArtifactIdGroup repositoryArtifactIdGroup = artifactIdGroupRepository.save(new ArtifactIdGroupEntity("storage0",
+                                                                                   "releases",
+                                                                                   "abs-lay-prov-test"));
 
         artifactGroups = layoutProvider.getArtifactGroups(path);
         assertThat(artifactGroups).isNotNull();

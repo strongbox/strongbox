@@ -7,8 +7,10 @@ import java.util.Optional;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 
-import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutDescription;
+import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutLocator;
+import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
@@ -25,13 +27,15 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @Transactional
-public class ArtifactRepository extends GremlinVertexRepository<Artifact> implements ArtifactEntityQueries
+public class ArtifactRepository extends GremlinVertexRepository<Artifact>
 {
 
     @Inject
     ArtifactAdapter artifactAdapter;
     @Inject
     ArtifactEntityQueries queries;
+    @Inject
+    ConfigurationManager configurationManager;
 
     @Override
     protected ArtifactAdapter adapter()
@@ -92,6 +96,8 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                     String repositoryId,
                                     String path)
     {
+        org.carlspring.strongbox.storage.repository.Repository repository = configurationManager.getRepository(storageId, repositoryId);
+        
         EntityTraversal<Vertex, Artifact> t = g().V()
                                                  .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
                                                  .has("uuid", path)
@@ -100,7 +106,10 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact> implem
                                                  .hasLabel(Vertices.ARTIFACT)
                                                  .has("storageId", storageId)
                                                  .has("repositoryId", repositoryId)
-                                                 .map(artifactAdapter.fold());
+                                                 .map(artifactAdapter.fold(Optional.ofNullable(repository)
+                                                                           .map(org.carlspring.strongbox.storage.repository.Repository::getLayout)
+                                                                           .map(ArtifactLayoutLocator.getLayoutByNameEntityMap()::get)
+                                                                           .map(ArtifactLayoutDescription::getArtifactCoordinatesClass)));
         if (!t.hasNext())
         {
             return null;

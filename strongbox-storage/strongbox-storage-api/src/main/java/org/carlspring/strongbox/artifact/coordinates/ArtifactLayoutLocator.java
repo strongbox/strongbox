@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * With this class you can get all avaliable Layouts from classpath.
+ * With this class you can get all available Layouts from classpath.
  * 
  * 
  * @author sbespalov
@@ -23,25 +23,37 @@ public class ArtifactLayoutLocator
 
     private static final Logger logger = LoggerFactory.getLogger(ArtifactLayoutLocator.class);
 
-    private volatile static Map<String, ArtifactLayoutDescription> layoutEntityMap;
+    private volatile static Map<String, ArtifactLayoutDescription> layoutByAliasEntityMap;
+    private volatile static Map<String, ArtifactLayoutDescription> layoutByNameEntityMap;
 
     public static Map<String, ArtifactLayoutDescription> getLayoutEntityMap()
     {
-        if (layoutEntityMap != null)
+        if (layoutByAliasEntityMap != null)
         {
-            return layoutEntityMap;
+            return layoutByAliasEntityMap;
         }
-        return locateAvaliableLayouts();
+        
+        locateAvaliableLayouts();
+        
+        return layoutByAliasEntityMap;
     }
 
-    private static synchronized Map<String, ArtifactLayoutDescription> locateAvaliableLayouts()
+    public static Map<String, ArtifactLayoutDescription> getLayoutByNameEntityMap()
     {
-        if (layoutEntityMap != null)
+        if (layoutByNameEntityMap != null)
         {
-            return layoutEntityMap;
+            return layoutByNameEntityMap;
         }
-
-        Map<String, ArtifactLayoutDescription> layoutEntityMapLocal = new HashMap<>();
+        
+        locateAvaliableLayouts();
+        
+        return layoutByNameEntityMap;
+    }
+    
+    private static synchronized void locateAvaliableLayouts()
+    {
+        Map<String, ArtifactLayoutDescription> layoutByAliasEntityMapLocal = new HashMap<>();
+        Map<String, ArtifactLayoutDescription> layoutByNameEntityMapLocal = new HashMap<>();
 
         Reflections reflections = new Reflections("org.carlspring.strongbox.artifact.coordinates");
         for (Class<? extends ArtifactCoordinates> artifactCoordinatesClass : reflections.getSubTypesOf(ArtifactCoordinates.class))
@@ -56,10 +68,12 @@ public class ArtifactLayoutLocator
             }
 
             ArtifactLayoutDescription layoutDesc = ArtifactLayoutDescription.parse(artifactCoordinatesClass);
-            layoutEntityMapLocal.put(layoutDesc.getLayoutAlias(), layoutDesc);
+            layoutByAliasEntityMapLocal.put(layoutDesc.getLayoutAlias(), layoutDesc);
+            layoutByNameEntityMapLocal.put(layoutDesc.getLayoutName(), layoutDesc);
         }
 
-        return layoutEntityMap = layoutEntityMapLocal;
+        layoutByAliasEntityMap = layoutByAliasEntityMapLocal;
+        layoutByNameEntityMap = layoutByNameEntityMapLocal;
     }
 
 }

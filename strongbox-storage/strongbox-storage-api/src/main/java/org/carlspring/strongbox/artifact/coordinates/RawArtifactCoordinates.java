@@ -8,11 +8,13 @@ import org.neo4j.ogm.annotation.NodeEntity;
  * @author carlspring
  */
 @NodeEntity(Vertices.RAW_ARTIFACT_COORDINATES)
+@ArtifactCoordinatesLayout(name = RawArtifactCoordinates.LAYOUT_NAME, alias = RawArtifactCoordinates.LAYOUT_ALIAS)
 public class RawArtifactCoordinates
         extends LayoutArtifactCoordinatesEntity<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
-    public static final String LAYOUT_NAME = "Null Layout";
+    public static final String LAYOUT_NAME = "Raw";
+    public static final String LAYOUT_ALIAS = LAYOUT_NAME;
     private static final String PATH = "path";
 
     public RawArtifactCoordinates()
@@ -36,6 +38,12 @@ public class RawArtifactCoordinates
         setCoordinate(PATH, id);
     }
 
+    @ArtifactLayoutCoordinate
+    public String getPath() 
+    {
+        return getId();
+    }
+    
     /**
      * WARNING: Unsurprisingly, this is null.
      * @return  null

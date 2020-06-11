@@ -2,7 +2,6 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
@@ -17,8 +16,7 @@ import org.carlspring.strongbox.gremlin.dsl.__;
  * @author sbespalov
  */
 public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactCoordinatesEntity<C, V>, V extends Comparable<V>>
-        extends VertexEntityTraversalAdapter<GenericArtifactCoordinates>
-        implements ArtifactCoodrinatesNodeAdapter
+        implements VertexEntityTraversalAdapter<GenericArtifactCoordinates>, ArtifactCoodrinatesNodeAdapter
 {
     private final String layoutCoorinatesLabel;
     private final Class<C> layoutCoordinatesClass;
