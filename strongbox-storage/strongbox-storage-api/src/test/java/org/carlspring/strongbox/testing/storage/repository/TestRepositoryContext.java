@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
@@ -58,8 +59,9 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
 
     private final StorageManagementService storageManagementService;
 
-    private boolean opened;
+    private final PropertiesBooter propertiesBooter;
 
+    private boolean opened;
 
     public TestRepositoryContext(TestRepository testRepository,
                                  Remote remoteRepository,
@@ -68,7 +70,8 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
                                  ConfigurationManagementService configurationManagementService,
                                  RepositoryPathResolver repositoryPathResolver,
                                  RepositoryManagementService repositoryManagementService,
-                                 StorageManagementService storageManagementService)
+                                 StorageManagementService storageManagementService,
+                                 PropertiesBooter propertiesBooter)
             throws IOException,
                    RepositoryManagementStrategyException
     {
@@ -80,6 +83,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         this.repositoryPathResolver = repositoryPathResolver;
         this.repositoryManagementService = repositoryManagementService;
         this.storageManagementService = storageManagementService;
+        this.propertiesBooter = propertiesBooter;
 
         open();
     }
@@ -141,6 +145,10 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         repository.setLayout(testRepository.layout());
         repository.setPolicy(testRepository.policy().toString());
 
+        String storageBaseDir = Optional.ofNullable(storage.getBasedir())
+                                        .orElse(getStorageBaseDirectory(storage.getId()));
+        repository.setBasedir(getRepositoryBaseDirectory(storageBaseDir, repository.getId()));
+
         Optional.ofNullable(remoteRepository).ifPresent(r -> {
             repository.setType(RepositoryTypeEnum.PROXY.getType());
 
@@ -195,6 +203,12 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
                      id(testRepository));
     }
 
+    private String getRepositoryBaseDirectory(String storageBaseDir,
+                                              String repositoryId)
+    {
+        return String.format("%s/%s", storageBaseDir, repositoryId);
+    }
+
     private List<MutableRoutingRuleRepository> routingRepositories(String[] repositories)
     {
         return Arrays.stream(repositories).map(MutableRoutingRuleRepository::new).collect(Collectors.toList());
@@ -219,11 +233,17 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             throws IOException
     {
         StorageDto newStorage = new StorageDto(testRepository.storageId());
+        newStorage.setBasedir(getStorageBaseDirectory(testRepository.storageId()));
         configurationManagementService.addStorageIfNotExists(newStorage);
 
         storageManagementService.saveStorage(newStorage);
 
         return configurationManagementService.getConfiguration().getStorage(testRepository.storageId());
+    }
+
+    private String getStorageBaseDirectory(String storageId)
+    {
+        return String.format("%s/%s", propertiesBooter.getStorageBooterBasedir(), storageId);
     }
 
     @PreDestroy
