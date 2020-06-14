@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ActiveProfiles(profiles = "test")
 @Execution(CONCURRENT)
 @ContextConfiguration(classes = PypiLayoutProviderTestConfig.class)
-public class PypiRepositoryTest
+public class PypiRepositoryManagementTest
 {
     private static final String PYPI_STORAGE = "pypi-storage-to-be-injected";
 
@@ -52,7 +52,7 @@ public class PypiRepositoryTest
         assertThat(repository.getBasedir()).isNotNull();
         assertThat(repository.getStorage()).isNotNull();
         assertThat(repository.getStorage().getId()).isNotNull().isEqualTo("storage0");
-        assertThat(repository.getStorage().getBasedir()).isNull(); // it will be null as storage basedor is present in strongbox.yaml
+        assertThat(repository.getStorage().getBasedir()).isNull(); // it will be null as storage baseDir is not present in strongbox.yaml
         assertThat(repository.getLayout()).isNotNull().isEqualTo(PypiLayoutProvider.ALIAS);
     }
 }
