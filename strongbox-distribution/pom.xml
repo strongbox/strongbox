@@ -309,8 +309,7 @@
                                     <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
                                     <systemProperty>strongbox.port=%STRONGBOX_PORT%</systemProperty>
                                     <systemProperty>server.port=%STRONGBOX_PORT%</systemProperty>
-                                    <systemProperty>strongbox.db.janus-graph.storage-port=%STRONGBOX_JANUSGRAPH_PORT%</systemProperty>
-                                    <systemProperty>strongbox.db.janus-graph.profile=%STRONGBOX_JANUSGRAPH_PROFILE%</systemProperty>
+                                    <systemProperty>strongbox.db.profile=%STRONGBOX_DB_PROFILE%</systemProperty>
                                     <systemProperty>strongbox.graph.gremlin.server=%STRONGBOX_GREMLIN_SERVER_ENABLED%</systemProperty>
                                     <systemProperty>strongbox.npm.remote.changes.enabled=%STRONGBOX_NPM_REMOTE_CHANGES_ENABLED%</systemProperty>
                                     <systemProperty>strongbox.nuget.download.feed=%STRONGBOX_NUGET_DOWNLOAD_FEED%</systemProperty>
