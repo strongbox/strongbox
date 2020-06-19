@@ -25,14 +25,14 @@ import org.springframework.test.context.ContextConfiguration;
 public class NpmRepositoryManagementTest
 {
 
-    private static final String NPM_STORAGE = "npm-storage-to-be-injected";
+    private static final String NPM_STORAGE = "nrmt-storage";
 
-    private static final String NPM_REPOSITORY = "npm-repository-to-be-injected";
+    private static final String NPM_REPOSITORY = "nrmt-releases";
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjected(@NpmRepository(repositoryId = NPM_REPOSITORY,
-                                                                   storageId = NPM_STORAGE)
+    public void testValidRepositoryShouldBeInjected(@NpmRepository(storageId = NPM_STORAGE,
+                                                                   repositoryId = NPM_REPOSITORY)
                                                     Repository repository)
     {
         assertThat(repository).isNotNull();

@@ -25,14 +25,14 @@ import org.springframework.test.context.ContextConfiguration;
 public class MavenRepositoryManagementTest
 {
 
-    private static final String MAVEN_STORAGE = "maven-storage-to-be-injected";
+    private static final String MAVEN_STORAGE = "mrmt-storage";
 
-    private static final String MAVEN_REPOSITORY = "maven-repository-to-be-injected";
+    private static final String MAVEN_REPOSITORY = "mrmt-releases";
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjected(@MavenRepository(repositoryId = MAVEN_REPOSITORY,
-                                                                     storageId = MAVEN_STORAGE)
+    public void testValidRepositoryShouldBeInjected(@MavenRepository(storageId = MAVEN_STORAGE,
+                                                                     repositoryId = MAVEN_REPOSITORY)
                                                     Repository repository)
     {
         assertThat(repository).isNotNull();
