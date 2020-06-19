@@ -3,8 +3,8 @@ package org.carlspring.strongbox.testing.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.carlspring.strongbox.StorageApiTestConfig;
+import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.storage.repository.Repository;
-import org.carlspring.strongbox.testing.NullLayoutProvider;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import org.junit.jupiter.api.Test;
@@ -31,8 +31,8 @@ public class RawRepositoryManagementTest
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjected(@NullRepository(storageId = RAW_STORAGE,
-                                                                    repositoryId = RAW_REPOSITORY)
+    public void testValidRepositoryShouldBeInjected(@RawRepository(storageId = RAW_STORAGE,
+                                                                   repositoryId = RAW_REPOSITORY)
                                                     Repository repository)
     {
         assertThat(repository).isNotNull();
@@ -41,12 +41,12 @@ public class RawRepositoryManagementTest
         assertThat(repository.getStorage()).isNotNull();
         assertThat(repository.getStorage().getId()).isNotNull().isEqualTo(RAW_STORAGE);
         assertThat(repository.getStorage().getBasedir()).isNotNull();
-        assertThat(repository.getLayout()).isNotNull().isEqualTo(NullLayoutProvider.ALIAS);
+        assertThat(repository.getLayout()).isNotNull().isEqualTo(RawArtifactCoordinates.LAYOUT_NAME);
     }
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjectedWithDefaultStorage(@NullRepository(repositoryId = RAW_REPOSITORY) Repository repository)
+    public void testValidRepositoryShouldBeInjectedWithDefaultStorage(@RawRepository(repositoryId = RAW_REPOSITORY) Repository repository)
     {
         assertThat(repository).isNotNull();
         assertThat(repository.getId()).isNotNull().isEqualTo(RAW_REPOSITORY);
@@ -54,6 +54,6 @@ public class RawRepositoryManagementTest
         assertThat(repository.getStorage()).isNotNull();
         assertThat(repository.getStorage().getId()).isNotNull().isEqualTo("storage0");
         assertThat(repository.getStorage().getBasedir()).isNull();
-        assertThat(repository.getLayout()).isNotNull().isEqualTo(NullLayoutProvider.ALIAS);
+        assertThat(repository.getLayout()).isNotNull().isEqualTo(RawArtifactCoordinates.LAYOUT_NAME);
     }
 }
