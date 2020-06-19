@@ -24,14 +24,14 @@ import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 @ContextConfiguration(classes = PypiLayoutProviderTestConfig.class)
 public class PypiRepositoryManagementTest
 {
-    private static final String PYPI_STORAGE = "pypi-storage-to-be-injected";
+    private static final String PYPI_STORAGE = "prmt-storage";
 
-    private static final String PYPI_REPOSITORY = "pypi-repository-to-be-injected";
+    private static final String PYPI_REPOSITORY = "prmt-releases";
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjected(@PypiTestRepository(repositoryId = PYPI_REPOSITORY,
-                                                                        storageId = PYPI_STORAGE) 
+    public void testValidRepositoryShouldBeInjected(@PypiTestRepository(storageId = PYPI_STORAGE,
+                                                                        repositoryId = PYPI_REPOSITORY) 
                                                     Repository repository)
     {
         assertThat(repository).isNotNull();

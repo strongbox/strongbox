@@ -25,14 +25,14 @@ import org.springframework.test.context.ContextConfiguration;
 public class NugetRepositoryManagementTest
 {
 
-    private static final String NUGET_STORAGE = "nuget-storage-to-be-injected";
+    private static final String NUGET_STORAGE = "nurmt-storage";
 
-    private static final String NUGET_REPOSITORY = "nuget-repository-to-be-injected";
+    private static final String NUGET_REPOSITORY = "nurmt-releases";
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjected(@NugetRepository(repositoryId = NUGET_REPOSITORY,
-                                                                     storageId = NUGET_STORAGE)
+    public void testValidRepositoryShouldBeInjected(@NugetRepository(storageId = NUGET_STORAGE,
+                                                                     repositoryId = NUGET_REPOSITORY)
                                                     Repository repository)
     {
         assertThat(repository).isNotNull();

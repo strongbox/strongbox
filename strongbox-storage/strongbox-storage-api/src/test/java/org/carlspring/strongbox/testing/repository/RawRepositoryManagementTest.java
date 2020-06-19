@@ -25,14 +25,14 @@ import org.springframework.test.context.ContextConfiguration;
 public class RawRepositoryManagementTest
 {
 
-    private static final String RAW_STORAGE = "raw-storage-to-be-injected";
+    private static final String RAW_STORAGE = "rrmt-storage";
 
-    private static final String RAW_REPOSITORY = "rwa-repository-to-be-injected";
+    private static final String RAW_REPOSITORY = "rrmt-releases";
 
     @ExtendWith({ RepositoryManagementTestExecutionListener.class })
     @Test
-    public void testValidRepositoryShouldBeInjected(@NullRepository(repositoryId = RAW_REPOSITORY,
-                                                                    storageId = RAW_STORAGE)
+    public void testValidRepositoryShouldBeInjected(@NullRepository(storageId = RAW_STORAGE,
+                                                                    repositoryId = RAW_REPOSITORY)
                                                     Repository repository)
     {
         assertThat(repository).isNotNull();
