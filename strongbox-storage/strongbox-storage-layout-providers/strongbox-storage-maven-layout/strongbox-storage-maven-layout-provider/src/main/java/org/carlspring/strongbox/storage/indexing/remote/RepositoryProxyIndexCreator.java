@@ -1,17 +1,23 @@
 package org.carlspring.strongbox.storage.indexing.remote;
 
+import org.carlspring.strongbox.client.config.ProxyRepositoryConnectionConfigurationService;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-import org.carlspring.strongbox.storage.indexing.*;
-import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
+import org.carlspring.strongbox.storage.indexing.AbstractRepositoryIndexCreator;
+import org.carlspring.strongbox.storage.indexing.IndexPacker;
+import org.carlspring.strongbox.storage.indexing.IndexTypeEnum;
+import org.carlspring.strongbox.storage.indexing.RepositoryCloseableIndexingContext;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexDirectoryPathResolver.RepositoryIndexDirectoryPathResolverQualifier;
+import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexingContextFactory.RepositoryIndexingContextFactoryQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Objects;
@@ -40,7 +46,7 @@ public class RepositoryProxyIndexCreator
     private final IndexUpdater indexUpdater = new DefaultIndexUpdater(new DefaultIncrementalHandler(), null);
 
     @Inject
-    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+    private ProxyRepositoryConnectionConfigurationService proxyRepositoryConnectionConfigurationService;
 
     @Inject
     private ResourceFetcherFactory resourceFetcherFactory;
@@ -103,7 +109,7 @@ public class RepositoryProxyIndexCreator
         final IndexUpdateRequest updateRequest = new IndexUpdateRequest(indexingContext,
                                                                         resourceFetcherFactory.createIndexResourceFetcher(
                                                                                 indexingContext.getRepositoryUrl(),
-                                                                                proxyRepositoryConnectionPoolConfigurationService.getHttpClient()));
+                                                                                proxyRepositoryConnectionConfigurationService.getHttpClient(repository)));
 
         updateRequest.setIndexTempDir(
                 RepositoryFiles.temporary(repositoryPathResolver.resolve(repository)).toFile());

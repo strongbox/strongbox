@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.storage.repository.remote.heartbeat.monitor;
 
+import org.carlspring.strongbox.client.config.ProxyRepositoryConnectionConfigurationService;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.inject.Inject;
@@ -24,7 +25,7 @@ class HttpGetRemoteRepositoryCheckStrategy
     private static final Logger logger = LoggerFactory.getLogger(HttpGetRemoteRepositoryCheckStrategy.class);
 
     @Inject
-    private ProxyRepositoryConnectionPoolConfigurationService proxyRepositoryConnectionPoolConfigurationService;
+    private ProxyRepositoryConnectionConfigurationService proxyRepositoryConnectionConfigurationService;
 
     @Override
     public boolean isAlive(String remoteRepositoryUrl)
@@ -32,7 +33,7 @@ class HttpGetRemoteRepositoryCheckStrategy
         boolean response = false;
         try
         {
-            try (final CloseableHttpClient httpClient = proxyRepositoryConnectionPoolConfigurationService.getHttpClient())
+            try (final CloseableHttpClient httpClient = proxyRepositoryConnectionConfigurationService.getHttpClient())
             {
                 try (final CloseableHttpResponse httpResponse = httpClient.execute(new HttpGet(remoteRepositoryUrl)))
                 {

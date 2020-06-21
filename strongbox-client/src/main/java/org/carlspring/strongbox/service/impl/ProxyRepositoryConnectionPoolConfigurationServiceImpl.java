@@ -1,32 +1,41 @@
 package org.carlspring.strongbox.service.impl;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.concurrent.TimeUnit;
+import org.carlspring.strongbox.client.ProxyServerConfiguration;
+import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 
+import java.net.Proxy;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.conn.routing.HttpRoute;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.DefaultProxyRoutePlanner;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.pool.PoolStats;
-
-import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
-
 import org.glassfish.jersey.apache.connector.ApacheClientProperties;
 import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.logging.LoggingFeature.Verbosity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * @author korest
@@ -36,16 +45,18 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         implements ProxyRepositoryConnectionPoolConfigurationService
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProxyRepositoryConnectionPoolConfigurationServiceImpl.class);
 
     private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
+
     private IdleConnectionMonitorThread idleConnectionMonitorThread;
 
     @Value("${pool.maxConnections:200}")
     private int maxTotal;
+
     @Value("${pool.defaultConnectionsPerRoute:5}")
     private int defaultMaxPerRoute;
+
     @Value("${pool.idleConnectionsTimeoutInSeconds:60}")
     private int idleConnectionsTimeoutInSeconds;
 
@@ -68,15 +79,45 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     {
         shutdown();
     }
-
+    
     @Override
-    public Client getRestClient()
+    public Client getRestClient(ProxyServerConfiguration proxyConfiguration)
     {
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new ApacheConnectorProvider());
         config.property(ApacheClientProperties.CONNECTION_MANAGER, poolingHttpClientConnectionManager);
         // property to prevent closing connection manager when client is closed
         config.property(ApacheClientProperties.CONNECTION_MANAGER_SHARED, true);
+
+        if (proxyConfiguration != null
+                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts())
+                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost())))
+        {
+            if (Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
+                config.property(ClientProperties.PROXY_URI, proxy.toURI());
+
+                if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
+                        && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
+                {
+                    config.property(ClientProperties.PROXY_USERNAME, proxyConfiguration.getUsername());
+                    config.property(ClientProperties.PROXY_PASSWORD, proxyConfiguration.getPassword());
+                }
+            }
+            else if (Proxy.Type.SOCKS.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+              //TODO :: Implement SOCKS proxy
+            }
+            else if (Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                logger.info("Proxy Type is DIRECT ,so not using proxy configurations in RestClient.");
+            }
+        }
+        else
+        {
+            logger.info("Proxy host is in Non-Proxy host list, so not using proxy configurations in RestClient.");
+        }
 
         java.util.logging.Logger logger = java.util.logging.Logger.getLogger("org.carlspring.strongbox.RestClient");
 
@@ -92,9 +133,53 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
     }
 
     @Override
-    public CloseableHttpClient getHttpClient()
+    public Client getRestClient()
     {
+        return getRestClient(null);
+    }
+
+    @Override
+    public CloseableHttpClient getHttpClient(ProxyServerConfiguration proxyConfiguration)
+    {
+        DefaultProxyRoutePlanner routePlanner = null;
+        CredentialsProvider credentialsProvider = null;
+
+        if (proxyConfiguration != null
+                && (CollectionUtils.isEmpty(proxyConfiguration.getNonProxyHosts())
+                    || !proxyConfiguration.getNonProxyHosts().contains(proxyConfiguration.getHost())))
+        {
+            if (Proxy.Type.HTTP.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                HttpHost proxy = new HttpHost(proxyConfiguration.getHost(), proxyConfiguration.getPort());
+                routePlanner = new DefaultProxyRoutePlanner(proxy);
+
+                if (!StringUtils.isEmpty(proxyConfiguration.getUsername())
+                        && !StringUtils.isEmpty(proxyConfiguration.getPassword()))
+                {
+                    credentialsProvider = new BasicCredentialsProvider();
+                    credentialsProvider.setCredentials(new AuthScope(proxy),
+                                                       new UsernamePasswordCredentials(proxyConfiguration.getUsername(),
+                                                                                       proxyConfiguration.getPassword()));
+                }
+            }
+            else if (Proxy.Type.SOCKS.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                //TODO :: Implement SOCKS proxy
+            }
+            else if (Proxy.Type.DIRECT.name().equalsIgnoreCase(proxyConfiguration.getType()))
+            {
+                logger.info("Proxy Type is DIRECT, so not using proxy configurations in HttpClient..");
+            }
+
+        }
+        else
+        {
+            logger.warn("Proxy host is in Non-Proxy host list, so not using proxy configurations in HttpClient.");
+        }
+
         return HttpClients.custom()
+                          .setRoutePlanner(routePlanner)
+                          .setDefaultCredentialsProvider(credentialsProvider)
                           .setConnectionManagerShared(true)
                           .setConnectionManager(poolingHttpClientConnectionManager)
                           .build();
@@ -241,4 +326,5 @@ public class ProxyRepositoryConnectionPoolConfigurationServiceImpl
         }
 
     }
+
 }

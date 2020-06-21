@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.storage.repository;
 
+import org.carlspring.strongbox.client.ProxyServerConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.configuration.ProxyConfiguration;
 import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
@@ -8,12 +10,15 @@ import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 import org.carlspring.strongbox.yaml.repository.CustomRepositoryConfigurationDto;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -419,6 +424,21 @@ public class RepositoryDto
         return this.getHttpConnectionPool() != null &&
                this.getRemoteRepository() != null &&
                this.getRemoteRepository().getUrl() != null;
+    }
+
+    @Override
+    public ProxyServerConfiguration getProxyServerConfiguration()
+        throws IllegalAccessException,
+        InvocationTargetException
+    {
+
+        if (getProxyConfiguration() != null)
+        {
+            ProxyServerConfiguration proxyServerConfiguration = new ProxyServerConfiguration();
+            BeanUtils.copyProperties(proxyServerConfiguration, getProxyConfiguration());
+            return proxyServerConfiguration;
+        }
+        return null;
     }
 
 }
