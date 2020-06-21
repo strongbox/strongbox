@@ -12,12 +12,15 @@ import org.carlspring.strongbox.services.ArtifactResolutionService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,6 +59,30 @@ public abstract class BaseController
 
     @Inject
     protected ArtifactResolutionService artifactResolutionService;
+
+    @Inject
+    protected StrongboxUriComponentsBuilder uriBuilder;
+
+    /**
+     * Returns the current requestURI (i.e. /my/absolute/path/excluding/domain/without/trailing/slash)
+     *
+     * @return String
+     */
+    protected String getCurrentRequestUri()
+    {
+        return uriBuilder.getCurrentRequestUri();
+    }
+
+    /**
+     * Returns the current requestURI (i.e. http://localhost:48080/my/absolute/path/excluding/domain/without/trailing/slash)
+     *
+     * @return String
+     */
+    protected URL getCurrentRequestUrl()
+            throws MalformedURLException
+    {
+        return uriBuilder.getCurrentRequestUrl();
+    }
 
     protected Configuration getConfiguration()
     {

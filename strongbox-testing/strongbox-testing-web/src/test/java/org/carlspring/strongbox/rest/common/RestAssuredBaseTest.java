@@ -3,7 +3,6 @@ package org.carlspring.strongbox.rest.common;
 import org.carlspring.strongbox.rest.client.RestAssuredArtifactClient;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Locale;
 
@@ -59,7 +58,7 @@ public abstract class RestAssuredBaseTest
     {
         logger.debug("Initializing RestAssured...");
 
-        client.setContextBaseUrl(contextBaseUrl);
+        setContextBaseUrl(contextBaseUrl);
     }
 
     public String getContextBaseUrl()
@@ -75,6 +74,7 @@ public abstract class RestAssuredBaseTest
     public void setContextBaseUrl(String contextBaseUrl)
     {
         this.contextBaseUrl = contextBaseUrl;
+        client.setContextBaseUrl(contextBaseUrl);
     }
 
     protected String getI18nInsufficientAuthenticationErrorMessage()

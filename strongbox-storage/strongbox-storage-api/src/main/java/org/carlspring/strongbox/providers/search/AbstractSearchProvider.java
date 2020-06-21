@@ -19,6 +19,8 @@ import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.search.SearchRequest;
 import org.carlspring.strongbox.storage.search.SearchResult;
+import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,8 @@ public abstract class AbstractSearchProvider
     @Inject
     private RepositoryPathResolver repositoryPathResolver;
 
+    @Inject
+    private StrongboxUriComponentsBuilder uriBuilder;
 
     @Override
     public SearchResult findExact(SearchRequest searchRequest)
@@ -83,7 +87,12 @@ public abstract class AbstractSearchProvider
         try
         {
             RepositoryPath repositoryPath = repositoryPathResolver.resolve(a.getStorageId(), a.getRepositoryId(), a.getArtifactPath());
-            artifactResource = RepositoryFiles.readResourceUrl(repositoryPath);
+            artifactResource = uriBuilder.storageUriBuilder(repositoryPath.getStorage().getId(),
+                                                            repositoryPath.getRepository().getId(),
+                                                            RepositoryFiles.resolveResource(repositoryPath))
+                                         .build()
+                                         .toUri()
+                                         .toURL();
         }
         catch (IOException e)
         {

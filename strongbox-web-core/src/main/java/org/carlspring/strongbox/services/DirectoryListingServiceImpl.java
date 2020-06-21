@@ -1,47 +1,56 @@
 package org.carlspring.strongbox.services;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.commons.lang.StringUtils;
+import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.domain.FileContent;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.util.StrongboxUriComponentsBuilder;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
-public class DirectoryListingServiceImpl implements DirectoryListingService
+@Service
+public class DirectoryListingServiceImpl
+        implements DirectoryListingService
 {
 
     private static final Logger logger = LoggerFactory.getLogger(DirectoryListingService.class);
 
-    private String baseUrl;
+    @Inject
+    private PropertiesBooter propertiesBooter;
 
-    public DirectoryListingServiceImpl(String baseUrl)
+    @Inject
+    private StrongboxUriComponentsBuilder uriBuilder;
+
+    public DirectoryListingServiceImpl()
     {
-        super();
-        this.baseUrl = StringUtils.chomp(baseUrl.toString(), "/");
     }
 
     @Override
     public DirectoryListing fromStorages(Map<String, ? extends Storage> storages)
-        throws IOException
+            throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
+        directoryListing.setLink(uriBuilder.getCurrentRequestUrl());
 
         for (Storage storage : storages.values())
         {
@@ -49,17 +58,19 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
             directoryListing.getDirectories().add(fileContent);
 
             fileContent.setStorageId(storage.getId());
-            fileContent.setUrl(calculateDirectoryUrl(fileContent));
+            fileContent.setUrl(uriBuilder.browseUriBuilder(storage.getId()).build().toUri().toURL());
         }
 
         return directoryListing;
     }
 
     @Override
-    public DirectoryListing fromRepositories(Map<String, ? extends Repository> repositories)
-        throws IOException
+    public DirectoryListing fromRepositories(String storageId,
+                                             Map<String, ? extends Repository> repositories)
+            throws IOException
     {
         DirectoryListing directoryListing = new DirectoryListing();
+        directoryListing.setLink(uriBuilder.getCurrentRequestUrl());
 
         for (Repository repository : repositories.values())
         {
@@ -69,40 +80,135 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
             fileContent.setStorageId(repository.getStorage().getId());
             fileContent.setRepositoryId(repository.getId());
 
-            fileContent.setUrl(calculateDirectoryUrl(fileContent));
+            fileContent.setUrl(uriBuilder.browseUriBuilder(repository.getStorage().getId(),
+                                                           repository.getId(),
+                                                           (String) null)
+                                         .build()
+                                         .toUri()
+                                         .toURL());
         }
 
         return directoryListing;
     }
 
     @Override
-    public DirectoryListing fromRepositoryPath(RepositoryPath path)
-        throws IOException
+    public DirectoryListing fromRepositoryPath(RepositoryPath repositoryPath)
+            throws IOException
     {
-        return fromPath(path);
+        UriComponentsBuilder directoryLinkBuilder = uriBuilder.browseUriBuilder(repositoryPath.getStorage().getId(),
+                                                                                repositoryPath.getRepository().getId(),
+                                                                                (String) null);
+
+        UriComponentsBuilder fileLinkBuilder = uriBuilder.storageUriBuilder(repositoryPath.getStorage().getId(),
+                                                                            repositoryPath.getRepository().getId(),
+                                                                            (String) null);
+
+        List<Path> contentPaths = fetchContent(repositoryPath);
+
+        return generateDirectoryListing(null, contentPaths, directoryLinkBuilder, fileLinkBuilder);
     }
 
-    private DirectoryListing fromPath(Path path)
-        throws IOException
+    @Override
+    public DirectoryListing fromPath(UriComponentsBuilder directoryLinkBuilder,
+                                     UriComponentsBuilder fileLinkBuilder,
+                                     Path rootPath,
+                                     Path requestedPath)
+            throws IOException, RuntimeException
     {
-        path = path.normalize();
+        rootPath = rootPath.normalize();
+        requestedPath = requestedPath.normalize();
 
-        DirectoryListing directoryListing = new DirectoryListing();
+        if (!requestedPath.equals(rootPath) && !requestedPath.startsWith(rootPath))
+        {
+            String message = "Requested directory listing is outside the scope of the root path! Possible intrusion attack or misconfiguration!";
+            logger.error(message);
+            throw new RuntimeException(message);
+        }
 
-        Map<String, List<FileContent>> content = generateDirectoryListing(path);
+        Path relativePath = rootPath.relativize(requestedPath);
 
-        directoryListing.setDirectories(content.get("directories"));
-        directoryListing.setFiles(content.get("files"));
+        List<Path> contentPaths = fetchContent(requestedPath);
 
-        return directoryListing;
+        return generateDirectoryListing(relativePath, contentPaths, directoryLinkBuilder, fileLinkBuilder);
     }
 
-    private Map<String, List<FileContent>> generateDirectoryListing(Path path)
-        throws IOException
+    /**
+     * Generate a directory listing for a path.
+     *
+     * @param relativePath         A relative path to the artifact within the scope of (directory|file)LinkBuilder
+     *                             This field is only needed/used when listing non-storage paths.
+     * @param contentPaths         List of Paths to iterate over to generate the DirectoryListing.
+     * @param directoryLinkBuilder UriComponentsBuilder to be used for generating directory links
+     * @param fileLinkBuilder      UriComponentsBuilder to be used for generating download links;
+     *                             If null - file.url will be null as well.
+     *
+     * @return
+     *
+     * @throws IOException
+     */
+    private DirectoryListing generateDirectoryListing(Path relativePath,
+                                                      List<Path> contentPaths,
+                                                      UriComponentsBuilder directoryLinkBuilder,
+                                                      UriComponentsBuilder fileLinkBuilder)
+            throws IOException
     {
-        List<FileContent> directories = new ArrayList<>();
-        List<FileContent> files = new ArrayList<>();
+        DirectoryListing listing = new DirectoryListing();
+        listing.setLink(uriBuilder.getCurrentRequestUrl());
 
+        for (Path contentPath : contentPaths)
+        {
+            FileContent file = new FileContent(contentPath.getFileName().toString());
+
+            Map<String, Object> fileAttributes = Files.readAttributes(contentPath, "*");
+
+            file.setStorageId((String) fileAttributes.get(RepositoryFileAttributeType.STORAGE_ID.getName()));
+            file.setRepositoryId((String) fileAttributes.get(RepositoryFileAttributeType.REPOSITORY_ID.getName()));
+            file.setArtifactPath((String) fileAttributes.get(RepositoryFileAttributeType.ARTIFACT_PATH.getName()));
+            file.setLastModified(new Date(((FileTime) fileAttributes.get("lastModifiedTime")).toMillis()));
+            file.setSize((Long) fileAttributes.get("size"));
+
+            // Depending on scanned file/path this might not be a `storage` artifact (i.e. it could be a log file)
+            // in which case we need to set the artifactPath to the file's path.
+            if (file.getArtifactPath() == null)
+            {
+                file.setArtifactPath(sanitizedPath(relativePath.toString() + "/" + file.getName()));
+            }
+
+            UriComponentsBuilder builder = null;
+            if (Boolean.TRUE.equals(fileAttributes.get("isDirectory")))
+            {
+                // TODO: Use `UriComponentsBuilder.clone()` when spring-framework/issues/24772 is fixed and released
+                builder = UriComponentsBuilder.fromUriString(directoryLinkBuilder.toUriString());
+                listing.getDirectories().add(file);
+            }
+            else
+            {
+                // TODO: Use `UriComponentsBuilder.clone()` when spring-framework/issues/24772 is fixed and released
+                if (fileLinkBuilder != null)
+                {
+                    builder = UriComponentsBuilder.fromUriString(fileLinkBuilder.toUriString());
+                }
+
+                listing.getFiles().add(file);
+            }
+
+            if (builder != null)
+            {
+                URL url = builder.path("/" + file.getArtifactPath())
+                                 .build()
+                                 .toUri()
+                                 .toURL();
+
+                file.setUrl(url);
+            }
+        }
+
+        return listing;
+    }
+
+    private List<Path> fetchContent(Path path)
+            throws IOException
+    {
         List<Path> contentPaths;
         try (Stream<Path> pathStream = Files.list(path))
         {
@@ -123,90 +229,21 @@ public class DirectoryListingServiceImpl implements DirectoryListingService
                                    .collect(Collectors.toList());
         }
 
-        for (Path contentPath : contentPaths)
-        {
-            FileContent file = new FileContent(contentPath.getFileName().toString());
-
-            Map<String, Object> fileAttributes = Files.readAttributes(contentPath, "*");
-
-            file.setStorageId((String) fileAttributes.get(RepositoryFileAttributeType.STORAGE_ID.getName()));
-            file.setRepositoryId((String) fileAttributes.get(RepositoryFileAttributeType.REPOSITORY_ID.getName()));
-
-            file.setArtifactPath((String) fileAttributes.get("artifactPath"));
-
-            if (Boolean.TRUE.equals(fileAttributes.get("isDirectory")))
-            {
-                file.setUrl(calculateDirectoryUrl(file));
-
-                directories.add(file);
-
-                continue;
-            }
-
-            file.setUrl((URL) fileAttributes.get(RepositoryFileAttributeType.RESOURCE_URL.getName()));
-
-            file.setLastModified(new Date(((FileTime) fileAttributes.get("lastModifiedTime")).toMillis()));
-            file.setSize((Long) fileAttributes.get("size"));
-
-            files.add(file);
-        }
-
-        Map<String, List<FileContent>> listing = new HashMap<>();
-        listing.put("directories", directories);
-        listing.put("files", files);
-
-        return listing;
+        return contentPaths;
     }
 
-    /**
-     * @param rootPath
-     *            The root path in which directory listing is allowed. Used as a
-     *            precaution to prevent directory traversing.
-     *            When "path" is outside "rootPath" an exception will be thrown.
-     * @param path
-     *            The path which needs to be listed
-     * @return DirectoryListing
-     * @throws RuntimeException
-     *             when path is not within rootPath.
-     */
-    public DirectoryListing fromPath(Path rootPath,
-                                     Path path)
-        throws IOException
+    private String sanitizedPath(final String rawPath)
     {
-        rootPath = rootPath.normalize();
-        path = path.normalize();
+        String sanitizedPath = rawPath;
 
-        if (!path.equals(rootPath) && !path.startsWith(rootPath))
+        if (!File.pathSeparator.equals("/"))
         {
-            String message = String.format(
-                                           "Requested directory listing for [%s] is outside the scope of the root path [%s]! Possible intrusion attack or misconfiguration!",
-                                           path, rootPath);
-            logger.error(message);
-            throw new RuntimeException(message);
+            sanitizedPath = sanitizedPath.replaceAll("\\\\", "/");
         }
 
-        return fromPath(path);
-    }
+        sanitizedPath = StringUtils.removeStart(sanitizedPath, "/");
 
-    private URL calculateDirectoryUrl(FileContent file)
-        throws MalformedURLException
-    {
-        if (file.getRepositoryId() == null)
-        {
-
-            return new URL(String.format("%s/%s", baseUrl, file.getStorageId()));
-
-        }
-        else if (file.getArtifactPath() == null)
-        {
-
-            return new URL(String.format("%s/%s/%s", baseUrl, file.getStorageId(),
-                                         file.getRepositoryId()));
-
-        }
-
-        return new URL(String.format("%s/%s/%s/%s", baseUrl, file.getStorageId(),
-                                     file.getRepositoryId(), file.getArtifactPath()));
+        return sanitizedPath;
     }
 
 }

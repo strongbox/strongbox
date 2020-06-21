@@ -142,16 +142,6 @@ public class RepositoryFileAttributes
         return Boolean.TRUE.equals(attributes.get(EXPIRED));
     }
 
-    public boolean getResourceUrl()
-    {
-        return Boolean.TRUE.equals(attributes.get(RESOURCE_URL));
-    }
-
-    protected void setResourceUrl(URL url)
-    {
-        attributes.put(RESOURCE_URL, url);
-    }
-
     public boolean getArtifactPath()
     {
         return Boolean.TRUE.equals(attributes.get(ARTIFACT_PATH));

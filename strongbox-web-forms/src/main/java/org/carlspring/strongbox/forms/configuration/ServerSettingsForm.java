@@ -1,20 +1,17 @@
 package org.carlspring.strongbox.forms.configuration;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
  * @author Pablo Tirado
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonSerialize(include = JsonSerialize.Inclusion.ALWAYS)
+@JsonInclude
 public class ServerSettingsForm
 {
 
@@ -22,7 +19,7 @@ public class ServerSettingsForm
     @JsonProperty
     private String instanceName;
 
-    @NotBlank(message = "A base URL must be specified.")
+    @Pattern(regexp = "^(http(s)?://(.+))?$", message = "Must be empty or valid URL ({regexp})")
     @JsonProperty
     private String baseUrl;
 
@@ -55,6 +52,13 @@ public class ServerSettingsForm
     {
         this.baseUrl = baseUrl;
         this.port = port;
+    }
+
+    public ServerSettingsForm(String baseUrl, Integer port, String instanceName)
+    {
+        this.baseUrl = baseUrl;
+        this.port = port;
+        this.instanceName = instanceName;
     }
 
     public ServerSettingsForm(String baseUrl,

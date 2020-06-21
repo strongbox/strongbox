@@ -21,8 +21,6 @@ public enum RepositoryFileAttributeType
     
     ARTIFACT_PATH("artifactPath"),
 
-    RESOURCE_URL("resourceUrl"),
-    
     REPOSITORY_ID("repositoryId"),
     
     STORAGE_ID("storageId");

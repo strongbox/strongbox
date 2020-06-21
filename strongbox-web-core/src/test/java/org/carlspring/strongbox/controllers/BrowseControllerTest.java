@@ -179,6 +179,9 @@ public class BrowseControllerTest
                                            .when()
                                            .get(url, storageId, repositoryId, artifact1ParentPathStr)
                                            .prettyPeek()
+                                           .then()
+                                           .statusCode(HttpStatus.OK.value())
+                                           .extract()
                                            .as(DirectoryListing.class);
 
         assertThat(returned.getFiles().size() == 6
