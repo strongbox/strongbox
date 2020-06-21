@@ -1,10 +1,13 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import org.carlspring.strongbox.forms.PathForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.providers.io.RepositoryRelativePathConstructionException;
 import org.carlspring.strongbox.repository.RepositoryManagementStrategyException;
+import org.carlspring.strongbox.services.ArtifactManagementService;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.services.RepositoryManagementService;
 import org.carlspring.strongbox.services.StorageManagementService;
@@ -68,11 +71,19 @@ public class StoragesConfigurationController
 
     static final String SUCCESSFUL_REPOSITORY_REMOVAL = "The repository was removed successfully.";
 
+    static final String SUCCESSFUL_REPOSITORY_PATH_REMOVAL = "The repository path was removed successfully.";
+
+    static final String FAILED_REPOSITORY_PATH_REMOVAL_PATH_NOT_FOUND = "The repository path cannot be deleted because the path does not exist in storages/repository!";
+
     private static final String FAILED_STORAGE_REMOVAL = "Failed to remove the storage !";
 
     private static final String STORAGE_NOT_FOUND = "The storage was not found.";
 
     private static final String FAILED_REPOSITORY_REMOVAL = "Failed to remove the repository !";
+
+    private static final String FAILED_REPOSITORY_PATH_REMOVAL = "Failed to remove the repository path !";
+
+    private static final String FAILED_REPOSITORY_PATH_REMOVAL_FORM_ERROR = "The repository path cannot be deleted because the submitted form contains errors!";
 
     private final StorageManagementService storageManagementService;
 
@@ -80,15 +91,19 @@ public class StoragesConfigurationController
 
     private final ConversionService conversionService;
 
+    private final ArtifactManagementService artifactManagementService;
+
     public StoragesConfigurationController(ConfigurationManagementService configurationManagementService,
                                            StorageManagementService storageManagementService,
                                            RepositoryManagementService repositoryManagementService,
-                                           ConversionService conversionService)
+                                           ConversionService conversionService,
+                                           ArtifactManagementService artifactManagementService)
     {
         super(configurationManagementService);
         this.storageManagementService = storageManagementService;
         this.repositoryManagementService = repositoryManagementService;
         this.conversionService = conversionService;
+        this.artifactManagementService = artifactManagementService;
     }
 
     @ApiOperation(value = "Adds a storage.")
@@ -326,6 +341,53 @@ public class StoragesConfigurationController
         catch (IOException | ConfigurationException e)
         {
             return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_REMOVAL, e, accept);
+        }
+    }
+
+    @ApiOperation(value = "Deletes recursively the content of path located under the defined storageId and repositoryId.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository path was deleted successfully."),
+                            @ApiResponse(code = 404, message = "The repository path cannot be deleted because storageId,repositoryId,or path was not found!"),
+                            @ApiResponse(code = 500, message = "Failed to remove the repository path") })
+    @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY_PATH')")
+    @DeleteMapping(value = "/delete", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
+                                                                                                MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity removeRepositoryPath(@ApiParam(value = "The path object", required = true)
+                                               @RequestBody @Validated({ Default.class,
+                                                                         ProxyConfigurationFormChecks.class})
+                                               PathForm pathForm,
+                                               BindingResult bindingResult,
+                                               @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+
+        if(bindingResult.hasErrors())
+        {
+            return getFailedResponseEntity(HttpStatus.NOT_FOUND, FAILED_REPOSITORY_PATH_REMOVAL_FORM_ERROR, accept);
+        }
+
+        try
+        {
+            final RepositoryPath repositoryPath = repositoryPathResolver.resolve(pathForm.getStorageId(),
+                                                                                 pathForm.getRepositoryId(),
+                                                                                 pathForm.getPath());
+
+            if (!Files.exists(repositoryPath))
+            {
+                return getFailedResponseEntity(HttpStatus.NOT_FOUND, FAILED_REPOSITORY_PATH_REMOVAL_PATH_NOT_FOUND, accept);
+            }
+
+            artifactManagementService.delete(repositoryPath, pathForm.isForce());
+
+            logger.info("Deleting Path {}:{}/{}...", pathForm.getStorageId(), pathForm.getRepositoryId(), pathForm.getPath());
+
+            return getSuccessfulResponseEntity(SUCCESSFUL_REPOSITORY_PATH_REMOVAL, accept);
+        }
+        catch (NullPointerException | RepositoryRelativePathConstructionException e)
+        {
+            return getFailedResponseEntity(HttpStatus.NOT_FOUND, FAILED_REPOSITORY_PATH_REMOVAL_FORM_ERROR, accept);
+        }
+        catch (IOException e)
+        {
+            return getExceptionResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, FAILED_REPOSITORY_PATH_REMOVAL, e, accept);
         }
     }
 
