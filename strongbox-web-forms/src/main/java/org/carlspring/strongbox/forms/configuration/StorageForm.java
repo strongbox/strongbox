@@ -16,7 +16,7 @@ public class StorageForm
 {
 
     @NotEmpty(message = "An id must be specified.")
-    @UniqueStorage(groups = NewStorage.class, message = "Storage id is already taken.")
+    @UniqueStorage(groups = NewStorage.class, message = "The storage id already exists.")
     @Pattern(regexp = "[a-zA-Z0-9\\-\\_\\.]+")
     private String id;
 
@@ -66,4 +66,5 @@ public class StorageForm
     {
         // validation group marker interface for existing storages.
     }
+
 }

@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.datastore;
+package org.carlspring.strongbox.providers.storage;
 
 import javax.inject.Inject;
 
@@ -11,6 +11,7 @@ public abstract class AbstractStorageProvider
 
     @Inject
     private StorageProviderRegistry storageProviderRegistry;
+
 
     public StorageProviderRegistry getStorageProviderRegistry()
     {

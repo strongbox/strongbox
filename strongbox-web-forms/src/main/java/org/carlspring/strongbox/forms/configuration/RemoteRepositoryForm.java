@@ -26,7 +26,7 @@ public class RemoteRepositoryForm
     private String checksumPolicy;
 
     @NotNull(message = "A checkIntervalSeconds must be specified.")
-    @PositiveOrZero(message = "A checkIntervalSeconds must be positive or zero.")
+    @PositiveOrZero(message = "The checkIntervalSeconds must be greater, or equal to zero.")
     private Integer checkIntervalSeconds;
 
     private boolean allowsDirectoryBrowsing = true;
@@ -92,4 +92,5 @@ public class RemoteRepositoryForm
     {
         return autoImportRemoteSSLCertificate;
     }
+
 }

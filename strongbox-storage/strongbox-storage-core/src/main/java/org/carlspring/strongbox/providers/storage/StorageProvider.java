@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.datastore;
+package org.carlspring.strongbox.providers.storage;
 
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
@@ -16,4 +16,5 @@ public interface StorageProvider
     FileSystem getFileSystem();
     
     FileSystemProvider getFileSystemProvider();
+
 }

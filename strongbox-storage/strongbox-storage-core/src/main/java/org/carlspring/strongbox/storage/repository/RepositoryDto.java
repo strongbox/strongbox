@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.storage.repository;
 
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
-import org.carlspring.strongbox.providers.datastore.FileSystemStorageProvider;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
@@ -31,8 +31,7 @@ public class RepositoryDto
 
     private String policy = RepositoryPolicyEnum.MIXED.getPolicy();
 
-    @JsonProperty("dataStore")
-    private String implementation = FileSystemStorageProvider.ALIAS;
+    private String storageProvider = FileSystemStorageProvider.ALIAS;
 
     private String layout;
 
@@ -78,6 +77,7 @@ public class RepositoryDto
     @JsonIgnore
     private StorageDto storage;
 
+
     public RepositoryDto()
     {
     }
@@ -118,14 +118,14 @@ public class RepositoryDto
         this.policy = policy;
     }
 
-    public String getImplementation()
+    public String getStorageProvider()
     {
-        return implementation;
+        return storageProvider;
     }
 
-    public void setImplementation(String implementation)
+    public void setStorageProvider(String storageProvider)
     {
-        this.implementation = implementation;
+        this.storageProvider = storageProvider;
     }
 
     public String getLayout()

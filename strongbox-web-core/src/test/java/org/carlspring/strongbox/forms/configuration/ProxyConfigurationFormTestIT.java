@@ -40,7 +40,7 @@ public class ProxyConfigurationFormTestIT
 
     private static Stream<Arguments> portsProvider()
     {
-        final String rangeErrorMessage = "Port number must be an integer between 1 and 65535.";
+        final String rangeErrorMessage = "The port number must be an integer between 1 and 65535.";
         return Stream.of(
                 Arguments.of(PORT_EMPTY, "A port must be provided."),
                 Arguments.of(PORT_MIN_INVALID, rangeErrorMessage),
@@ -53,7 +53,7 @@ public class ProxyConfigurationFormTestIT
         return Stream.of(
                 Arguments.of(StringUtils.EMPTY, 2, "A proxy type must be specified."),
                 Arguments.of(TYPE_INVALID, 1,
-                             "Proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
+                             "The proxy type must contain one the following strings as value: DIRECT, HTTP, SOCKS4, SOCKS5")
         );
     }
 

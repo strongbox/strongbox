@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
@@ -41,7 +41,7 @@ public class PypiLayoutProviderConfig
     public LayoutFileSystemProviderFactory pypiRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
             return pypiFileSystemProvider(storageProvider.getFileSystemProvider());
         };
 
@@ -60,7 +60,7 @@ public class PypiLayoutProviderConfig
         LayoutFileSystemProviderFactory providerFactory = pypiRepositoryFileSystemProviderFactory();
 
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             return pypiRepositoryFileSystem(propertiesBooter,
                                             repository,

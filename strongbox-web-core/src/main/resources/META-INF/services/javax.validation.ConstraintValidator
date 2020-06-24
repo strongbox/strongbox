@@ -1,3 +1,4 @@
+org.carlspring.strongbox.validation.configuration.StorageProviderValidator
 org.carlspring.strongbox.validation.configuration.DescribableEnumValueValidator
 org.carlspring.strongbox.validation.configuration.LayoutProviderValueValidator
 org.carlspring.strongbox.validation.configuration.UniqueStorageValidator

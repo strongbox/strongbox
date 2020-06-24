@@ -28,29 +28,36 @@ public class SmtpConfigurationFormTestIT
 {
 
     private static final String HOST_VALID = "host";
+
     private static final Integer PORT_VALID = 1;
+
     private static final Integer PORT_EMPTY = null;
+
     private static final Integer PORT_MIN_INVALID = 0;
+
     private static final Integer PORT_MAX_INVALID = 65536;
+
     private static final String CONNECTION_VALID = "plain";
+
     private static final String CONNECTION_INVALID = "CONNECTION_INVALID";
 
     @Inject
     private Validator validator;
 
+
     private static Stream<Arguments> connectionProvider()
     {
         return Stream.of(
-                Arguments.of(StringUtils.EMPTY, "Please set a valid SMTP connection type."),
-                Arguments.of(CONNECTION_INVALID, "Please set a valid SMTP connection type.")
+                Arguments.of(StringUtils.EMPTY, "Please, set a valid SMTP connection type."),
+                Arguments.of(CONNECTION_INVALID, "Please, set a valid SMTP connection type.")
         );
     }
 
     private static Stream<Arguments> portsProvider()
     {
-        final String rangeErrorMessage = "Port number must be an integer between 1 and 65535.";
+        final String rangeErrorMessage = "The port number must be an integer between 1 and 65535.";
         return Stream.of(
-                Arguments.of(PORT_EMPTY, "SMTP port must be provided."),
+                Arguments.of(PORT_EMPTY, "The SMTP port must be provided."),
                 Arguments.of(PORT_MIN_INVALID, rangeErrorMessage),
                 Arguments.of(PORT_MAX_INVALID, rangeErrorMessage)
         );
@@ -99,7 +106,7 @@ public class SmtpConfigurationFormTestIT
 
         // then
         assertThat(violations).as("Violations are empty!").hasSize(1);
-        assertThat(violations).extracting("message").containsAnyOf("SMTP host must be provided.");
+        assertThat(violations).extracting("message").containsAnyOf("An SMTP host must be provided.");
     }
 
     @ParameterizedTest
@@ -141,4 +148,5 @@ public class SmtpConfigurationFormTestIT
         assertThat(violations).as("Violations are empty!").hasSize(1);
         assertThat(violations).extracting("message").containsAnyOf(errorMessage);
     }
+
 }

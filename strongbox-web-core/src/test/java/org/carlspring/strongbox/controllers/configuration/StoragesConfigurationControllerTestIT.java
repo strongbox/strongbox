@@ -101,7 +101,7 @@ public class StoragesConfigurationControllerTestIT
         repositoryForm0.setLayout(Maven2LayoutProvider.ALIAS);
         repositoryForm0.setType("hosted");
         repositoryForm0.setPolicy("release");
-        repositoryForm0.setImplementation("file-system");
+        repositoryForm0.setStorageProvider("file-system");
         repositoryForm0.setStatus("In Service");
 
         repositoryForm1 = new RepositoryForm();
@@ -112,7 +112,7 @@ public class StoragesConfigurationControllerTestIT
         repositoryForm1.setLayout(Maven2LayoutProvider.ALIAS);
         repositoryForm1.setType("hosted");
         repositoryForm1.setPolicy("release");
-        repositoryForm1.setImplementation("file-system");
+        repositoryForm1.setStorageProvider("file-system");
         repositoryForm1.setStatus("In Service");
         repositoryForm1.setGroupRepositories(ImmutableSet.of("repository0"));
     }
@@ -281,7 +281,7 @@ public class StoragesConfigurationControllerTestIT
         repositoryForm0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
         repositoryForm0_1.setType("hosted");
         repositoryForm0_1.setPolicy("release");
-        repositoryForm0_1.setImplementation("file-system");
+        repositoryForm0_1.setStorageProvider("file-system");
         repositoryForm0_1.setStatus("In Service");
         Set<String> groupRepositories = new LinkedHashSet<>();
         String groupRepository1 = "maven-central";
@@ -300,7 +300,7 @@ public class StoragesConfigurationControllerTestIT
         repositoryForm0_2.setLayout(Maven2LayoutProvider.ALIAS);
         repositoryForm0_2.setType("proxy");
         repositoryForm0_2.setPolicy("release");
-        repositoryForm0_2.setImplementation("file-system");
+        repositoryForm0_2.setStorageProvider("file-system");
         repositoryForm0_2.setStatus("In Service");
         repositoryForm0_2.setGroupRepositories(ImmutableSet.of("repository0"));
         repositoryForm0_2.setHttpConnectionPool(maxConnectionsRepository2);
@@ -397,7 +397,7 @@ public class StoragesConfigurationControllerTestIT
         repositoryForm0_1.setRepositoryConfiguration(mavenRepositoryConfigurationForm);
         repositoryForm0_1.setType("hosted");
         repositoryForm0_1.setPolicy("release");
-        repositoryForm0_1.setImplementation("file-system");
+        repositoryForm0_1.setStorageProvider("file-system");
         repositoryForm0_1.setStatus("In Service");
         Set<String> groupRepositories = new LinkedHashSet<>();
         String groupRepository1 = "maven-central";

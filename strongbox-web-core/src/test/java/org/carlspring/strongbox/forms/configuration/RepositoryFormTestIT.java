@@ -2,7 +2,8 @@ package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
-import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
@@ -35,34 +36,44 @@ public class RepositoryFormTestIT
 {
 
     private static final String ID_VALID = "id";
+
     private static final RepositoryPolicyEnum POLICY_VALID = RepositoryPolicyEnum.RELEASE;
-    private static final StorageProviderEnum IMPLEMENTATION_VALID = StorageProviderEnum.FILESYSTEM;
-    private static final String LAYOUT_VALID = "Maven 2";
+
+    private static final String LAYOUT_VALID = Maven2LayoutProvider.ALIAS;
+
     private static final RepositoryTypeEnum TYPE_VALID = RepositoryTypeEnum.HOSTED;
+
     private static final RepositoryStatusEnum STATUS_VALID = RepositoryStatusEnum.IN_SERVICE;
+
     private static final Integer HTTP_CONNECTION_POOL_VALID = 1;
+
     private static final Integer HTTP_CONNECTION_POOL_INVALID = -1;
+
     private static final String VALUE_INVALID = "VALUE_INVALID";
+
     private static ProxyConfigurationForm proxyConfigurationForm;
+
     private static RemoteRepositoryForm remoteRepositoryForm;
+
     private static CustomRepositoryConfigurationForm repositoryConfiguration;
 
     @Inject
     private Validator validator;
 
+
     private static Stream<Arguments> policyProvider()
     {
         return Stream.of(
                 Arguments.of(StringUtils.EMPTY, 2, "A policy must be specified."),
-                Arguments.of(VALUE_INVALID, 1, "A policy value is invalid.")
+                Arguments.of(VALUE_INVALID, 1, "The policy value is invalid.")
         );
     }
 
-    private static Stream<Arguments> implementationProvider()
+    private static Stream<Arguments> storageProvider()
     {
         return Stream.of(
-                Arguments.of(StringUtils.EMPTY, 2, "An implementation must be specified."),
-                Arguments.of(VALUE_INVALID, 1, "An implementation value is invalid.")
+                Arguments.of(StringUtils.EMPTY, 2, "A storage provider must be specified."),
+                Arguments.of(VALUE_INVALID, 1, "The storage provider value is invalid.")
         );
     }
 
@@ -70,7 +81,7 @@ public class RepositoryFormTestIT
     {
         return Stream.of(
                 Arguments.of(StringUtils.EMPTY, 2, "A layout must be specified."),
-                Arguments.of(VALUE_INVALID, 1, "A layout value is invalid.")
+                Arguments.of(VALUE_INVALID, 1, "The layout value is invalid.")
         );
     }
 
@@ -78,7 +89,7 @@ public class RepositoryFormTestIT
     {
         return Stream.of(
                 Arguments.of(StringUtils.EMPTY, 2, "A type must be specified."),
-                Arguments.of(VALUE_INVALID, 1, "A type value is invalid.")
+                Arguments.of(VALUE_INVALID, 1, "The type value is invalid.")
         );
     }
 
@@ -86,7 +97,7 @@ public class RepositoryFormTestIT
     {
         return Stream.of(
                 Arguments.of(StringUtils.EMPTY, 2, "A status must be specified."),
-                Arguments.of(VALUE_INVALID, 1, "A status value is invalid.")
+                Arguments.of(VALUE_INVALID, 1, "The status value is invalid.")
         );
     }
 
@@ -137,7 +148,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -162,7 +173,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(StringUtils.EMPTY);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -181,7 +192,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId("mama*");
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -203,7 +214,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(policy);
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -216,7 +227,7 @@ public class RepositoryFormTestIT
     }
 
     @ParameterizedTest
-    @MethodSource("implementationProvider")
+    @MethodSource("storageProvider")
     void testRemoteRepositoryFormInvalidImplementation(String implementation,
                                                        int numErrors,
                                                        String errorMessage)
@@ -225,7 +236,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(implementation);
+        repositoryForm.setStorageProvider(implementation);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -247,7 +258,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(layout);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -269,7 +280,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(type);
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -291,7 +302,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(status);
@@ -310,7 +321,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -332,7 +343,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -354,7 +365,7 @@ public class RepositoryFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(POLICY_VALID.getPolicy());
-        repositoryForm.setImplementation(IMPLEMENTATION_VALID.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout(LAYOUT_VALID);
         repositoryForm.setType(TYPE_VALID.getType());
         repositoryForm.setStatus(STATUS_VALID.getStatus());
@@ -363,7 +374,7 @@ public class RepositoryFormTestIT
         repositoryForm.setHttpConnectionPool(HTTP_CONNECTION_POOL_INVALID);
         repositoryForm.setRepositoryConfiguration(repositoryConfiguration);
 
-        validateAndAssert(repositoryForm, 1, "A httpConnectionPool must be positive or zero.");
+        validateAndAssert(repositoryForm, 1, "The httpConnectionPool value must be greater, or equal to zero.");
     }
 
     private String getPatternLocalisedMessage(String expectedPattern)
