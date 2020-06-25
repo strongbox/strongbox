@@ -1,18 +1,18 @@
 package org.carlspring.strongbox.domain;
 
+import static org.carlspring.strongbox.db.schema.Vertices.USER;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
+import static org.carlspring.strongbox.db.schema.Edges.USER_HAS_USER_ROLES;
+
+import org.carlspring.strongbox.data.domain.DomainEntity;
+import org.carlspring.strongbox.gremlin.adapters.DateConverter;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.data.domain.DomainEntity;
-import static org.carlspring.strongbox.db.schema.Edges.USER_HAS_USER_ROLE;
-import static org.carlspring.strongbox.db.schema.Vertices.USER;
-import org.carlspring.strongbox.gremlin.adapters.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
 import org.neo4j.ogm.annotation.Relationship;
-
-import static org.neo4j.ogm.annotation.Relationship.OUTGOING;;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
@@ -27,7 +27,7 @@ public class UserEntity extends DomainEntity implements User
 
     private Boolean enabled = true;
 
-    @Relationship(type = USER_HAS_USER_ROLE, direction = OUTGOING)
+    @Relationship(type = USER_HAS_USER_ROLES, direction = OUTGOING)
     private Set<UserRole> roles = new HashSet<>();
 
     private String securityTokenKey;

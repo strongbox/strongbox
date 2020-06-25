@@ -8,6 +8,7 @@ import org.carlspring.strongbox.authentication.api.jwt.JwtAuthentication;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
 import org.carlspring.strongbox.domain.UserEntity;
+import org.carlspring.strongbox.domain.UserRoleEntity;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider;
 import org.carlspring.strongbox.users.security.JwtClaimsProvider;
@@ -98,7 +99,7 @@ public class JwtAuthenticationProviderTest
         
         //Change roles
         UserEntity userEntity = databaseUserService.findByUsername(TEST_USER);
-        userEntity.getRoles().add("LOGS_MANAGER");
+        userEntity.getRoles().add(new UserRoleEntity("LOGS_MANAGER"));
         userService.save(userEntity);
         
         databaseUserService.expireUser(TEST_USER, false);

@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.UserRole;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.collect.ImmutableSet;
@@ -23,7 +24,7 @@ public class UserOutput
 
     private boolean enabled;
 
-    private Set<String> roles;
+    private Set<UserRole> roles;
 
     private String securityTokenKey;
 
@@ -47,12 +48,12 @@ public class UserOutput
         this.enabled = enabled;
     }
 
-    public Set<String> getRoles()
+    public Set<UserRole> getRoles()
     {
         return roles == null ? Collections.emptySet() : ImmutableSet.copyOf(roles);
     }
 
-    public void setRoles(Set<String> roles)
+    public void setRoles(Set<UserRole> roles)
     {
         this.roles = roles;
     }

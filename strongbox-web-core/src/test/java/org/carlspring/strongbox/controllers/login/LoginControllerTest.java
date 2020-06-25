@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.login;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.domain.UserRoleEntity;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.dto.UserDto;
@@ -197,7 +198,7 @@ public class LoginControllerTest
         UserDto cacheEvictionTestUser = new UserDto();
         cacheEvictionTestUser.setUsername("admin-cache-eviction-test");
         cacheEvictionTestUser.setPassword("password");
-        cacheEvictionTestUser.setRoles(ImmutableSet.of("ADMIN"));
+        cacheEvictionTestUser.setRoles(ImmutableSet.of(new UserRoleEntity("ADMIN")));
         cacheEvictionTestUser.setEnabled(true);
         cacheEvictionTestUser.setSecurityTokenKey("admin-cache-eviction-test-secret");
         userService.save(new EncodedPasswordUser(cacheEvictionTestUser, passwordEncoder));
