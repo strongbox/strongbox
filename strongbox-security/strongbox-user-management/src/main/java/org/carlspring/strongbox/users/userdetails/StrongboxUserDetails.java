@@ -22,7 +22,7 @@ public class StrongboxUserDetails implements UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        return user.getRoles().stream().map(a -> new SimpleGrantedAuthority(a)).collect(Collectors.toSet());
+        return user.getRoles().stream().map(a -> new SimpleGrantedAuthority(a.getUserRole())).collect(Collectors.toSet());
     }
 
     @Override

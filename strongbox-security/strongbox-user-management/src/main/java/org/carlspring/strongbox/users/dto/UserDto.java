@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.UserRoleEntity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -22,7 +24,7 @@ public class UserDto
 
     private Boolean enabled = true;
 
-    private Set<String> roles = new HashSet<>();
+    private Set<UserRole> roles = new HashSet<>();
 
     private String securityTokenKey;
 
@@ -36,7 +38,7 @@ public class UserDto
     {
         return getUsername();
     }
-    
+
     @Override
     public String getUsername()
     {
@@ -60,27 +62,32 @@ public class UserDto
     }
 
     @Override
-    public Set<String> getRoles()
+    public Set<UserRole> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(Set<String> roles)
+    public void setRoles(Set<UserRole> roles)
     {
         this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
     }
 
-    public void addRole(String role)
+    public void addRole(UserRole role)
     {
         roles.add(role);
     }
 
     public void removeRole(String role)
     {
+        removeRole(new UserRoleEntity(role));
+    }
+
+    public void removeRole(UserRole role)
+    {
         roles.remove(role);
     }
 
-    public boolean hasRole(String role)
+    public boolean hasRole(UserRole role)
     {
         return roles.contains(role);
     }
@@ -106,7 +113,6 @@ public class UserDto
     {
         this.enabled = enabled;
     }
-
 
     @Override
     public LocalDateTime getLastUpdated()

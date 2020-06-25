@@ -18,16 +18,17 @@ public interface User extends DomainObject
     @Override
     default void applyUnfold(Traverser<Vertex> t)
     {
-        
+
     }
 
-    default String getUsername() {
+    default String getUsername()
+    {
         return getUuid();
     }
 
     String getPassword();
 
-    Set<String> getRoles();
+    Set<UserRole> getRoles();
 
     String getSecurityTokenKey();
 

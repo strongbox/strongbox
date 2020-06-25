@@ -26,7 +26,7 @@ public class UserDetailsMapper implements StrongboxUserToUserDetails
         springUser.setUsername(user.getUsername());
         springUser.setRoles(user.getRoles()
                                 .stream()
-                                .map(r -> authoritiesProvider.getRuntimeRole(r))
+                                .map(r -> authoritiesProvider.getRuntimeRole(r.getUserRole()))
                                 .collect(Collectors.toSet()));
         springUser.setSecurityKey(user.getSecurityTokenKey());
         springUser.setSourceId(user.getSourceId());

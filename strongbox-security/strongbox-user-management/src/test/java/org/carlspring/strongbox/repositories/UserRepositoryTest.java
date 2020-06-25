@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -14,6 +15,8 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
+import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.UserRoleEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -86,7 +89,10 @@ public class UserRepositoryTest
         UserEntity user = new UserEntity(username);
         user.setPassword("password");
         user.setSecurityTokenKey("security-token");
-        user.setRoles(roles);
+        Set<UserRole> userRoles = roles.stream()
+                                       .map(role -> new UserRoleEntity(role))
+                                       .collect(Collectors.toSet());
+        user.setRoles(userRoles);
         user.setEnabled(true);
         user.setLastUpdated(EntityTraversalUtils.toLocalDateTime(new Date()));
         userRepository.save(user);
