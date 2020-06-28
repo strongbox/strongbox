@@ -3,14 +3,6 @@ package org.carlspring.strongbox.repositories;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
@@ -19,8 +11,16 @@ import org.carlspring.strongbox.domain.UserRole;
 import org.carlspring.strongbox.domain.UserRoleEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.users.domain.SystemRole;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -60,7 +60,6 @@ public class UserRepositoryTest
     }
 
     @Test
-    @Disabled
     @Transactional
     public void testFindUsersWithRoleNotExist()
     {
@@ -70,7 +69,6 @@ public class UserRepositoryTest
     }
 
     @Test
-    @Disabled
     @Transactional
     public void testFindUsersWithRoleExist()
     {

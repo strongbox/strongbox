@@ -13,11 +13,13 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.UserRole;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserDto;
@@ -115,7 +117,7 @@ public class InMemoryUserService implements UserService
             }
             userDto.setUsername(user.getUsername());
             userDto.setEnabled(user.isEnabled());
-            userDto.setRoles(user.getRoles());
+            userDto.setRoles(user.getRoles().stream().map(UserRole::getUserRole).collect(Collectors.toSet()));
             userDto.setSecurityTokenKey(user.getSecurityTokenKey());
             userDto.setLastUpdate(LocalDateTime.now());
 

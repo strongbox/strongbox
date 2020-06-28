@@ -22,7 +22,6 @@ import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.SystemRole;
@@ -440,7 +439,7 @@ public class UserControllerTestIT
         user.setUsername(username);
         user.setPassword(newPassword);
         user.setSecurityTokenKey("some-security-token");
-        user.setRoles(ImmutableSet.of(new UserRoleEntity(SystemRole.UI_MANAGER.name())));
+        user.setRoles(ImmutableSet.of(SystemRole.UI_MANAGER.name()));
         userService.save(user);
 
         UserForm admin = buildUser(username, newPassword);

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.users.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashSet;
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
@@ -210,11 +211,7 @@ public class YamlUserServiceTest
         userUpdate.setPassword("another-password");
         userUpdate.setSecurityTokenKey("after");
         userUpdate.setEnabled(false);
-        Set<UserRole> roles = Arrays.asList("a", "b")
-                                          .stream()
-                                          .map(role -> new UserRoleEntity(role))
-                                          .collect(Collectors.toSet());
-        userUpdate.setRoles(roles);
+        userUpdate.setRoles(new HashSet<>(Arrays.asList("a", "b")));
 
         userService.updateAccountDetailsByUsername(userUpdate);
 

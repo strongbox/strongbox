@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import java.util.stream.Collectors;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserRole;
 import org.carlspring.strongbox.domain.UserRoleEntity;
@@ -24,7 +25,7 @@ public class UserDto
 
     private Boolean enabled = true;
 
-    private Set<UserRole> roles = new HashSet<>();
+    private Set<String> roles = new HashSet<>();
 
     private String securityTokenKey;
 
@@ -64,15 +65,16 @@ public class UserDto
     @Override
     public Set<UserRole> getRoles()
     {
-        return roles;
+        return roles != null ? roles.stream().map(role -> new UserRoleEntity(role)).collect(Collectors.toSet())
+                : new HashSet<>();
     }
 
-    public void setRoles(Set<UserRole> roles)
+    public void setRoles(Set<String> roles)
     {
         this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
     }
 
-    public void addRole(UserRole role)
+    public void addRole(String role)
     {
         roles.add(role);
     }

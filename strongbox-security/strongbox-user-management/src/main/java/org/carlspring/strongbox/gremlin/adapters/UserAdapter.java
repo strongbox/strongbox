@@ -1,20 +1,9 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extracPropertytList;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLocalDateTime;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLong;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
-import org.apache.tinkerpop.gremlin.structure.Element;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
@@ -27,6 +16,14 @@ import org.carlspring.strongbox.gremlin.dsl.__;
 
 import javax.inject.Inject;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.stereotype.Component;
 
 /**
@@ -38,7 +35,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
     @Inject
     private UserRoleAdapter userRoleAdapter;
-    
+
     @Override
     public String label()
     {
@@ -90,6 +87,34 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(User entity)
     {
+        String storedUserId = Vertices.USER + ":" + UUID.randomUUID().toString();
+
+        EntityTraversal<Vertex, Vertex> userRoleTraversal = __.identity();
+        for (UserRole userRole : entity.getRoles())
+        {
+            userRoleTraversal = userRoleTraversal.V(userRole).saveV(userRole.getUuid(), userRoleAdapter.unfold(userRole));
+
+            userRoleTraversal = userRoleTraversal.choose(__.inE(Edges.USER_HAS_USER_ROLES),
+                                                         __.identity(),
+                                                         __.addE(Edges.USER_HAS_USER_ROLES)
+                                                           .from(__.<Vertex, Vertex>select(storedUserId).unfold())
+                                                           .inV());
+
+            userRoleTraversal = userRoleTraversal.inE(Edges.USER_HAS_USER_ROLES).outV();
+
+        }
+
+        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Vertex>map(unfoldUser(entity))
+                                                            .store(storedUserId)
+                                                            .flatMap(userRoleTraversal)
+                                                            .fold()
+                                                            .map(t -> t.get().iterator().next());
+
+        return new UnfoldEntityTraversal<>(Vertices.USER, entity, unfoldTraversal);
+    }
+
+    private EntityTraversal<Vertex, Vertex> unfoldUser(User entity)
+    {
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
 
         if (entity.getPassword() != null)
@@ -111,7 +136,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         t = t.property(single, "enabled", entity.isEnabled());
 
-        return new UnfoldEntityTraversal<>(Vertices.USER, entity, t);
+        return t;
     }
 
     @Override

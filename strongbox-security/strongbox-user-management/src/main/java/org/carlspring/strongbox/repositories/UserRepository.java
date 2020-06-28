@@ -22,6 +22,7 @@ public class UserRepository extends GremlinVertexRepository<User>
 
     @Inject
     UserQueries queries;
+
     @Inject
     UserAdapter adapter;
 
@@ -48,7 +49,6 @@ public class UserRepository extends GremlinVertexRepository<User>
         return queries.findAllUsers();
     }
 
-
 }
 
 @Repository
@@ -56,13 +56,13 @@ interface UserQueries
         extends org.springframework.data.repository.Repository<User, String>
 {
 
-    @Query("MATCH (user:User) " +
-           "WHERE $role IN (user.roles) " +
-           "RETURN user")
+    @Query("MATCH (user:User)-[r]->(userRole:UserRole)" +
+            "WHERE userRole.uuid=$role" +
+            "RETURN user")
     List<User> findUsersWithRole(@Param("role") String role);
 
     @Query("MATCH (user:User) " +
-           "RETURN user")
+            "RETURN user")
     List<User> findAllUsers();
 
 }
