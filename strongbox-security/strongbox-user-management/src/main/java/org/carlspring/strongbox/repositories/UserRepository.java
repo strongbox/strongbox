@@ -6,6 +6,8 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
 import org.carlspring.strongbox.gremlin.adapters.UserAdapter;
@@ -46,7 +48,10 @@ public class UserRepository extends GremlinVertexRepository<User>
     @Override
     public List<User> findAllUsers()
     {
-        return queries.findAllUsers();
+        return g().V()
+                  .hasLabel(Vertices.USER)
+                  .map(adapter.fold())
+                  .toList();
     }
 
 }
@@ -56,12 +61,12 @@ interface UserQueries
         extends org.springframework.data.repository.Repository<User, String>
 {
 
-    @Query("MATCH (user:User)-[r]->(userRole:UserRole)" +
-            "WHERE userRole.uuid=$role" +
-            "RETURN user")
+    @Query("MATCH (user:User)-[:UserHasSecurityRoles]->(userRole:UserRole) " +
+            "WHERE userRole.uuid=$role " +
+            "RETURN user,userRole")
     List<User> findUsersWithRole(@Param("role") String role);
 
-    @Query("MATCH (user:User) " +
+    @Query("MATCH (user:User)" +
             "RETURN user")
     List<User> findAllUsers();
 
