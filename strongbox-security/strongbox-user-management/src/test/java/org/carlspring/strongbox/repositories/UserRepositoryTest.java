@@ -21,7 +21,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -50,7 +49,6 @@ public class UserRepositoryTest
     }
 
     @Test
-    @Disabled
     @Transactional
     public void testFindAllUsers()
     {
@@ -62,7 +60,6 @@ public class UserRepositoryTest
     }
 
     @Test
-    //@Disabled
     @Transactional
     public void testFindUsersWithRoleNotExist()
     {
@@ -72,7 +69,6 @@ public class UserRepositoryTest
     }
 
     @Test
-    @Disabled
     @Transactional
     public void testFindUsersWithRoleExist()
     {
