@@ -55,8 +55,8 @@ public class UserRepositoryTest
         List<User> findAllUsers = userRepository.findAllUsers();
         assertNotNull(findAllUsers);
         assertEquals(2, findAllUsers.size());
-        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
-        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
+        assertEquals(2, findAllUsers.iterator().next().getRoles().size());
+        assertEquals(2, findAllUsers.iterator().next().getRoles().size());
     }
 
     @Test
