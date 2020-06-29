@@ -71,7 +71,9 @@ public class InMemoryUserService implements UserService
 
         try
         {
-            return Optional.ofNullable(userMap.get(username)).map(UserData::new).orElse(null);
+            return Optional.ofNullable(userMap.get(username))
+                           .map(UserData::new)
+                           .orElse(null);
         }
         finally
         {
@@ -117,12 +119,15 @@ public class InMemoryUserService implements UserService
             }
             userDto.setUsername(user.getUsername());
             userDto.setEnabled(user.isEnabled());
-            userDto.setRoles(user.getRoles().stream().map(UserRole::getUserRole).collect(Collectors.toSet()));
+            userDto.setRoles(user.getRoles()
+                                 .stream()
+                                 .map(UserRole::getUserRole)
+                                 .collect(Collectors.toSet()));
             userDto.setSecurityTokenKey(user.getSecurityTokenKey());
             userDto.setLastUpdate(LocalDateTime.now());
 
             users.putIfAbsent(user.getUsername(), userDto);
-            
+
             return userDto;
         });
     }

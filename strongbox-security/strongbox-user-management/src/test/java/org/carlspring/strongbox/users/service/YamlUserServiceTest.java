@@ -1,23 +1,17 @@
 package org.carlspring.strongbox.users.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import java.util.Arrays;
 import java.util.HashSet;
-import org.carlspring.strongbox.config.DataServiceConfig;
-import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
-import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import org.carlspring.strongbox.config.DataServiceConfig;
+import org.carlspring.strongbox.config.UsersConfig;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
+import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -26,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")

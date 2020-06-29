@@ -65,8 +65,10 @@ public class UserDto
     @Override
     public Set<UserRole> getRoles()
     {
-        return roles != null ? roles.stream().map(role -> new UserRoleEntity(role)).collect(Collectors.toSet())
-                : new HashSet<>();
+        return roles != null ? roles.stream()
+                                    .map(role -> new UserRoleEntity(role))
+                                    .collect(Collectors.toSet())
+                             : new HashSet<>();
     }
 
     public void setRoles(Set<String> roles)

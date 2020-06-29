@@ -1,10 +1,10 @@
 package org.carlspring.strongbox.users.userdetails;
 
+import org.carlspring.strongbox.domain.User;
+
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.users.domain.UserData;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,7 +22,10 @@ public class StrongboxUserDetails implements UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities()
     {
-        return user.getRoles().stream().map(a -> new SimpleGrantedAuthority(a.getUserRole())).collect(Collectors.toSet());
+        return user.getRoles()
+                   .stream()
+                   .map(a -> new SimpleGrantedAuthority(a.getUserRole()))
+                   .collect(Collectors.toSet());
     }
 
     @Override
