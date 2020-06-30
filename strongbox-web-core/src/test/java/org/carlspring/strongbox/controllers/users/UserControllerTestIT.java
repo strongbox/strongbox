@@ -446,7 +446,11 @@ public class UserControllerTestIT
 
         User updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
+                                                  .stream()
+                                                  .map(UserRole::getUserRole)
+                                                  .collect(Collectors.toSet()),
+                                       ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
 
         admin.setRoles(ImmutableSet.of("ADMIN"));
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -463,7 +467,11 @@ public class UserControllerTestIT
 
         updatedUser = retrieveUserByName(admin.getUsername());
 
-        assertThat(SetUtils.isEqualSet(updatedUser.getRoles(), ImmutableSet.of("ADMIN"))).isTrue();
+        assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
+                                                  .stream()
+                                                  .map(UserRole::getUserRole)
+                                                  .collect(Collectors.toSet()),
+                                       ImmutableSet.of("ADMIN"))).isTrue();
 
         // Rollback changes.
         admin.setRoles(ImmutableSet.of(SystemRole.UI_MANAGER.name()));
@@ -474,6 +482,7 @@ public class UserControllerTestIT
                .put(getContextBaseUrl() + "/{username}", username)
                .then()
                .statusCode(HttpStatus.OK.value());
+
     }
 
     @Test
