@@ -90,6 +90,14 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
         String storedUserId = Vertices.USER + ":" + UUID.randomUUID().toString();
 
         EntityTraversal<Vertex, Vertex> userRoleTraversal = __.identity();
+        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.identity();
+
+        if (entity.getNativeId() != null)
+        {
+            unfoldTraversal.V(entity.getNativeId())
+                           .sideEffect(__.outE(Edges.USER_HAS_USER_ROLES).drop());
+        }
+
         for (UserRole userRole : entity.getRoles())
         {
             userRoleTraversal = userRoleTraversal.V(userRole)
@@ -104,11 +112,11 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         }
 
-        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Vertex>map(unfoldUser(entity))
-                                                            .store(storedUserId)
-                                                            .flatMap(userRoleTraversal)
-                                                            .fold()
-                                                            .map(t -> t.get().iterator().next());
+        unfoldTraversal = unfoldTraversal.map(unfoldUser(entity))
+                                         .store(storedUserId)
+                                         .flatMap(userRoleTraversal)
+                                         .fold()
+                                         .map(t -> t.get().iterator().next());
 
         return new UnfoldEntityTraversal<>(Vertices.USER, entity, unfoldTraversal);
     }
