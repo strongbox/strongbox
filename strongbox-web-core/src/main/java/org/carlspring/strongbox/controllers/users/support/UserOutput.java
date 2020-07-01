@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 
+import java.util.stream.Collectors;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserRole;
 
@@ -24,7 +25,7 @@ public class UserOutput
 
     private boolean enabled;
 
-    private Set<UserRole> roles;
+    private Set<String> roles;
 
     private String securityTokenKey;
 
@@ -48,12 +49,12 @@ public class UserOutput
         this.enabled = enabled;
     }
 
-    public Set<UserRole> getRoles()
+    public Set<String> getRoles()
     {
         return roles == null ? Collections.emptySet() : ImmutableSet.copyOf(roles);
     }
 
-    public void setRoles(Set<UserRole> roles)
+    public void setRoles(Set<String> roles)
     {
         this.roles = roles;
     }
@@ -72,7 +73,10 @@ public class UserOutput
     {
         final UserOutput output = new UserOutput();
         output.setEnabled(user.isEnabled());
-        output.setRoles(user.getRoles());
+        output.setRoles(user.getRoles()
+                            .stream()
+                            .map(UserRole::getUserRole)
+                            .collect(Collectors.toSet()));
         output.setUsername(user.getUsername());
         output.setSecurityTokenKey(user.getSecurityTokenKey());
         return output;
