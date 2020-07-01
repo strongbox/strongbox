@@ -106,9 +106,10 @@ public class UserController
     @PreAuthorize("hasAuthority('VIEW_USER')")
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
-    public ResponseEntity getUsers()
+    public ResponseEntity getUsers(@RequestParam(value = "skip") Long skip,
+                                   @RequestParam(value = "limit") Integer limit)
     {
-        List<UserOutput> users = userService.getUsers()
+        List<UserOutput> users = userService.getUsers(skip, limit)
                                             .getUsers()
                                             .stream()
                                             .sorted(Comparator.comparing(User::getUsername))

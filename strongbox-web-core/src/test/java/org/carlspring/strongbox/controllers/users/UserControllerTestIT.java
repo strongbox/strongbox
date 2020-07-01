@@ -716,21 +716,6 @@ public class UserControllerTestIT
         userService.deleteByUsername(username);
     }
 
-    // get user through REST API
-    private UserOutput getUser(String username)
-    {
-        UserResponseEntity responseEntity = mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-                                                   .param("The name of the user", username)
-                                                   .when()
-                                                   .get(getContextBaseUrl() + "/{username}", username)
-                                                   .then()
-                                                   .statusCode(HttpStatus.OK.value())
-                                                   .extract()
-                                                   .as(UserResponseEntity.class);
-
-        return responseEntity.getUser();
-    }
-
     // get user from DB/cache directly
     private User retrieveUserByName(String name)
     {

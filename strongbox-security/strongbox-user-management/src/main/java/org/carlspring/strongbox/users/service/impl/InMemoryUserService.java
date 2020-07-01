@@ -41,7 +41,8 @@ public class InMemoryUserService implements UserService
     private SecurityTokenProvider tokenProvider;
 
     @Override
-    public Users getUsers()
+    public Users getUsers(Long skip,
+                          Integer limit)
     {
         final Lock readLock = usersLock.readLock();
         readLock.lock();

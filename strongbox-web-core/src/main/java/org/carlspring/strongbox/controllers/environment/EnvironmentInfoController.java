@@ -85,13 +85,12 @@ public class EnvironmentInfoController
 
         strongboxInfo.add(new EnvironmentInfo("storages", String.valueOf(storagesCount)));
 
-        Long usersCount = userService.getUsers()
+        Long usersCount = userService.getUsers(null, null)
                                      .getUsers()
                                      .stream()
                                      .count();
 
         strongboxInfo.add(new EnvironmentInfo("users", String.valueOf(usersCount)));
-
 
         return strongboxInfo;
     }

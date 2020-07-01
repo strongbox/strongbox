@@ -32,12 +32,13 @@ public interface UserService
      */
     void updateAccountDetailsByUsername(User userToUpdate);
 
-    Users getUsers();
-
     void revokeEveryone(String roleToRevoke);
 
     User save(User user);
 
     void deleteByUsername(String username);
+
+    Users getUsers(Long skip,
+                   Integer limit);
 
 }

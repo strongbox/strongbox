@@ -50,6 +50,12 @@ public class UserRepository extends GremlinVertexRepository<User>
         return queries.findAllUsers();
     }
 
+    public List<User> findUsers(Long skip,
+                                Integer limit)
+    {
+        return queries.findUsers(skip, limit);
+    }
+
 }
 
 @Repository
@@ -65,5 +71,12 @@ interface UserQueries
     @Query("MATCH (user:User)-[r]->(securityRole:SecurityRole) " +
            "RETURN user, r, securityRole")
     List<User> findAllUsers();
+
+    @Query("MATCH (user:User)-[r]->(securityRole:SecurityRole) " +
+           "RETURN user, r, securityRole " +
+           "ORDER BY user.uuid " +
+           "SKIP $skip LIMIT $limit")
+    List<User> findUsers(@Param("skip") Long skip,
+                         @Param("limit") Integer limit);
 
 }
