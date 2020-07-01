@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.repository;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
@@ -39,5 +40,8 @@ public @interface NpmRepository
 
     @AliasFor(annotation = TestRepository.class)
     String layout() default NpmLayoutProvider.ALIAS;
+
+    @AliasFor(annotation = TestRepository.class)
+    String storageProvider() default FileSystemStorageProvider.ALIAS;
 
 }

@@ -226,17 +226,15 @@ public class StoragesConfigurationControllerTestIT
                 .isEqualTo(storage.getBasedir());
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = { MediaType.APPLICATION_JSON_VALUE,
-                             MediaType.TEXT_PLAIN_VALUE })
-    public void testCreatingStorageWithExistingIdShouldFail(String acceptHeader)
+    @Test
+    public void testCreatingStorageWithExistingIdShouldFail()
     {
         StorageForm form = buildStorageForm(EXISTING_STORAGE_ID);
 
         String url = getContextBaseUrl();
 
         givenCustom().contentType(MediaType.APPLICATION_JSON_VALUE)
-                     .accept(acceptHeader)
+                     .accept(MediaType.APPLICATION_JSON_VALUE)
                      .body(form)
                      .when()
                      .put(url)

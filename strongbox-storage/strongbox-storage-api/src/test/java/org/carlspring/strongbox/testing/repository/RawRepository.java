@@ -9,6 +9,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
@@ -38,5 +39,8 @@ public @interface RawRepository
 
     @AliasFor(annotation = TestRepository.class)
     boolean cleanup() default true;
+
+    @AliasFor(annotation = TestRepository.class)
+    String storageProvider() default FileSystemStorageProvider.ALIAS;
 
 }

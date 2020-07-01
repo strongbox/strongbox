@@ -95,14 +95,16 @@ public class StoragesConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was created successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
-    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                          MediaType.APPLICATION_JSON_VALUE })
-    public ResponseEntity createStorage(
-            @RequestBody @Validated({ Default.class,
-                                      StorageForm.NewStorage.class,
-                                      ProxyConfigurationFormChecks.class }) StorageForm storageForm,
-            BindingResult bindingResult,
-            @RequestHeader(HttpHeaders.ACCEPT) String accept)
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity createStorage(@RequestBody
+                                        @Validated({ Default.class,
+                                                     StorageForm.NewStorage.class,
+                                                     ProxyConfigurationFormChecks.class })
+                                        StorageForm storageForm,
+                                        BindingResult bindingResult,
+                                        @RequestHeader(HttpHeaders.ACCEPT)
+                                        String accept)
     {
         if (bindingResult.hasErrors())
         {
@@ -126,8 +128,9 @@ public class StoragesConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
                             @ApiResponse(code = 500, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
-    @PutMapping(value = "{storageId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                                                 MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "{storageId}",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity updateStorage(
             @ApiParam(value = "The storageId", required = true)
             @PathVariable String storageId,
@@ -199,8 +202,9 @@ public class StoragesConfigurationController
                             @ApiResponse(code = 404, message = "The storage ${storageId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove storage ${storageId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
-    @DeleteMapping(value = "/{storageId}", produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                        MediaType.APPLICATION_JSON_VALUE })
+    @DeleteMapping(value = "/{storageId}",
+                   produces = { MediaType.TEXT_PLAIN_VALUE,
+                                MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity removeStorage(@ApiParam(value = "The storageId", required = true)
                                         @PathVariable final String storageId,
                                         @ApiParam(value = "Whether to force delete and remove the storage from the file system")
@@ -238,20 +242,22 @@ public class StoragesConfigurationController
                             @ApiResponse(code = 404, message = "The repository ${repositoryId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
-    @PutMapping(value = "/{storageId}/{repositoryId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                                                                 MediaType.APPLICATION_JSON_VALUE })
+    @PutMapping(value = "/{storageId}/{repositoryId}",
+                consumes = MediaType.APPLICATION_JSON_VALUE,
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity addOrUpdateRepository(@ApiParam(value = "The storageId", required = true)
                                                 @PathVariable String storageId,
                                                 @ApiParam(value = "The repositoryId", required = true)
-                                                @PathVariable String repositoryId,
+                                                @PathVariable
+                                                String repositoryId,
                                                 @ApiParam(value = "The repository object", required = true)
-                                                @RequestBody @Validated({ Default.class,
-                                                                          ProxyConfigurationFormChecks.class })
-                                                        RepositoryForm repositoryForm,
+                                                @RequestBody
+                                                @Validated({ Default.class,
+                                                             ProxyConfigurationFormChecks.class })
+                                                RepositoryForm repositoryForm,
                                                 BindingResult bindingResult,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String accept)
     {
-
         if (configurationManagementService.getConfiguration().getStorage(storageId) != null)
         {
             if (bindingResult.hasErrors())
@@ -289,7 +295,8 @@ public class StoragesConfigurationController
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully.", response = RepositoryDto.class),
                             @ApiResponse(code = 404, message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
-    @GetMapping(value = "/{storageId}/{repositoryId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/{storageId}/{repositoryId}",
+                produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getRepositoryResponseEntity(@RepositoryMapping(allowOutOfServiceRepository = true) Repository repository)
     {
         return ResponseEntity.ok(repository);
@@ -300,8 +307,8 @@ public class StoragesConfigurationController
                             @ApiResponse(code = 404, message = "The repository ${storageId}:${repositoryId} was not found!"),
                             @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
-    @DeleteMapping(value = "/{storageId}/{repositoryId}", produces = { MediaType.TEXT_PLAIN_VALUE,
-                                                                       MediaType.APPLICATION_JSON_VALUE })
+    @DeleteMapping(value = "/{storageId}/{repositoryId}",
+                   produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity removeRepository(@RepositoryMapping(allowOutOfServiceRepository = true) Repository repository,
                                            @ApiParam(value = "Whether to force delete the repository from the file system")
                                            @RequestParam(name = "force", defaultValue = "false") final boolean force,

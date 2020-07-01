@@ -144,6 +144,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
         RepositoryDto repository = new RepositoryDto(testRepository.repositoryId());
         repository.setLayout(testRepository.layout());
         repository.setPolicy(testRepository.policy().toString());
+        repository.setStorageProvider(testRepository.storageProvider());
 
         String storageBaseDir = Optional.ofNullable(storage.getBasedir())
                                         .orElse(getStorageBaseDirectory(storage.getId()));

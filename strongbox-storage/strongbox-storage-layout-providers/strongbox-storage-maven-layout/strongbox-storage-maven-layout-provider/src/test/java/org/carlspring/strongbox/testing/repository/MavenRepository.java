@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.repository;
 
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
@@ -42,5 +43,8 @@ public @interface MavenRepository
 
     @AliasFor(annotation = TestRepository.class)
     String layout() default Maven2LayoutProvider.ALIAS;
+
+    @AliasFor(annotation = TestRepository.class)
+    String storageProvider() default FileSystemStorageProvider.ALIAS;
 
 }
