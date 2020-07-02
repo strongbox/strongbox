@@ -8,6 +8,8 @@ public final class CacheName
     public static final class User
     {
         public static final String AUTHENTICATIONS = "authentications";
+
+        public static final String USER_ROLES = "userRole";
     }
     
     public static final class Artifact

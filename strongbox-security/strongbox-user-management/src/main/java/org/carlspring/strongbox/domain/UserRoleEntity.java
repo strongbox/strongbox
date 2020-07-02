@@ -21,10 +21,4 @@ public class UserRoleEntity extends DomainEntity implements UserRole
         setUuid(role);
     }
 
-    @Override
-    public String getUserRole()
-    {
-        return getUuid();
-    }
-
 }

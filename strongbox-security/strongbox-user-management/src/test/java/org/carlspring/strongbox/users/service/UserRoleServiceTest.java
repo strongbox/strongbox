@@ -40,7 +40,7 @@ public class UserRoleServiceTest
 
         UserRole userRolefromDB = userRoleService.findOneOrCreate(SystemRole.ADMIN.name());
         assertNotNull(userRolefromDB);
-        assertEquals(userRolefromDB.getUserRole(), SystemRole.ADMIN.name());
+        assertEquals(userRolefromDB.getRoleName(), SystemRole.ADMIN.name());
     }
 
     @Test
@@ -48,6 +48,6 @@ public class UserRoleServiceTest
     {
         UserRole userRolefromDB = userRoleService.findOneOrCreate(SystemRole.REPOSITORY_MANAGER.name());
         assertNotNull(userRolefromDB);
-        assertEquals(userRolefromDB.getUserRole(), SystemRole.REPOSITORY_MANAGER.name());
+        assertEquals(userRolefromDB.getRoleName(), SystemRole.REPOSITORY_MANAGER.name());
     }
 }

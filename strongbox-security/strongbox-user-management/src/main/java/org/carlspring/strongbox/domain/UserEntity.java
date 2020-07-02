@@ -70,7 +70,7 @@ public class UserEntity extends DomainEntity implements User
 
     public void addRole(String role)
     {
-        roles.add(new UserRoleEntity(role));
+        addRole(new UserRoleEntity(role));
     }
 
     public void addRole(UserRole role)

@@ -88,7 +88,7 @@ public class UserRepositoryTest
         user.setPassword("password");
         user.setSecurityTokenKey("security-token");
         Set<UserRole> userRoles = roles.stream()
-                                       .map(role -> new UserRoleEntity(role))
+                                       .map(UserRoleEntity::new)
                                        .collect(Collectors.toSet());
         user.setRoles(userRoles);
         user.setEnabled(true);

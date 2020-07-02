@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.users.service.impl;
 
+import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.UserRole;
 import org.carlspring.strongbox.domain.UserRoleEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.janusgraph.core.JanusGraph;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +33,10 @@ public class UserRoleServiceImpl implements UserRoleService
     private UserRoleRepository userRoleRepository;
 
     @Override
-    public UserRole findOneOrCreate(String role)
+    @Cacheable(value = CacheName.User.USER_ROLES, key = "#roleName", sync = true)
+    public UserRole findOneOrCreate(String roleName)
     {
-        Optional<UserRole> userRole = userRoleRepository.findById(role);
+        Optional<UserRole> userRole = userRoleRepository.findById(roleName);
 
         return userRole.orElseGet(() -> {
 
@@ -41,7 +44,7 @@ public class UserRoleServiceImpl implements UserRoleService
             try
             {
                 UserRoleEntity userRoleEntity = userRoleRepository.save(() -> g.traversal(EntityTraversalSource.class),
-                                                                        new UserRoleEntity(role));
+                                                                        new UserRoleEntity(roleName));
                 g.tx().commit();
 
                 return userRoleEntity;
@@ -50,10 +53,12 @@ public class UserRoleServiceImpl implements UserRoleService
             {
                 g.tx().rollback();
                 throw new UndeclaredThrowableException(e);
-            } finally
+            } 
+            finally
             {
                 g.tx().close();
             }
+            
         });
     }
 }

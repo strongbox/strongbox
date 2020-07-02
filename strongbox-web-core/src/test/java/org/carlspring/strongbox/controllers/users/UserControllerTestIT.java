@@ -448,7 +448,7 @@ public class UserControllerTestIT
 
         assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
                                                   .stream()
-                                                  .map(UserRole::getUserRole)
+                                                  .map(UserRole::getRoleName)
                                                   .collect(Collectors.toSet()),
                                        ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
 
@@ -469,7 +469,7 @@ public class UserControllerTestIT
 
         assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
                                                   .stream()
-                                                  .map(UserRole::getUserRole)
+                                                  .map(UserRole::getRoleName)
                                                   .collect(Collectors.toSet()),
                                        ImmutableSet.of("ADMIN"))).isTrue();
 
@@ -775,7 +775,7 @@ public class UserControllerTestIT
         dto.setEnabled(user.isEnabled());
         Set<String> roles = user.getRoles()
                                 .stream()
-                                .map(UserRole::getUserRole)
+                                .map(UserRole::getRoleName)
                                 .collect(Collectors.toSet());
         dto.setRoles(roles);
         dto.setSecurityTokenKey(user.getSecurityTokenKey());

@@ -8,5 +8,8 @@ import org.carlspring.strongbox.data.domain.DomainObject;
 public interface UserRole extends DomainObject
 {
 
-    String getUserRole();
+    default String getRoleName()
+    {
+        return getUuid();
+    }
 }

@@ -75,7 +75,7 @@ public class UserOutput
         output.setEnabled(user.isEnabled());
         output.setRoles(user.getRoles()
                             .stream()
-                            .map(UserRole::getUserRole)
+                            .map(UserRole::getRoleName)
                             .collect(Collectors.toSet()));
         output.setUsername(user.getUsername());
         output.setSecurityTokenKey(user.getSecurityTokenKey());

@@ -94,7 +94,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         if (entity.getNativeId() != null)
         {
-            unfoldTraversal.V(entity.getNativeId())
+            unfoldTraversal.unfold()
                            .sideEffect(__.outE(Edges.USER_HAS_USER_ROLES).drop());
         }
 
@@ -114,9 +114,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         unfoldTraversal = unfoldTraversal.map(unfoldUser(entity))
                                          .store(storedUserId)
-                                         .flatMap(userRoleTraversal)
-                                         .fold()
-                                         .map(t -> t.get().iterator().next());
+                                         .map(userRoleTraversal);
 
         return new UnfoldEntityTraversal<>(Vertices.USER, entity, unfoldTraversal);
     }
