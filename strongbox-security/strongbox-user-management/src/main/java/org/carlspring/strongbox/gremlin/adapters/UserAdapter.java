@@ -57,7 +57,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("password"))
                  .by(__.enrichPropertyValue("enabled"))
-                 .by(__.outE(Edges.USER_HAS_USER_ROLES)
+                 .by(__.outE(Edges.USER_HAS_SECURITY_ROLES)
                        .inV()
                        .map(userRoleAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
@@ -95,7 +95,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
         if (entity.getNativeId() != null)
         {
             unfoldTraversal.unfold()
-                           .sideEffect(__.outE(Edges.USER_HAS_USER_ROLES).drop());
+                           .sideEffect(__.outE(Edges.USER_HAS_SECURITY_ROLES).drop());
         }
 
         for (UserRole userRole : entity.getRoles())
@@ -104,11 +104,11 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
                                                  .saveV(userRole.getUuid(),
                                                         userRoleAdapter.unfold(userRole));
 
-            userRoleTraversal = userRoleTraversal.addE(Edges.USER_HAS_USER_ROLES)
+            userRoleTraversal = userRoleTraversal.addE(Edges.USER_HAS_SECURITY_ROLES)
                                                  .from(__.<Vertex, Vertex>select(storedUserId).unfold())
                                                  .inV();
 
-            userRoleTraversal = userRoleTraversal.inE(Edges.USER_HAS_USER_ROLES).outV();
+            userRoleTraversal = userRoleTraversal.inE(Edges.USER_HAS_SECURITY_ROLES).outV();
 
         }
 

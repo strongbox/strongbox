@@ -2,7 +2,7 @@ package org.carlspring.strongbox.domain;
 
 import static org.carlspring.strongbox.db.schema.Vertices.USER;
 import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
-import static org.carlspring.strongbox.db.schema.Edges.USER_HAS_USER_ROLES;
+import static org.carlspring.strongbox.db.schema.Edges.USER_HAS_SECURITY_ROLES;
 
 import org.carlspring.strongbox.data.domain.DomainEntity;
 import org.carlspring.strongbox.gremlin.adapters.DateConverter;
@@ -27,7 +27,7 @@ public class UserEntity extends DomainEntity implements User
 
     private Boolean enabled = true;
 
-    @Relationship(type = USER_HAS_USER_ROLES, direction = OUTGOING)
+    @Relationship(type = USER_HAS_SECURITY_ROLES, direction = OUTGOING)
     private Set<UserRole> roles = new HashSet<>();
 
     private String securityTokenKey;

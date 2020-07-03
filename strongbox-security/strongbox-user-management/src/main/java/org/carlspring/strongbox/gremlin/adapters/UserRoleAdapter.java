@@ -25,7 +25,7 @@ public class UserRoleAdapter implements VertexEntityTraversalAdapter<UserRole>
     @Override
     public String label()
     {
-        return Vertices.USER_ROLE;
+        return Vertices.SECURITY_ROLE;
     }
 
     @Override
@@ -49,7 +49,7 @@ public class UserRoleAdapter implements VertexEntityTraversalAdapter<UserRole>
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(UserRole entity)
     {
-        return new UnfoldEntityTraversal<>(Vertices.USER_ROLE, entity, __.identity());
+        return new UnfoldEntityTraversal<>(Vertices.SECURITY_ROLE, entity, __.identity());
     }
 
     @Override
