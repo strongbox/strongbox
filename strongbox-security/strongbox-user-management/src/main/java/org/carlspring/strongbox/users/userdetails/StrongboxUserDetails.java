@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.users.userdetails;
 
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.SecurityRole;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ public class StrongboxUserDetails implements UserDetails
     {
         return user.getRoles()
                    .stream()
-                   .map(UserRole::getRoleName)
+                   .map(SecurityRole::getRoleName)
                    .map(SimpleGrantedAuthority::new)
                    .collect(Collectors.toSet());
     }

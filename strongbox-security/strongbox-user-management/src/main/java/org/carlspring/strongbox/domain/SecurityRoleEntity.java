@@ -9,14 +9,14 @@ import static org.carlspring.strongbox.db.schema.Vertices.SECURITY_ROLE;
  * @author ankit.tomar
  */
 @NodeEntity(SECURITY_ROLE)
-public class UserRoleEntity extends DomainEntity implements UserRole
+public class SecurityRoleEntity extends DomainEntity implements SecurityRole
 {
 
-    public UserRoleEntity()
+    public SecurityRoleEntity()
     {
     }
 
-    public UserRoleEntity(String role)
+    public SecurityRoleEntity(String role)
     {
         setUuid(role);
     }

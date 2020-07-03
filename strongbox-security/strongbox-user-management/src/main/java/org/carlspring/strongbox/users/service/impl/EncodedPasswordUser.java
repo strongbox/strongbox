@@ -6,7 +6,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.SecurityRole;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -48,7 +48,7 @@ public class EncodedPasswordUser implements User
                        .orElse(password);
     }
 
-    public Set<UserRole> getRoles()
+    public Set<SecurityRole> getRoles()
     {
         return user.getRoles();
     }

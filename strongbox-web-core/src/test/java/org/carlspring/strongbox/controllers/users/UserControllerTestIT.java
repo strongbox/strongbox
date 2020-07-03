@@ -21,7 +21,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.SystemRole;
@@ -448,7 +448,7 @@ public class UserControllerTestIT
 
         assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
                                                   .stream()
-                                                  .map(UserRole::getRoleName)
+                                                  .map(SecurityRole::getRoleName)
                                                   .collect(Collectors.toSet()),
                                        ImmutableSet.of(SystemRole.UI_MANAGER.name()))).isTrue();
 
@@ -469,7 +469,7 @@ public class UserControllerTestIT
 
         assertThat(SetUtils.isEqualSet(updatedUser.getRoles()
                                                   .stream()
-                                                  .map(UserRole::getRoleName)
+                                                  .map(SecurityRole::getRoleName)
                                                   .collect(Collectors.toSet()),
                                        ImmutableSet.of("ADMIN"))).isTrue();
 
@@ -775,7 +775,7 @@ public class UserControllerTestIT
         dto.setEnabled(user.isEnabled());
         Set<String> roles = user.getRoles()
                                 .stream()
-                                .map(UserRole::getRoleName)
+                                .map(SecurityRole::getRoleName)
                                 .collect(Collectors.toSet());
         dto.setRoles(roles);
         dto.setSecurityTokenKey(user.getSecurityTokenKey());

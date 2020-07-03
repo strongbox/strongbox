@@ -5,7 +5,7 @@ import org.carlspring.strongbox.data.domain.DomainObject;
 /**
  * @author ankit.tomar
  */
-public interface UserRole extends DomainObject
+public interface SecurityRole extends DomainObject
 {
 
     default String getRoleName()

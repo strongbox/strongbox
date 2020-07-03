@@ -7,7 +7,7 @@ import javax.inject.Inject;
 import java.util.stream.Collectors;
 
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.SecurityRole;
 
 import org.springframework.stereotype.Component;
 
@@ -28,7 +28,7 @@ public class UserDetailsMapper implements StrongboxUserToUserDetails
         springUser.setUsername(user.getUsername());
         springUser.setRoles(user.getRoles()
                                 .stream()
-                                .map(UserRole::getRoleName)
+                                .map(SecurityRole::getRoleName)
                                 .map(authoritiesProvider::getRuntimeRole)
                                 .collect(Collectors.toSet()));
         springUser.setSecurityKey(user.getSecurityTokenKey());

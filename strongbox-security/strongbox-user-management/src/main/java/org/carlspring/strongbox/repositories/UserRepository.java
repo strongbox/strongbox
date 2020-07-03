@@ -57,13 +57,13 @@ interface UserQueries
         extends org.springframework.data.repository.Repository<User, String>
 {
 
-    @Query("MATCH (user:User)-[r]->(userRole:UserRole) " +
-           "WHERE userRole.uuid=$role " +
-           "RETURN user, r, userRole")
+    @Query("MATCH (user:User)-[r]->(securityRole:SecurityRole) " +
+           "WHERE securityRole.uuid=$role " +
+           "RETURN user, r, securityRole")
     List<User> findUsersWithRole(@Param("role") String role);
 
-    @Query("MATCH (user:User)-[r]->(userRole:UserRole) " +
-           "RETURN user, r, userRole")
+    @Query("MATCH (user:User)-[r]->(securityRole:SecurityRole) " +
+           "RETURN user, r, securityRole")
     List<User> findAllUsers();
 
 }

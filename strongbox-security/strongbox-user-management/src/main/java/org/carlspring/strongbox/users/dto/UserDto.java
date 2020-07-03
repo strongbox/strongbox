@@ -7,8 +7,8 @@ import java.util.Set;
 
 import java.util.stream.Collectors;
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -63,10 +63,10 @@ public class UserDto
     }
 
     @Override
-    public Set<UserRole> getRoles()
+    public Set<SecurityRole> getRoles()
     {
         return roles != null ? roles.stream()
-                                    .map(role -> new UserRoleEntity(role))
+                                    .map(role -> new SecurityRoleEntity(role))
                                     .collect(Collectors.toSet())
                              : new HashSet<>();
     }
@@ -83,15 +83,15 @@ public class UserDto
 
     public void removeRole(String role)
     {
-        removeRole(new UserRoleEntity(role));
+        removeRole(new SecurityRoleEntity(role));
     }
 
-    public void removeRole(UserRole role)
+    public void removeRole(SecurityRole role)
     {
         roles.remove(role);
     }
 
-    public boolean hasRole(UserRole role)
+    public boolean hasRole(SecurityRole role)
     {
         return roles.contains(role);
     }

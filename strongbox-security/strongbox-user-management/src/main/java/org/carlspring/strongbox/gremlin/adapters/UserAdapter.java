@@ -9,7 +9,7 @@ import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
-import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.dsl.__;
@@ -34,7 +34,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 {
 
     @Inject
-    private UserRoleAdapter userRoleAdapter;
+    private SecurityRoleAdapter securityRoleAdapter;
 
     @Override
     public String label()
@@ -59,7 +59,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
                  .by(__.enrichPropertyValue("enabled"))
                  .by(__.outE(Edges.USER_HAS_SECURITY_ROLES)
                        .inV()
-                       .map(userRoleAdapter.fold())
+                       .map(securityRoleAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
                  .by(__.enrichPropertyValue("securityTokenKey"))
@@ -75,7 +75,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         result.setPassword(extractObject(String.class, t.get().get("password")));
         result.setEnabled(extractObject(Boolean.class, t.get().get("enabled")));
-        List<UserRole> userRoles = (List<UserRole>) t.get().get("roles");
+        List<SecurityRole> userRoles = (List<SecurityRole>) t.get().get("roles");
         result.setRoles(new HashSet<>(userRoles));
         result.setSecurityTokenKey(extractObject(String.class, t.get().get("securityTokenKey")));
         result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get("lastUpdated"))));
@@ -98,11 +98,11 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
                            .sideEffect(__.outE(Edges.USER_HAS_SECURITY_ROLES).drop());
         }
 
-        for (UserRole userRole : entity.getRoles())
+        for (SecurityRole securityRole : entity.getRoles())
         {
-            userRoleTraversal = userRoleTraversal.V(userRole)
-                                                 .saveV(userRole.getUuid(),
-                                                        userRoleAdapter.unfold(userRole));
+            userRoleTraversal = userRoleTraversal.V(securityRole)
+                                                 .saveV(securityRole.getUuid(),
+                                                        securityRoleAdapter.unfold(securityRole));
 
             userRoleTraversal = userRoleTraversal.addE(Edges.USER_HAS_SECURITY_ROLES)
                                                  .from(__.<Vertex, Vertex>select(storedUserId).unfold())

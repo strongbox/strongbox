@@ -28,7 +28,7 @@ public class UserEntity extends DomainEntity implements User
     private Boolean enabled = true;
 
     @Relationship(type = USER_HAS_SECURITY_ROLES, direction = OUTGOING)
-    private Set<UserRole> roles = new HashSet<>();
+    private Set<SecurityRole> roles = new HashSet<>();
 
     private String securityTokenKey;
 
@@ -58,32 +58,32 @@ public class UserEntity extends DomainEntity implements User
     }
 
     @Override
-    public Set<UserRole> getRoles()
+    public Set<SecurityRole> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(Set<UserRole> roles)
+    public void setRoles(Set<SecurityRole> roles)
     {
         this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
     }
 
     public void addRole(String role)
     {
-        addRole(new UserRoleEntity(role));
+        addRole(new SecurityRoleEntity(role));
     }
 
-    public void addRole(UserRole role)
+    public void addRole(SecurityRole role)
     {
         roles.add(role);
     }
 
-    public void removeRole(UserRole role)
+    public void removeRole(SecurityRole role)
     {
         roles.remove(role);
     }
 
-    public boolean hasRole(UserRole role)
+    public boolean hasRole(SecurityRole role)
     {
         return roles.contains(role);
     }

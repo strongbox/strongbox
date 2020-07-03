@@ -19,7 +19,7 @@ import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
+import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
 import org.carlspring.strongbox.users.dto.UserDto;
@@ -121,7 +121,7 @@ public class InMemoryUserService implements UserService
             userDto.setEnabled(user.isEnabled());
             userDto.setRoles(user.getRoles()
                                  .stream()
-                                 .map(UserRole::getRoleName)
+                                 .map(SecurityRole::getRoleName)
                                  .collect(Collectors.toSet()));
             userDto.setSecurityTokenKey(user.getSecurityTokenKey());
             userDto.setLastUpdate(LocalDateTime.now());

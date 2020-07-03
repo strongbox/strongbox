@@ -1,11 +1,11 @@
 package org.carlspring.strongbox.users.service.impl;
 
 import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
-import org.carlspring.strongbox.repositories.UserRoleRepository;
-import org.carlspring.strongbox.users.service.UserRoleService;
+import org.carlspring.strongbox.repositories.SecurityRoleRepository;
+import org.carlspring.strongbox.users.service.SecurityRoleService;
 
 import javax.inject.Inject;
 
@@ -23,28 +23,28 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @Transactional
-public class UserRoleServiceImpl implements UserRoleService
+public class SecurityRoleServiceImpl implements SecurityRoleService
 {
 
     @Inject
     private JanusGraph janusGraph;
 
     @Inject
-    private UserRoleRepository userRoleRepository;
+    private SecurityRoleRepository securityRoleRepository;
 
     @Override
-    @Cacheable(value = CacheName.User.USER_ROLES, key = "#roleName", sync = true)
-    public UserRole findOneOrCreate(String roleName)
+    @Cacheable(value = CacheName.User.SECURITY_ROLES, key = "#roleName", sync = true)
+    public SecurityRole findOneOrCreate(String roleName)
     {
-        Optional<UserRole> userRole = userRoleRepository.findById(roleName);
+        Optional<SecurityRole> securityRole = securityRoleRepository.findById(roleName);
 
-        return userRole.orElseGet(() -> {
+        return securityRole.orElseGet(() -> {
 
             Graph g = janusGraph.tx().createThreadedTx();
             try
             {
-                UserRoleEntity userRoleEntity = userRoleRepository.save(() -> g.traversal(EntityTraversalSource.class),
-                                                                        new UserRoleEntity(roleName));
+                SecurityRoleEntity userRoleEntity = securityRoleRepository.save(() -> g.traversal(EntityTraversalSource.class),
+                                                                                new SecurityRoleEntity(roleName));
                 g.tx().commit();
 
                 return userRoleEntity;
@@ -58,7 +58,7 @@ public class UserRoleServiceImpl implements UserRoleService
             {
                 g.tx().close();
             }
-            
+
         });
     }
 }

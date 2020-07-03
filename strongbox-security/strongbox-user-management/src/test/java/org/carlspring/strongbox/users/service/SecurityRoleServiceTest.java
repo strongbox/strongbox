@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
-import org.carlspring.strongbox.repositories.UserRoleRepository;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
+import org.carlspring.strongbox.repositories.SecurityRoleRepository;
 import org.carlspring.strongbox.users.domain.SystemRole;
 
 import javax.inject.Inject;
@@ -24,21 +24,21 @@ import org.springframework.test.context.ContextConfiguration;
 @ActiveProfiles(profiles = "test")
 @ContextConfiguration(classes = { DataServiceConfig.class,
                                   UsersConfig.class })
-public class UserRoleServiceTest
+public class SecurityRoleServiceTest
 {
 
     @Inject
-    private UserRoleRepository userRoleRepository;
+    private SecurityRoleRepository securityRoleRepository;
 
     @Inject
-    private UserRoleService userRoleService;
+    private SecurityRoleService userRoleService;
 
     @Test
     public void testFetchExistingRole()
     {
-        userRoleRepository.save(new UserRoleEntity(SystemRole.ADMIN.name()));
+        securityRoleRepository.save(new SecurityRoleEntity(SystemRole.ADMIN.name()));
 
-        UserRole userRolefromDB = userRoleService.findOneOrCreate(SystemRole.ADMIN.name());
+        SecurityRole userRolefromDB = userRoleService.findOneOrCreate(SystemRole.ADMIN.name());
         assertNotNull(userRolefromDB);
         assertEquals(userRolefromDB.getRoleName(), SystemRole.ADMIN.name());
     }
@@ -46,7 +46,7 @@ public class UserRoleServiceTest
     @Test
     public void testFetchNonExistingRole()
     {
-        UserRole userRolefromDB = userRoleService.findOneOrCreate(SystemRole.REPOSITORY_MANAGER.name());
+        SecurityRole userRolefromDB = userRoleService.findOneOrCreate(SystemRole.REPOSITORY_MANAGER.name());
         assertNotNull(userRolefromDB);
         assertEquals(userRolefromDB.getRoleName(), SystemRole.REPOSITORY_MANAGER.name());
     }

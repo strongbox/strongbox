@@ -3,8 +3,8 @@ package org.carlspring.strongbox.gremlin.adapters;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
 import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
 
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  * @author ankit.tomar
  */
 @Component
-public class UserRoleAdapter implements VertexEntityTraversalAdapter<UserRole>
+public class SecurityRoleAdapter implements VertexEntityTraversalAdapter<SecurityRole>
 {
 
     @Override
@@ -29,7 +29,7 @@ public class UserRoleAdapter implements VertexEntityTraversalAdapter<UserRole>
     }
 
     @Override
-    public EntityTraversal<Vertex, UserRole> fold()
+    public EntityTraversal<Vertex, SecurityRole> fold()
     {
         return __.<Vertex, Object>project("id", "uuid")
                  .by(__.id())
@@ -37,9 +37,9 @@ public class UserRoleAdapter implements VertexEntityTraversalAdapter<UserRole>
                  .map(this::map);
     }
 
-    private UserRole map(Traverser<Map<String, Object>> t)
+    private SecurityRole map(Traverser<Map<String, Object>> t)
     {
-        UserRoleEntity result = new UserRoleEntity();
+        SecurityRoleEntity result = new SecurityRoleEntity();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
 
@@ -47,7 +47,7 @@ public class UserRoleAdapter implements VertexEntityTraversalAdapter<UserRole>
     }
 
     @Override
-    public UnfoldEntityTraversal<Vertex, Vertex> unfold(UserRole entity)
+    public UnfoldEntityTraversal<Vertex, Vertex> unfold(SecurityRole entity)
     {
         return new UnfoldEntityTraversal<>(Vertices.SECURITY_ROLE, entity, __.identity());
     }

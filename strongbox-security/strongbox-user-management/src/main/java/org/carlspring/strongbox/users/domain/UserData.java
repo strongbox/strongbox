@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 
 import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -31,7 +31,7 @@ public class UserData implements Serializable, User
 
     private final Boolean enabled;
 
-    private final Set<UserRole> roles;
+    private final Set<SecurityRole> roles;
 
     private final String securityTokenKey;
 
@@ -46,7 +46,7 @@ public class UserData implements Serializable, User
         this.enabled = source.isEnabled();
         this.roles = source.getAuthorities()
                            .stream()
-                           .map(a -> new UserRoleEntity(a.getAuthority()))
+                           .map(a -> new SecurityRoleEntity(a.getAuthority()))
                            .collect(Collectors.toSet());
         this.securityTokenKey = null;
         this.lastUpdate = null;
@@ -63,7 +63,7 @@ public class UserData implements Serializable, User
         this.sourceId = source.getSourceId();
     }
 
-    private Set<UserRole> immuteRoles(final Set<UserRole> source)
+    private Set<SecurityRole> immuteRoles(final Set<SecurityRole> source)
     {
         return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
     }
@@ -87,7 +87,7 @@ public class UserData implements Serializable, User
     }
 
     @Override
-    public Set<UserRole> getRoles()
+    public Set<SecurityRole> getRoles()
     {
         return roles;
     }

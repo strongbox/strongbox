@@ -7,8 +7,8 @@ import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
-import org.carlspring.strongbox.domain.UserRole;
-import org.carlspring.strongbox.domain.UserRoleEntity;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.users.domain.SystemRole;
 
@@ -87,8 +87,8 @@ public class UserRepositoryTest
         UserEntity user = new UserEntity(username);
         user.setPassword("password");
         user.setSecurityTokenKey("security-token");
-        Set<UserRole> userRoles = roles.stream()
-                                       .map(UserRoleEntity::new)
+        Set<SecurityRole> userRoles = roles.stream()
+                                       .map(SecurityRoleEntity::new)
                                        .collect(Collectors.toSet());
         user.setRoles(userRoles);
         user.setEnabled(true);
