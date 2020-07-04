@@ -21,7 +21,7 @@ public class FileSystemStorageProvider
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemStorageProvider.class);
 
-    public static final String ALIAS = "file-system";
+    public static final String ALIAS = "local";
 
 
     @Override
