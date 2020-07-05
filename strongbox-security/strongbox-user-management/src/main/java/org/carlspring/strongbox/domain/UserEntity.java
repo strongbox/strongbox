@@ -1,20 +1,25 @@
 package org.carlspring.strongbox.domain;
 
+import static org.carlspring.strongbox.db.schema.Vertices.USER;
+import static org.neo4j.ogm.annotation.Relationship.OUTGOING;
+import static org.carlspring.strongbox.db.schema.Edges.USER_HAS_SECURITY_ROLES;
+
+import org.carlspring.strongbox.data.domain.DomainEntity;
+import org.carlspring.strongbox.gremlin.adapters.DateConverter;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.carlspring.strongbox.data.domain.DomainEntity;
-import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.gremlin.adapters.DateConverter;
 import org.neo4j.ogm.annotation.NodeEntity;
+import org.neo4j.ogm.annotation.Relationship;
 import org.neo4j.ogm.annotation.typeconversion.Convert;
 
 /**
  * @author sbespalov
  *
  */
-@NodeEntity(Vertices.USER)
+@NodeEntity(USER)
 public class UserEntity extends DomainEntity implements User
 {
 
@@ -22,13 +27,14 @@ public class UserEntity extends DomainEntity implements User
 
     private Boolean enabled = true;
 
-    private Set<String> roles = new HashSet<>();
+    @Relationship(type = USER_HAS_SECURITY_ROLES, direction = OUTGOING)
+    private Set<SecurityRole> roles = new HashSet<>();
 
     private String securityTokenKey;
 
     @Convert(DateConverter.class)
     private LocalDateTime lastUpdated;
-    
+
     private String sourceId;
 
     UserEntity()
@@ -52,27 +58,32 @@ public class UserEntity extends DomainEntity implements User
     }
 
     @Override
-    public Set<String> getRoles()
+    public Set<SecurityRole> getRoles()
     {
         return roles;
     }
 
-    public void setRoles(Set<String> roles)
+    public void setRoles(Set<SecurityRole> roles)
     {
         this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
     }
 
     public void addRole(String role)
     {
+        addRole(new SecurityRoleEntity(role));
+    }
+
+    public void addRole(SecurityRole role)
+    {
         roles.add(role);
     }
 
-    public void removeRole(String role)
+    public void removeRole(SecurityRole role)
     {
         roles.remove(role);
     }
 
-    public boolean hasRole(String role)
+    public boolean hasRole(SecurityRole role)
     {
         return roles.contains(role);
     }

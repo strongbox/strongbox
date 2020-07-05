@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.annotation.concurrent.Immutable;
 
 import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -22,31 +24,34 @@ public class UserData implements Serializable, User
 {
 
     public static final String SECURITY_TOKEN_KEY = "security-token-key";
-    
+
     private final String username;
 
     private final String password;
 
     private final Boolean enabled;
 
-    private final Set<String> roles;
+    private final Set<SecurityRole> roles;
 
     private final String securityTokenKey;
 
     private final LocalDateTime lastUpdate;
 
     private String sourceId;
-    
-    public UserData(final UserDetails source) 
+
+    public UserData(final UserDetails source)
     {
         this.username = source.getUsername();
         this.password = source.getPassword();
         this.enabled = source.isEnabled();
-        this.roles = source.getAuthorities().stream().map(a -> a.getAuthority()).collect(Collectors.toSet());
+        this.roles = source.getAuthorities()
+                           .stream()
+                           .map(a -> new SecurityRoleEntity(a.getAuthority()))
+                           .collect(Collectors.toSet());
         this.securityTokenKey = null;
-        this.lastUpdate = null;        
+        this.lastUpdate = null;
     }
-    
+
     public UserData(final UserDto source)
     {
         this.username = source.getUsername();
@@ -58,7 +63,7 @@ public class UserData implements Serializable, User
         this.sourceId = source.getSourceId();
     }
 
-    private Set<String> immuteRoles(final Set<String> source)
+    private Set<SecurityRole> immuteRoles(final Set<SecurityRole> source)
     {
         return source != null ? ImmutableSet.copyOf(source) : Collections.emptySet();
     }
@@ -82,7 +87,7 @@ public class UserData implements Serializable, User
     }
 
     @Override
-    public Set<String> getRoles()
+    public Set<SecurityRole> getRoles()
     {
         return roles;
     }
@@ -110,7 +115,7 @@ public class UserData implements Serializable, User
     {
         return sourceId;
     }
-    
+
     @Override
     public String toString()
     {

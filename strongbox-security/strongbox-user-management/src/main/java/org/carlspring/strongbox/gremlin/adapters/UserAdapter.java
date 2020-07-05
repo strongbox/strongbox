@@ -1,23 +1,29 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extracPropertytList;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLocalDateTime;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLong;
 
+import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.UserEntity;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
+import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
+import org.carlspring.strongbox.gremlin.dsl.__;
+
+import javax.inject.Inject;
+
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.carlspring.strongbox.db.schema.Vertices;
-import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.UserEntity;
-import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
-import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,6 +32,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserAdapter implements VertexEntityTraversalAdapter<User>
 {
+
+    @Inject
+    private SecurityRoleAdapter securityRoleAdapter;
 
     @Override
     public String label()
@@ -36,12 +45,23 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
     @Override
     public EntityTraversal<Vertex, User> fold()
     {
-        return __.<Vertex, Object>project("id", "uuid", "password", "enabled", "roles", "securityTokenKey", "lastUpdated", "sourceId")
+        return __.<Vertex, Object>project("id",
+                                          "uuid",
+                                          "password",
+                                          "enabled",
+                                          "roles",
+                                          "securityTokenKey",
+                                          "lastUpdated",
+                                          "sourceId")
                  .by(__.id())
                  .by(__.enrichPropertyValue("uuid"))
                  .by(__.enrichPropertyValue("password"))
                  .by(__.enrichPropertyValue("enabled"))
-                 .by(__.enrichPropertyValues("roles"))
+                 .by(__.outE(Edges.USER_HAS_SECURITY_ROLES)
+                       .inV()
+                       .map(securityRoleAdapter.fold())
+                       .map(EntityTraversalUtils::castToObject)
+                       .fold())
                  .by(__.enrichPropertyValue("securityTokenKey"))
                  .by(__.enrichPropertyValue("lastUpdated"))
                  .by(__.enrichPropertyValue("sourceId"))
@@ -55,9 +75,8 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         result.setPassword(extractObject(String.class, t.get().get("password")));
         result.setEnabled(extractObject(Boolean.class, t.get().get("enabled")));
-        result.setRoles(extracPropertytList(String.class, t.get().get("roles")).stream()
-                                                                               .filter(e -> !e.trim().isEmpty())
-                                                                               .collect(Collectors.toSet()));
+        List<SecurityRole> userRoles = (List<SecurityRole>) t.get().get("roles");
+        result.setRoles(new HashSet<>(userRoles));
         result.setSecurityTokenKey(extractObject(String.class, t.get().get("securityTokenKey")));
         result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get("lastUpdated"))));
         result.setSourceId(extractObject(String.class, t.get().get("sourceId")));
@@ -67,6 +86,36 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(User entity)
+    {
+        String storedUserId = Vertices.USER + ":" + UUID.randomUUID().toString();
+
+        EntityTraversal<Vertex, Vertex> userRoleTraversal = __.identity();
+        EntityTraversal<Vertex, Vertex> unfoldTraversal = __.identity();
+
+        unfoldTraversal.sideEffect(__.outE(Edges.USER_HAS_SECURITY_ROLES).drop());
+
+        for (SecurityRole securityRole : entity.getRoles())
+        {
+            userRoleTraversal = userRoleTraversal.V(securityRole)
+                                                 .saveV(securityRole.getUuid(),
+                                                        securityRoleAdapter.unfold(securityRole));
+
+            userRoleTraversal = userRoleTraversal.addE(Edges.USER_HAS_SECURITY_ROLES)
+                                                 .from(__.<Vertex, Vertex>select(storedUserId).unfold())
+                                                 .inV();
+
+            userRoleTraversal = userRoleTraversal.inE(Edges.USER_HAS_SECURITY_ROLES).outV();
+
+        }
+
+        unfoldTraversal = unfoldTraversal.map(unfoldUser(entity))
+                                         .store(storedUserId)
+                                         .map(userRoleTraversal);
+
+        return new UnfoldEntityTraversal<>(Vertices.USER, entity, unfoldTraversal);
+    }
+
+    private EntityTraversal<Vertex, Vertex> unfoldUser(User entity)
     {
         EntityTraversal<Vertex, Vertex> t = __.<Vertex>identity();
 
@@ -89,11 +138,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         t = t.property(single, "enabled", entity.isEnabled());
 
-        Set<String> roles = entity.getRoles();
-        t = t.sideEffect(__.properties("roles").drop());
-        t = t.property("roles", roles);
-
-        return new UnfoldEntityTraversal<>(Vertices.USER, entity, t);
+        return t;
     }
 
     @Override

@@ -3,21 +3,24 @@ package org.carlspring.strongbox.repositories;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.SecurityRoleEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.users.domain.SystemRole;
+
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -52,12 +55,11 @@ public class UserRepositoryTest
         List<User> findAllUsers = userRepository.findAllUsers();
         assertNotNull(findAllUsers);
         assertEquals(2, findAllUsers.size());
-        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
-        assertEquals(3, findAllUsers.iterator().next().getRoles().size());
+        assertEquals(2, findAllUsers.iterator().next().getRoles().size());
+        assertEquals(2, findAllUsers.iterator().next().getRoles().size());
     }
 
     @Test
-    @Disabled
     @Transactional
     public void testFindUsersWithRoleNotExist()
     {
@@ -67,7 +69,6 @@ public class UserRepositoryTest
     }
 
     @Test
-    @Disabled
     @Transactional
     public void testFindUsersWithRoleExist()
     {
@@ -86,7 +87,10 @@ public class UserRepositoryTest
         UserEntity user = new UserEntity(username);
         user.setPassword("password");
         user.setSecurityTokenKey("security-token");
-        user.setRoles(roles);
+        Set<SecurityRole> userRoles = roles.stream()
+                                       .map(SecurityRoleEntity::new)
+                                       .collect(Collectors.toSet());
+        user.setRoles(userRoles);
         user.setEnabled(true);
         user.setLastUpdated(EntityTraversalUtils.toLocalDateTime(new Date()));
         userRepository.save(user);

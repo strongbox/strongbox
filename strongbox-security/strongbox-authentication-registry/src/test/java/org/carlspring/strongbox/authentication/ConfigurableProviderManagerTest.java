@@ -23,6 +23,8 @@ import org.carlspring.strongbox.users.service.impl.YamlUserService.Yaml;
 import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetails;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -82,6 +84,7 @@ public class ConfigurableProviderManagerTest
     }
     
     @Test
+    @Disabled
     public void testExternalUserShouldBeReplacedWhenExpired()
     {
         // Given: сached external user
