@@ -29,7 +29,7 @@ public class RawArtifactControllerTestIT
 
     private static final String REPOSITORY_GROUP = "ractit-raw-group";
 
-    private static final String REMOTE_URL = "http://slackbuilds.org/slackbuilds/14.2/";
+    private static final String REMOTE_URL = "https://github.com/strongbox/strongbox";
 
     @Override
     @BeforeEach
@@ -79,7 +79,7 @@ public class RawArtifactControllerTestIT
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
-        final String pathStr = "system/alien.tar.gz";
+        final String pathStr = "blob/master/ICLA.md";
 
         String artifactPath = String.format("/storages/%s/%s/%s", storageId, repositoryId, pathStr);
         resolveArtifact(artifactPath);
