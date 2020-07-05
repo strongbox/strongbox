@@ -92,11 +92,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
         EntityTraversal<Vertex, Vertex> userRoleTraversal = __.identity();
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.identity();
 
-        if (entity.getNativeId() != null)
-        {
-            unfoldTraversal.unfold()
-                           .sideEffect(__.outE(Edges.USER_HAS_SECURITY_ROLES).drop());
-        }
+        unfoldTraversal.sideEffect(__.outE(Edges.USER_HAS_SECURITY_ROLES).drop());
 
         for (SecurityRole securityRole : entity.getRoles())
         {
