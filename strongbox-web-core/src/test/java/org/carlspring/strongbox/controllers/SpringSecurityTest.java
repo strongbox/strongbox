@@ -57,7 +57,7 @@ public class SpringSecurityTest
 
         mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(getContextBaseUrl() + "?skip=0&limit=1")
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.UNAUTHORIZED.value());

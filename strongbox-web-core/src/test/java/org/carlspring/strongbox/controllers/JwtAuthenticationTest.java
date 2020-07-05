@@ -61,7 +61,7 @@ public class JwtAuthenticationTest
     public void testJWTAuthShouldPassWithToken()
         throws Exception
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl() + "/users?skip=0&limit=1";
 
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
@@ -101,7 +101,7 @@ public class JwtAuthenticationTest
     {
         String decodedErrorMessage = getI18nInsufficientAuthenticationErrorMessage();
 
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl() + "/users?skip=0&limit=1";
 
         mockMvc.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                .when()
@@ -114,7 +114,7 @@ public class JwtAuthenticationTest
     @Test
     public void testJWTInvalidToken()
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl() + "/users?skip=0&limit=1";
 
         String invalid_token = "ABCD";
 
@@ -131,7 +131,7 @@ public class JwtAuthenticationTest
     public void testJWTExpirationToken()
         throws Exception
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl() + "/users?skip=0&limit=1";
 
         // create token that will expire after 1 second
         SpringSecurityUser userDetails = (SpringSecurityUser) userDetailsService.loadUserByUsername("admin");
@@ -161,7 +161,7 @@ public class JwtAuthenticationTest
     public void testJWTIssuedAtFuture()
         throws Exception
     {
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl() + "/users?skip=0&limit=1";
 
         NumericDate futureNumericDate = NumericDate.now();
         // add five minutes to the current time to create a JWT issued in the
@@ -183,7 +183,7 @@ public class JwtAuthenticationTest
     public void testJWTAuthWithCookieShouldPass()
     {
 
-        String url = getContextBaseUrl() + "/users";
+        String url = getContextBaseUrl() + "/users?skip=0&limit=1";
         String basicAuth = "Basic YWRtaW46cGFzc3dvcmQ=";
 
         LoginOutput body = mockMvc.header(HttpHeaders.AUTHORIZATION, basicAuth)
