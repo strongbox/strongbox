@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.users.service.impl;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -49,7 +50,12 @@ public class InMemoryUserService implements UserService
 
         try
         {
-            Set<UserDto> userSet = new HashSet<>(userMap.values());
+            Set<UserDto> userSet = userMap.values()
+                                          .stream()
+                                          .sorted(Comparator.comparing(UserDto::getUsername))
+                                          .skip(skip)
+                                          .limit(limit)
+                                          .collect(Collectors.toSet());
 
             return new Users(new UsersDto(userSet));
         }
