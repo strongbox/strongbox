@@ -46,7 +46,7 @@ configuration:
         releases:
           id: releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: hosted
           allowsForceDeletion: true
@@ -58,7 +58,7 @@ configuration:
         snapshots:
           id: snapshots
           policy: snapshot
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: hosted
           secured: true
@@ -73,7 +73,7 @@ configuration:
         maven-central:
           id: maven-central
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -88,7 +88,7 @@ configuration:
         carlspring:
           id: carlspring
           policy: mixed
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -99,7 +99,7 @@ configuration:
         apache-snapshots:
           id: apache-snapshots
           policy: snapshot
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -110,7 +110,7 @@ configuration:
         jboss-public-releases:
           id: jboss-public-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -121,7 +121,7 @@ configuration:
         maven-oracle:
           id: maven-oracle
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -133,7 +133,7 @@ configuration:
         group-common-proxies:
           id: group-common-proxies
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: group
           secured: true
@@ -149,7 +149,7 @@ configuration:
         nuget.org:
           id: nuget.org
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: NuGet
           type: proxy
           remoteRepository:
@@ -163,7 +163,7 @@ configuration:
         springsource-snapshots:
           id: springsource-snapshots
           policy: snapshot
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -174,7 +174,7 @@ configuration:
         springsource-releases:
           id: springsource-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -185,7 +185,7 @@ configuration:
         springsource-milestones:
           id: springsource-milestones
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -196,7 +196,7 @@ configuration:
         springsource-proxies:
           id: springsource-proxies
           policy: mixed
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: group
           secured: true
@@ -214,7 +214,7 @@ configuration:
         typesafe-releases:
           id: typesafe-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -225,7 +225,7 @@ configuration:
         typesafe-ivy-releases:
           id: typesafe-ivy-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -236,7 +236,7 @@ configuration:
         group-ivy-proxies:
           id: group-ivy-proxies
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: group
           secured: true
@@ -253,7 +253,7 @@ configuration:
         sbt-plugin-releases:
           id: sbt-plugin-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: proxy
           remoteRepository:
@@ -264,7 +264,7 @@ configuration:
         group-sbt-proxies:
           id: group-sbt-proxies
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: group
           secured: true
@@ -282,7 +282,7 @@ configuration:
         third-party:
           id: third-party
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: hosted
           allowsForceDeletion: true
@@ -290,7 +290,7 @@ configuration:
         nuget-third-party:
           id: nuget-third-party
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: NuGet
           type: hosted
           allowsForceDeletion: true
@@ -301,7 +301,7 @@ configuration:
         npm-releases:
           id: npm-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: npm
           type: hosted
           allowsForceDeletion: true
@@ -309,7 +309,7 @@ configuration:
         npmjs:
           id: npmjs
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: npm
           type: proxy
           remoteRepository:
@@ -324,7 +324,7 @@ configuration:
         nuget-releases:
           id: nuget-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: NuGet
           type: hosted
           allowsForceDeletion: true
@@ -335,7 +335,7 @@ configuration:
         pypi-releases:
           id: pypi-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: PyPi
           type: hosted
           allowsForceDeletion: true
@@ -346,7 +346,7 @@ configuration:
         raw-releases:
           id: raw-releases
           policy: release
-          dataStore: file-system
+          storageProvider: local
           layout: Raw
           type: hosted
           allowsForceDeletion: true
@@ -357,7 +357,7 @@ configuration:
         maven-group:
           id: maven-group
           policy: mixed
-          dataStore: file-system
+          storageProvider: local
           layout: Maven 2
           type: group
           secured: true
@@ -376,7 +376,7 @@ configuration:
         nuget-group:
           id: nuget-group
           policy: mixed
-          dataStore: file-system
+          storageProvider: local
           layout: NuGet
           type: group
           secured: true
@@ -386,7 +386,7 @@ configuration:
         npm-group:
           id: npm-group
           policy: mixed
-          dataStore: file-system
+          storageProvider: local
           layout: npm
           type: group
           secured: true

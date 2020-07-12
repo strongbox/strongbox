@@ -1,16 +1,15 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrategyType;
 import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
-
-import javax.validation.constraints.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author Przemyslaw Fusik
  */
-@JsonTypeName("Maven 2")
+@JsonTypeName(Maven2LayoutProvider.ALIAS)
 public class MavenRepositoryConfigurationForm
         extends CustomRepositoryConfigurationForm
 {
@@ -22,7 +21,7 @@ public class MavenRepositoryConfigurationForm
     private String cronExpression;
 
     @DescribableEnumValue(type = MetadataExpirationStrategyType.class,
-            message = "metadataExpirationStrategy must be equal to either:  checksum, refresh")
+                          message = "The metadataExpirationStrategy can be either \"checksum\", or \"refresh\"")
     private String metadataExpirationStrategy;
 
     public boolean isIndexingEnabled()
@@ -67,4 +66,5 @@ public class MavenRepositoryConfigurationForm
     {
         return visitor.visit(this);
     }
+
 }

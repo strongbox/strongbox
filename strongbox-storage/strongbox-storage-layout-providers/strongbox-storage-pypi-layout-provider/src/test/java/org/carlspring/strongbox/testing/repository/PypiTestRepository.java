@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.repository;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
@@ -41,4 +42,8 @@ public @interface PypiTestRepository
 
     @AliasFor(annotation = TestRepository.class)
     String layout() default PypiLayoutProvider.ALIAS;
+
+    @AliasFor(annotation = TestRepository.class)
+    String storageProvider() default FileSystemStorageProvider.ALIAS;
+
 }

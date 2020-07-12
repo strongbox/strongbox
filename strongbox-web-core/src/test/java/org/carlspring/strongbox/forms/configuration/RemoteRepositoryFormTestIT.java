@@ -37,7 +37,7 @@ public class RemoteRepositoryFormTestIT
         return Stream.of(
                 Arguments.of(null, "A checkIntervalSeconds must be specified."),
                 Arguments.of(CHECK_INTERVAL_SECONDS_INVALID,
-                             "A checkIntervalSeconds must be positive or zero.")
+                             "The checkIntervalSeconds must be greater, or equal to zero.")
         );
     }
 

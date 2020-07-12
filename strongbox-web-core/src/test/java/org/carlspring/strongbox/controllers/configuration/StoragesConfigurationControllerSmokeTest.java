@@ -22,7 +22,7 @@ import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
-import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -81,7 +81,7 @@ public class StoragesConfigurationControllerSmokeTest extends RestAssuredBaseTes
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(repositoryId);
         repositoryForm.setLayout(RawLayoutProvider.ALIAS);
-        repositoryForm.setImplementation(StorageProviderEnum.FILESYSTEM.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setStatus(RepositoryStatusEnum.IN_SERVICE.describe());
         repositoryForm.setType(RepositoryTypeEnum.HOSTED.describe());
         repositoryForm.setPolicy(RepositoryPolicyEnum.RELEASE.describe());

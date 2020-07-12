@@ -47,7 +47,7 @@ public class RepositoryData
 
     private String policy;
 
-    private String implementation;
+    private String storageProvider;
 
     private String layout;
 
@@ -109,7 +109,7 @@ public class RepositoryData
     {
         this.id = delegate.getId();
         this.policy = delegate.getPolicy();
-        this.implementation = delegate.getImplementation();
+        this.storageProvider = delegate.getStorageProvider();
         this.layout = delegate.getLayout();
         this.type = delegate.getType();
         this.secured = delegate.isSecured();
@@ -201,9 +201,9 @@ public class RepositoryData
     }
 
     @Override
-    public String getImplementation()
+    public String getStorageProvider()
     {
-        return implementation;
+        return storageProvider;
     }
 
     @Override

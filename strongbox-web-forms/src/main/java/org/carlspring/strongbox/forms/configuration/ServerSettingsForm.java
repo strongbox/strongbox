@@ -27,8 +27,8 @@ public class ServerSettingsForm
     private String baseUrl;
 
     @NotNull(message = "A port must be specified.")
-    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.")
-    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.")
+    @Min(value = 1, message = "The port number must be an integer between 1 and 65535.")
+    @Max(value = 65535, message = "The port number must be an integer between 1 and 65535.")
     @JsonProperty
     private Integer port;
 
@@ -50,8 +50,8 @@ public class ServerSettingsForm
 
     public ServerSettingsForm(@NotBlank(message = "A base URL must be specified.") String baseUrl,
                               @NotNull(message = "A port must be specified.")
-                              @Min(value = 1, message = "Port number must be an integer between 1 and 65535.")
-                              @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.") Integer port)
+                              @Min(value = 1, message = "The port number must be an integer between 1 and 65535.")
+                              @Max(value = 65535, message = "The port number must be an integer between 1 and 65535.") Integer port)
     {
         this.baseUrl = baseUrl;
         this.port = port;
@@ -131,4 +131,5 @@ public class ServerSettingsForm
     {
         this.proxyConfigurationForm = proxyConfigurationForm;
     }
+
 }
