@@ -1,7 +1,10 @@
 package org.carlspring.strongbox.domain;
 
+import java.util.EnumSet;
+
 public enum RpmPackageArch
 {
+
     NOARCH("noarch"),
     I386("i386"),
     I686("i686"),
@@ -21,8 +24,14 @@ public enum RpmPackageArch
         this.name = name;
     }
 
+    public static RpmPackageArch fromValue(String name)
+    {
+        return valueOf(name.toUpperCase());
+    }
+
     public String getName()
     {
         return name;
     }
+
 }
