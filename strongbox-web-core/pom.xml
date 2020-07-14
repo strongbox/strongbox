@@ -113,6 +113,9 @@
                         <strongbox.basedir>${project.build.directory}</strongbox.basedir>
                         <logging.config>${project.build.directory}/strongbox/etc/logback-spring.xml</logging.config>
                         <logging.debug>true</logging.debug>
+                        <strongbox.npm.remote.changes.enabled>false</strongbox.npm.remote.changes.enabled>
+                        <strongbox.nuget.download.feed>false</strongbox.nuget.download.feed>
+                        <strongbox.download.indexes>false</strongbox.download.indexes>
                     </systemPropertyVariables>
                 </configuration>
 
