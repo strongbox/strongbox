@@ -15,7 +15,7 @@ public interface Repository
 
     String getPolicy();
 
-    String getImplementation();
+    String getStorageProvider();
 
     String getLayout();
 

@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.repository;
 
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository;
@@ -42,5 +43,8 @@ public @interface NugetRepository
 
     @AliasFor(annotation = TestRepository.class)
     String layout() default NugetLayoutProvider.ALIAS;
+
+    @AliasFor(annotation = TestRepository.class)
+    String storageProvider() default FileSystemStorageProvider.ALIAS;
 
 }

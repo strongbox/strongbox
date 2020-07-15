@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
@@ -15,7 +15,6 @@ import javax.inject.Inject;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +40,7 @@ public class NugetLayoutProviderConfig
     public LayoutFileSystemProviderFactory nugetRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             LayoutFileSystemProvider result = nugetFileSystemProvider(storageProvider.getFileSystemProvider());
 
@@ -63,7 +62,7 @@ public class NugetLayoutProviderConfig
         return (repository) -> {
             LayoutFileSystemProviderFactory providerFactory = nugetRepositoryFileSystemProviderFactory();
 
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             return nugetRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                              providerFactory.create(repository));

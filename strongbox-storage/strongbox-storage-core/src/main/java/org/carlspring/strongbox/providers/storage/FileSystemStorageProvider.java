@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.datastore;
+package org.carlspring.strongbox.providers.storage;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -6,7 +6,6 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,12 +15,14 @@ import org.springframework.stereotype.Component;
  * @author carlspring
  */
 @Component("filesystemStorageProvider")
-public class FileSystemStorageProvider extends AbstractStorageProvider
+public class FileSystemStorageProvider
+        extends AbstractStorageProvider
 {
 
     private static final Logger logger = LoggerFactory.getLogger(FileSystemStorageProvider.class);
 
-    public static final String ALIAS = StorageProviderEnum.FILESYSTEM.describe();
+    public static final String ALIAS = "local";
+
 
     @Override
     public String getAlias()

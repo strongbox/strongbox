@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.testing.storage.repository;
 
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
@@ -43,6 +44,11 @@ public @interface TestRepository
      * {@link Repository} ID.
      */
     String repositoryId() default "releases";
+
+    /**
+     * The storage provider.
+     */
+    String storageProvider() default FileSystemStorageProvider.ALIAS;
 
     /**
      * {@link RepositoryPolicyEnum}

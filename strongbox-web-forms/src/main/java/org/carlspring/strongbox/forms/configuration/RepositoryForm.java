@@ -1,9 +1,9 @@
 package org.carlspring.strongbox.forms.configuration;
 
-import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.validation.configuration.StorageProviderValue;
 import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
 import org.carlspring.strongbox.validation.configuration.LayoutProviderValue;
 
@@ -29,25 +29,25 @@ public class RepositoryForm
     private String basedir;
 
     @NotEmpty(message = "A policy must be specified.")
-    @DescribableEnumValue(message = "A policy value is invalid.", type = RepositoryPolicyEnum.class)
+    @DescribableEnumValue(message = "The policy value is invalid.", type = RepositoryPolicyEnum.class)
     private String policy;
 
-    @NotEmpty(message = "An implementation must be specified.")
-    @DescribableEnumValue(message = "An implementation value is invalid.", type = StorageProviderEnum.class)
-    private String implementation;
+    @NotEmpty(message = "A storage provider must be specified.")
+    @StorageProviderValue(message = "The storage provider value is invalid.")
+    private String storageProvider;
 
     @NotEmpty(message = "A layout must be specified.")
-    @LayoutProviderValue(message = "A layout value is invalid.")
+    @LayoutProviderValue(message = "The layout value is invalid.")
     private String layout;
 
     @NotEmpty(message = "A type must be specified.")
-    @DescribableEnumValue(message = "A type value is invalid.", type = RepositoryTypeEnum.class)
+    @DescribableEnumValue(message = "The type value is invalid.", type = RepositoryTypeEnum.class)
     private String type;
 
     private boolean secured;
 
     @NotEmpty(message = "A status must be specified.")
-    @DescribableEnumValue(message = "A status value is invalid.", type = RepositoryStatusEnum.class)
+    @DescribableEnumValue(message = "The status value is invalid.", type = RepositoryStatusEnum.class)
     private String status;
 
     private long artifactMaxSize;
@@ -72,7 +72,7 @@ public class RepositoryForm
     @Valid
     private RemoteRepositoryForm remoteRepository;
 
-    @PositiveOrZero(message = "A httpConnectionPool must be positive or zero.")
+    @PositiveOrZero(message = "The httpConnectionPool value must be greater, or equal to zero.")
     private Integer httpConnectionPool;
 
     @Valid
@@ -112,14 +112,14 @@ public class RepositoryForm
         this.policy = policy;
     }
 
-    public String getImplementation()
+    public String getStorageProvider()
     {
-        return implementation;
+        return storageProvider;
     }
 
-    public void setImplementation(final String implementation)
+    public void setStorageProvider(final String storageProvider)
     {
-        this.implementation = implementation;
+        this.storageProvider = storageProvider;
     }
 
     public String getLayout()
@@ -302,4 +302,5 @@ public class RepositoryForm
     {
         this.artifactCoordinateValidators = artifactCoordinateValidators;
     }
+
 }

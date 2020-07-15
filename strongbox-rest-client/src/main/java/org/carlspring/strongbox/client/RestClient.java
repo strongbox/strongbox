@@ -4,8 +4,8 @@ import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
-import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.Storage;
+import org.carlspring.strongbox.storage.StorageData;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.yaml.CustomYAMLMapperFactory;
 import org.carlspring.strongbox.yaml.ObjectMapperSubtypes;
@@ -16,7 +16,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -26,7 +25,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
@@ -287,7 +285,7 @@ public class RestClient
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);
 
-        Response response = resource.request(MediaType.TEXT_PLAIN)
+        Response response = resource.request(MediaType.APPLICATION_JSON_TYPE)
                                     .put(Entity.entity(storage, MediaType.APPLICATION_JSON_TYPE));
 
         return response.getStatus();
@@ -301,7 +299,6 @@ public class RestClient
      * @throws IOException
      */
     public Storage getStorage(String storageId)
-            throws JAXBException
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId;
 
@@ -343,10 +340,10 @@ public class RestClient
         return response.getStatus();
     }
 
-    public int addRepository(RepositoryForm repository,
-                             String storageId)
+    public int addRepository(String storageId,
+                             RepositoryForm repositoryForm)
     {
-        if (repository == null)
+        if (repositoryForm == null)
         {
             logger.error("Unable to add non-existing repository.");
             throw new ServerErrorException("Unable to add non-existing repository.",
@@ -365,10 +362,11 @@ public class RestClient
         try
         {
             String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" +
-                         storageId + "/" + repository.getId();
+                         storageId + "/" + repositoryForm.getId();
+
+            logger.debug("Sending request to create repository " + url);
 
             resource = getClientInstance().target(url);
-
         }
         catch (RuntimeException e)
         {
@@ -378,8 +376,8 @@ public class RestClient
 
         setupAuthentication(resource);
 
-        Response response = resource.request(MediaType.TEXT_PLAIN)
-                                    .put(Entity.entity(repository, MediaType.APPLICATION_JSON_TYPE));
+        Response response = resource.request(MediaType.APPLICATION_JSON)
+                                    .put(Entity.entity(repositoryForm, MediaType.APPLICATION_JSON));
 
         return response.getStatus();
     }
@@ -393,8 +391,7 @@ public class RestClient
      * @throws java.io.IOException
      */
     public RepositoryData getRepository(String storageId,
-                                             String repositoryId)
-            throws JAXBException
+                                        String repositoryId)
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/storages/" + storageId + "/" + repositoryId;
 

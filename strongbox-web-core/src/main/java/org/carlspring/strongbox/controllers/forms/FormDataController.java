@@ -4,7 +4,7 @@ import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
-import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.layout.Maven2LayoutProvider;
 import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
 import org.carlspring.strongbox.providers.layout.RawLayoutProvider;
@@ -52,6 +52,10 @@ public class FormDataController
     @Inject
     private AuthoritiesProvider authoritiesProvider;
 
+    @Inject
+    private StorageProviderRegistry storageProviderRegistry;
+
+
     @ApiOperation(value = "Used to retrieve all assignable user roles and privileges")
     @ApiResponses(value = { @ApiResponse(code = 200,
                                          message = "Collection of all assignable user roles and privileges") })
@@ -67,8 +71,7 @@ public class FormDataController
 
     @ApiOperation(value = "Used to retrieve collection of storage form data")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "Collection of storage form data") })
-    @PreAuthorize(
-            "hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE') or hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
+    @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE') or hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @GetMapping(value = "/storageFields", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getStorageFields()
     {
@@ -76,7 +79,7 @@ public class FormDataController
                 ImmutableList.of(FormDataValues.fromDescribableEnum("policy", RepositoryPolicyEnum.class),
                                  FormDataValues.fromDescribableEnum("status", RepositoryStatusEnum.class),
                                  FormDataValues.fromDescribableEnum("type", RepositoryTypeEnum.class),
-                                 FormDataValues.fromDescribableEnum("implementation", StorageProviderEnum.class),
+                                 FormDataValues.fromCollection("storageProvider", storageProviderRegistry.getProviders().keySet()),
                                  FormDataValues.fromCollection("layout", Arrays.asList(
                                          FormDataValues.fromCollection(Maven2LayoutProvider.ALIAS,
                                                                        FieldSpy.getAllFieldsInfo(

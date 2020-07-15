@@ -7,8 +7,8 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
@@ -44,7 +44,7 @@ public class NullLayoutConfiguration
     public LayoutFileSystemProviderFactory nullRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             return nullFileSystemProvider(storageProvider.getFileSystemProvider());
         };
@@ -64,7 +64,7 @@ public class NullLayoutConfiguration
         LayoutFileSystemProviderFactory providerFactory = nullRepositoryFileSystemProviderFactory();
 
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             return nullRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                             providerFactory.create(repository));
