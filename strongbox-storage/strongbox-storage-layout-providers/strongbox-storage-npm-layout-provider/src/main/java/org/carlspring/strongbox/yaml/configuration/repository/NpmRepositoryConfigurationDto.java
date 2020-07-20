@@ -12,10 +12,14 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
  */
 @JsonTypeName(NpmLayoutProvider.ALIAS)
 public class NpmRepositoryConfigurationDto
-        extends CustomRepositoryConfigurationDto
+        extends CustomRepositoryConfigurationDto implements NpmRepositoryConfiguration
 {
 
     private boolean allowsUnpublish = true;
+
+    private String cronExpression = "0 0 * ? * * ";
+
+    private boolean cronEnabled = true;
 
     @Override
     public CustomRepositoryConfiguration getImmutable()
@@ -26,5 +30,17 @@ public class NpmRepositoryConfigurationDto
     public boolean allowsUnpublish()
     {
         return allowsUnpublish;
+    }
+
+    @Override
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
+    @Override
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
     }
 }

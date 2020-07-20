@@ -27,6 +27,8 @@ public class MavenRepositoryConfigurationData
 
     private String cronExpression;
 
+    private boolean cronEnabled;
+
     private String metadataExpirationStrategy;
 
     public MavenRepositoryConfigurationData()
@@ -39,6 +41,7 @@ public class MavenRepositoryConfigurationData
         this.indexingClassNamesEnabled = delegate.isIndexingClassNamesEnabled();
         this.cronExpression = delegate.getCronExpression();
         this.metadataExpirationStrategy = delegate.getMetadataExpirationStrategy();
+        this.cronEnabled = delegate.isCronEnabled();
     }
 
     public boolean isIndexingEnabled()
@@ -63,5 +66,10 @@ public class MavenRepositoryConfigurationData
         return metadataExpirationStrategy;
     }
 
-}
+    @Override
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
+    }
 
+}

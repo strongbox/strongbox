@@ -18,6 +18,10 @@ public class NugetRepositoryConfigurationDto
 
     private Integer remoteFeedPageSize;
 
+    private String cronExpression = "0 0 0 * * ";
+
+    private boolean cronEnabled = true;
+
     public String getFeedVersion()
     {
         return feedVersion;
@@ -43,4 +47,17 @@ public class NugetRepositoryConfigurationDto
     {
         return new NugetRepositoryConfigurationData(this);
     }
+
+    @Override
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
+    @Override
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
+    }
+
 }

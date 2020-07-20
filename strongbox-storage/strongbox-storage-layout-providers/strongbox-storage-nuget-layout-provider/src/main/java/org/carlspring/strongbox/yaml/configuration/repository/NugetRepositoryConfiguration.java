@@ -9,4 +9,8 @@ public interface NugetRepositoryConfiguration extends RepositoryConfiguration
 
     Integer getRemoteFeedPageSize();
 
+    String getCronExpression();
+
+    boolean isCronEnabled();
+
 }

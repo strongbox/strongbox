@@ -5,6 +5,8 @@ import org.carlspring.strongbox.cron.jobs.FetchRemoteNpmChangesFeedCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfiguration;
+import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfigurationDto;
 
 import javax.inject.Inject;
 
@@ -29,24 +31,31 @@ public class NpmRepositoryManagementStrategy
     {
         String storageId = storage.getId();
         String repositoryId = repository.getId();
+        NpmRepositoryConfiguration repositoryConfiguration = (NpmRepositoryConfiguration) repository.getRepositoryConfiguration();
 
         if (repository.isProxyRepository())
         {
-            createRemoteChangesFeedFetcherCronTask(storageId, repositoryId);
+            createRemoteChangesFeedFetcherCronTask(storageId,
+                                                   repositoryId,
+                                                   repositoryConfiguration.getCronExpression(),
+                                                   repositoryConfiguration.isCronEnabled());
         }
     }
 
     private void createRemoteChangesFeedFetcherCronTask(String storageId,
-                                                        String repositoryId)
+                                                        String repositoryId,
+                                                        String cronExpression,
+                                                        boolean cronEnabled)
         throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName(FetchRemoteNpmChangesFeedCronJob.calculateJobName(storageId, repositoryId));
         configuration.setJobClass(FetchRemoteNpmChangesFeedCronJob.class.getName());
-        configuration.setCronExpression("0 0 * ? * * *"); // Execute every hour
+        configuration.setCronExpression(cronExpression);
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
+        configuration.setCronEnabled(cronEnabled);
 
         try
         {

@@ -35,6 +35,7 @@ public enum CronTaskConfigurationFormToCronTaskConfigurationDtoConverter
         configuration.setCronExpression(configurationForm.getCronExpression());
         configuration.setOneTimeExecution(configurationForm.isOneTimeExecution());
         configuration.setImmediateExecution(configurationForm.isImmediateExecution());
+        configuration.setCronEnabled(configurationForm.isCronEnabled());
         return configuration;
     }
 }
