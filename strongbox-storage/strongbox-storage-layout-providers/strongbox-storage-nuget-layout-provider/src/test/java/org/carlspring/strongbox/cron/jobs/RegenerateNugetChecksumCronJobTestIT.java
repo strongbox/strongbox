@@ -7,6 +7,7 @@ import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.NugetRemoteRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NugetTestArtifact;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
@@ -66,7 +67,8 @@ public class RegenerateNugetChecksumCronJobTestIT
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRegenerateNugetArtifactChecksum(@NugetRepository(storageId = STORAGE1,
-                                                                     repositoryId = REPOSITORY)
+                                                                     repositoryId = REPOSITORY,
+                                                                     setup = NugetRemoteRepositorySetup.class)
                                                     Repository repository,
                                                     @NugetTestArtifact(storageId = STORAGE1,
                                                                        repositoryId = REPOSITORY,
@@ -92,7 +94,8 @@ public class RegenerateNugetChecksumCronJobTestIT
     @Test
     public void testRegenerateNugetChecksumInRepository(@NugetRepository(storageId = STORAGE1,
                                                                          repositoryId = REPOSITORY,
-                                                                         policy = RepositoryPolicyEnum.SNAPSHOT)
+                                                                         policy = RepositoryPolicyEnum.SNAPSHOT,
+                                                                         setup = NugetRemoteRepositorySetup.class)
                                                         Repository repository,
                                                         @NugetTestArtifact(storageId = STORAGE1,
                                                                            repositoryId = REPOSITORY,
@@ -116,7 +119,8 @@ public class RegenerateNugetChecksumCronJobTestIT
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRegenerateNugetChecksumInStorage(@NugetRepository(storageId = STORAGE1,
-                                                                      repositoryId = REPOSITORY)
+                                                                      repositoryId = REPOSITORY,
+                                                                      setup = NugetRemoteRepositorySetup.class)
                                                      Repository repository,
                                                      @NugetTestArtifact(storageId = STORAGE1,
                                                                         repositoryId = REPOSITORY,
