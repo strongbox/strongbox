@@ -10,9 +10,9 @@ public class StrongboxCassandraEmbeddedProperties extends CassandraEmbeddedPrope
 {
 
     public StrongboxCassandraEmbeddedProperties(String storageRoot,
-                                                String configLocatoion)
+                                                String configLocation)
     {
-        super(storageRoot, configLocatoion);
+        super(storageRoot, configLocation);
     }
 
 }
