@@ -18,11 +18,10 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.controllers.users.support.UserOutput;
-import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
-import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
+import org.carlspring.strongbox.repositories.UserRepository;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.SystemRole;
 import org.carlspring.strongbox.users.domain.UserData;
@@ -32,12 +31,15 @@ import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
 
 import javax.inject.Inject;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.SetUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,6 +55,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 
 /**
  * @author Pablo Tirado
@@ -66,6 +69,9 @@ public class UserControllerTestIT
     @Inject
     @Database
     private UserService userService;
+
+    @Inject
+    private UserRepository userRepository;
 
     @Inject
     private PasswordEncoder passwordEncoder;
@@ -229,12 +235,40 @@ public class UserControllerTestIT
     @Test
     public void testRetrieveAllUsers()
     {
+
+        IntStream.range(1, 4).forEach(userId -> {
+
+            UserForm user = buildUser("test-user" + userId, "password");
+
+            mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+                   .accept(MediaType.APPLICATION_JSON_VALUE)
+                   .body(user)
+                   .when()
+                   .put(getContextBaseUrl())
+                   .peek()
+                   .then()
+                   .statusCode(HttpStatus.OK.value())
+                   .body(containsString(SUCCESSFUL_CREATE_USER))
+                   .extract()
+                   .asString();
+        });
+        
+        List<User> users = userRepository.findAllUsers();
+        Assertions.assertNotNull(users);
+        Assertions.assertEquals(4, users.size());
+        Assertions.assertTrue(SetUtils.isEqualSet(Sets.newHashSet("admin", "test-user1", "test-user2", "test-user3"),
+                                                  users.stream()
+                                                       .map(User::getUsername)
+                                                       .collect(Collectors.toSet())));
+
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .when()
-               .get(getContextBaseUrl())
+               .get(getContextBaseUrl() + "?skip=2&limit=2")
                .peek() // Use peek() to print the output
                .then()
-               .body("users", hasSize(greaterThan(0)))
+               .body("users", hasSize(2)) // Two users skipped admin, test-user1
+               .body("users[0].username", equalTo("test-user2"))
+               .body("users[1].username", equalTo("test-user3"))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -714,21 +748,6 @@ public class UserControllerTestIT
     {
         logger.debug("Delete created user: {}", username);
         userService.deleteByUsername(username);
-    }
-
-    // get user through REST API
-    private UserOutput getUser(String username)
-    {
-        UserResponseEntity responseEntity = mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
-                                                   .param("The name of the user", username)
-                                                   .when()
-                                                   .get(getContextBaseUrl() + "/{username}", username)
-                                                   .then()
-                                                   .statusCode(HttpStatus.OK.value())
-                                                   .extract()
-                                                   .as(UserResponseEntity.class);
-
-        return responseEntity.getUser();
     }
 
     // get user from DB/cache directly

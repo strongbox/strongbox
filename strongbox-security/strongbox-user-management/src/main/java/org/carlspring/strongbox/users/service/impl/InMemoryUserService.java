@@ -1,8 +1,21 @@
 package org.carlspring.strongbox.users.service.impl;
 
+import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.users.domain.UserData;
+import org.carlspring.strongbox.users.domain.Users;
+import org.carlspring.strongbox.users.dto.UserDto;
+import org.carlspring.strongbox.users.dto.UsersDto;
+import org.carlspring.strongbox.users.security.SecurityTokenProvider;
+import org.carlspring.strongbox.users.service.UserService;
+
+import javax.annotation.Nonnull;
+import javax.inject.Inject;
+
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -12,20 +25,9 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
 import java.util.stream.Collectors;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.carlspring.strongbox.data.CacheName;
-import org.carlspring.strongbox.domain.User;
-import org.carlspring.strongbox.domain.SecurityRole;
-import org.carlspring.strongbox.users.domain.UserData;
-import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.UserDto;
-import org.carlspring.strongbox.users.dto.UsersDto;
-import org.carlspring.strongbox.users.security.SecurityTokenProvider;
-import org.carlspring.strongbox.users.service.UserService;
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
 
@@ -41,14 +43,20 @@ public class InMemoryUserService implements UserService
     private SecurityTokenProvider tokenProvider;
 
     @Override
-    public Users getUsers()
+    public Users getUsers(@Nonnull Long skip,
+                          @Nonnull Integer limit)
     {
         final Lock readLock = usersLock.readLock();
         readLock.lock();
 
         try
         {
-            Set<UserDto> userSet = new HashSet<>(userMap.values());
+            Set<UserDto> userSet = userMap.values()
+                                          .stream()
+                                          .sorted(Comparator.comparing(UserDto::getUsername))
+                                          .skip(skip)
+                                          .limit(limit)
+                                          .collect(Collectors.toSet());
 
             return new Users(new UsersDto(userSet));
         }

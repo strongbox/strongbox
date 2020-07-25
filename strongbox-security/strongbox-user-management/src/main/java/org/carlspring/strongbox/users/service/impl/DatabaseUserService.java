@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,10 +107,11 @@ public class DatabaseUserService implements UserService
     }
 
     @Override
-    public Users getUsers()
+    public Users getUsers(Long skip,
+                          Integer limit)
     {
-        Iterable<User> users = userRepository.findAll();
-        return new Users(StreamSupport.stream(users.spliterator(), false).collect(Collectors.toSet()));
+        List<User> users = userRepository.findUsers(skip, limit);
+        return new Users(new HashSet<>(users));
     }
 
     @Override

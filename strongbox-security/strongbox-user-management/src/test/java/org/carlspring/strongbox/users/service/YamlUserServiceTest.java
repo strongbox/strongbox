@@ -227,20 +227,24 @@ public class YamlUserServiceTest
     @Test
     public void testThatUserNameIsUnique()
     {
-        assertThat(userService.getUsers().getUsers().stream()
+        assertThat(userService.getUsers(0L, 100)
+                              .getUsers()
+                              .stream()
                               .filter(u -> "admin".equals(u.getUsername()))
                               .count())
-                .isEqualTo(1);
+                                       .isEqualTo(1);
 
         UserDto user = new UserDto();
         user.setUsername("admin");
 
         userService.save(user);
 
-        assertThat(userService.getUsers().getUsers().stream()
+        assertThat(userService.getUsers(0L, 100)
+                              .getUsers()
+                              .stream()
                               .filter(u -> "admin".equals(u.getUsername()))
                               .count())
-                .isEqualTo(1);
+                                       .isEqualTo(1);
     }
 
     @Test
