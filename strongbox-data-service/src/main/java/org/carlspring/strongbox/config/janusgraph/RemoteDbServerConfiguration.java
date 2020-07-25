@@ -11,23 +11,23 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.strongbox.db.server.InMemoryJanusGraphServer;
 import org.strongbox.db.server.JanusGraphConfiguration;
 import org.strongbox.db.server.JanusGraphProperties;
 import org.strongbox.db.server.JanusGraphServer;
+import org.strongbox.db.server.JanusGraphWithRemoteCassandra;
 
 /**
  * @author sbespalov
  */
 @Configuration
-@Conditional(InMemoryDbServerConfiguration.class)
-public class InMemoryDbServerConfiguration implements Condition
+@Conditional(RemoteDbServerConfiguration.class)
+public class RemoteDbServerConfiguration implements Condition
 {
 
     @Bean
     JanusGraphServer embeddedDbServer(JanusGraphConfiguration janusGraphConfiguration)
     {
-        return new InMemoryJanusGraphServer(janusGraphConfiguration);
+        return new JanusGraphWithRemoteCassandra(janusGraphConfiguration);
     }
 
     @Bean
@@ -44,9 +44,9 @@ public class InMemoryDbServerConfiguration implements Condition
     {
         JanusGraphDbProfile profile = JanusGraphDbProfile.resolveProfile((ConfigurableEnvironment) conditionContext.getEnvironment());
 
-        return profile.getName().equals(JanusGraphDbProfile.PROFILE_MEMORY);
+        return profile.getName().equals(JanusGraphDbProfile.PROFILE_REMOTE);
     }
-    
+
 //    @ConstructorBinding
 //    @ConfigurationProperties(prefix = "strongbox.db.janusgraph")
 //    public class StrongboxJanusGraphProperties extends JanusGraphProperties {

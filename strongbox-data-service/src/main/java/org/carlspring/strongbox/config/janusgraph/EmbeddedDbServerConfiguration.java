@@ -19,18 +19,20 @@ import org.janusgraph.core.JanusGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 import org.strongbox.db.server.CassandraEmbeddedConfiguration;
 import org.strongbox.db.server.CassandraEmbeddedProperties;
-import org.strongbox.db.server.EmbeddedDbServer;
-import org.strongbox.db.server.EmbeddedJanusGraphWithCassandraServer;
 import org.strongbox.db.server.JanusGraphConfiguration;
 import org.strongbox.db.server.JanusGraphProperties;
+import org.strongbox.db.server.JanusGraphServer;
+import org.strongbox.db.server.JanusGraphWithEmbeddedCassandra;
 
 /**
  * @author Przemyslaw Fusik
@@ -46,24 +48,24 @@ public class EmbeddedDbServerConfiguration implements Condition
     public static final String PATH_STRONGBOX_DB = "META-INF/org/carlsparing/strongbox/db";
 
     @Bean
-    EmbeddedDbServer embeddedDbServer(CassandraEmbeddedConfiguration cassandraConfiguration,
+    JanusGraphServer embeddedDbServer(CassandraEmbeddedConfiguration cassandraConfiguration,
                                       JanusGraphConfiguration janusGraphConfiguration)
     {
 
-        if (!Files.exists(Paths.get(cassandraConfiguration.getStorageFolder())))
+        if (!Files.exists(Paths.get(cassandraConfiguration.getStorageRoot())))
         {
             logger.info(String.format("Extract storage from [%s].", PATH_STRONGBOX_DB));
             initStorage(cassandraConfiguration);
-            logger.info(String.format("Sotorage extracted to [%s].", cassandraConfiguration.getStorageFolder()));
+            logger.info(String.format("Storage extracted to [%s].", cassandraConfiguration.getStorageRoot()));
         }
 
-        return new EmbeddedJanusGraphWithCassandraServer(cassandraConfiguration, janusGraphConfiguration);
+        return new JanusGraphWithEmbeddedCassandra(cassandraConfiguration, janusGraphConfiguration);
     }
 
     public JarFile getDbSchemaClasspathLocation()
         throws IOException
     {
-        URL systemResource = EmbeddedJanusGraphWithCassandraServer.class.getResource("/" + PATH_STRONGBOX_DB);
+        URL systemResource = JanusGraphWithEmbeddedCassandra.class.getResource("/" + PATH_STRONGBOX_DB);
         if (systemResource == null)
         {
             throw new IOException(String.format("Storage resource [%s] not found.", PATH_STRONGBOX_DB));
@@ -86,7 +88,7 @@ public class EmbeddedDbServerConfiguration implements Condition
                     continue;
                 }
 
-                Path filePath = Paths.get(cassandraConfiguration.getStorageFolder(),
+                Path filePath = Paths.get(cassandraConfiguration.getStorageRoot(),
                                           file.getName().replace(PATH_STRONGBOX_DB, ""));
                 if (file.isDirectory())
                 {
@@ -114,29 +116,10 @@ public class EmbeddedDbServerConfiguration implements Condition
     }
 
     @Bean
-    JanusGraph JanusGraph(EmbeddedDbServer server)
+    JanusGraph JanusGraph(JanusGraphServer server)
         throws Exception
     {
-        JanusGraph janusGraph = ((EmbeddedJanusGraphWithCassandraServer) server).getJanusGraph();
-        logger.info("Apply schema changes.");
-        new StrongboxSchema().createSchema(janusGraph);
-        logger.info("Schema changes applied.");
-
-        return janusGraph;
-    }
-
-    @Bean
-    @ConfigurationProperties(prefix = "strongbox.db.janus-graph")
-    JanusGraphConfiguration janusGraphConfiguration()
-    {
-        return new JanusGraphProperties();
-    }
-
-    @Bean
-    CassandraEmbeddedConfiguration cassandraEmbeddedConfiguration(JanusGraphConfiguration janusGraphConfiguration)
-    {
-        return CassandraEmbeddedProperties.getInstance(janusGraphConfiguration.getStorageRoot(),
-                                                       janusGraphConfiguration.getStoragePort());
+        return new StrongboxSchema().createSchema(server.getJanusGraph());
     }
 
     @Override
@@ -144,9 +127,31 @@ public class EmbeddedDbServerConfiguration implements Condition
                            AnnotatedTypeMetadata metadata)
 
     {
-        JanusGraphDbProfile profile = JanusGraphDbProfile.resolveProfile(conditionContext.getEnvironment());
+        JanusGraphDbProfile profile = JanusGraphDbProfile.resolveProfile((ConfigurableEnvironment) conditionContext.getEnvironment());
 
         return profile.getName().equals(JanusGraphDbProfile.PROFILE_EMBEDDED);
     }
+
+//    @ConstructorBinding
+//    @ConfigurationProperties(prefix = "strongbox.db.janusgraph")
+//    public class StrongboxJanusGraphProperties extends JanusGraphProperties {
+//
+//        public StrongboxJanusGraphProperties(String configLocation)
+//        {
+//            super(configLocation);
+//        }
+//    }
+
+//    @ConstructorBinding
+//    @ConfigurationProperties(prefix = "strongbox.db.cassandra")
+//    public class StrongboxCassandraEmbeddedProperties extends CassandraEmbeddedProperties {
+//
+//        public StrongboxCassandraEmbeddedProperties(String storageRoot,
+//                                                    String configLocatoion)
+//        {
+//            super(storageRoot, configLocatoion);
+//        }
+//        
+//    }
 
 }
