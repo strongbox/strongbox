@@ -241,6 +241,10 @@ public class WebConfig
                 .addResourceLocations("classpath:/")
                 .setCachePeriod(3600);
 
+        registry.addResourceHandler("/database/**")
+                .addResourceLocations("classpath:/database/")
+                .setCachePeriod(3600);
+
         registry.addResourceHandler("/static/assets/**")
                 .addResourceLocations("classpath:/static/assets/")
                 .setCachePeriod(3600)
