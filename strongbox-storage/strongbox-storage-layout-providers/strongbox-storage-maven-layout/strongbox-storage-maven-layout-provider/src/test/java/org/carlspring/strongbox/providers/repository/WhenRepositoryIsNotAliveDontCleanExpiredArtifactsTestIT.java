@@ -14,7 +14,6 @@ import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -44,7 +43,6 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    @Disabled
     public void expiredArtifactsCleanerShouldNotCleanupDatabaseAndStorageWhenRepositoryIsNotAlive(@Remote(url = REMOTE_URL)
                                                                                                   @MavenRepository(storageId = STORAGE_ID,
                                                                                                                    repositoryId = REPOSITORY_ID,
