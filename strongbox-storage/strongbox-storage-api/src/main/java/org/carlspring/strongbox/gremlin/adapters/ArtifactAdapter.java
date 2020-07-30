@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extracPropertytList;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractPropertyList;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLocalDateTime;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLong;
@@ -117,11 +117,11 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
         result.setDownloadCount(extractObject(Integer.class, t.get().get("downloadCount")));
         
         result.getArtifactArchiveListing()
-              .setFilenames(extracPropertytList(String.class, t.get().get("filenames")).stream()
+              .setFilenames(extractPropertyList(String.class, t.get().get("filenames")).stream()
                                                                                        .filter(e -> !e.trim().isEmpty())
                                                                                        .collect(Collectors.toSet()));
 
-        result.addChecksums(extracPropertytList(String.class, t.get().get("checksums")).stream()
+        result.addChecksums(extractPropertyList(String.class, t.get().get("checksums")).stream()
                                                                                        .filter(e -> !e.trim().isEmpty())
                                                                                        .collect(Collectors.toSet()));
 

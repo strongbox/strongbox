@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.single;
-import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extracPropertytList;
+import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractPropertyList;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
 import java.util.Map;
@@ -62,7 +62,7 @@ public class GenericArtifactCoordinatesAdapter
         coordinates.entrySet()
                    .stream()
                    .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates.", ""),
-                                                      extracPropertytList(String.class, e.getValue()).iterator().next()));
+                                                      extractPropertyList(String.class, e.getValue()).iterator().next()));
 
         return result;
     }

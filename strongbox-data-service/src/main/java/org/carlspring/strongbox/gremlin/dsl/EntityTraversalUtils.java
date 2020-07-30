@@ -53,7 +53,7 @@ public class EntityTraversalUtils
         }
     }
 
-    public static <E> List<E> extracPropertytList(Class<E> target,
+    public static <E> List<E> extractPropertyList(Class<E> target,
                                                   Object value)
     {
         return Optional.of(value)

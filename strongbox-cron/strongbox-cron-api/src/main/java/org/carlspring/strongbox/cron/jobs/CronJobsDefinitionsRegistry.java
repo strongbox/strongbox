@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,7 +24,7 @@ public class CronJobsDefinitionsRegistry
                                              .stream()
                                              .map(ThrowingFunction.unchecked(clazz -> clazz.newInstance()
                                                                                            .getCronJobDefinition()))
-                                             .collect(Collectors.toSet());
+                                             .collect(Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet));
     }
 
     public Set<CronJobDefinition> getCronJobDefinitions()
