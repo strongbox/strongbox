@@ -47,14 +47,4 @@ public class RemoteDbServerConfiguration implements Condition
         return profile.getName().equals(JanusGraphDbProfile.PROFILE_REMOTE);
     }
 
-//    @ConstructorBinding
-//    @ConfigurationProperties(prefix = "strongbox.db.janusgraph")
-//    public class StrongboxJanusGraphProperties extends JanusGraphProperties {
-//
-//        public StrongboxJanusGraphProperties(String configLocation)
-//        {
-//            super(configLocation);
-//        }
-//    }
-
 }

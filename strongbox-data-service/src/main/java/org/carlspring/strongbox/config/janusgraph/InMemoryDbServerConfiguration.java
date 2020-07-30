@@ -46,15 +46,5 @@ public class InMemoryDbServerConfiguration implements Condition
 
         return profile.getName().equals(JanusGraphDbProfile.PROFILE_MEMORY);
     }
-    
-//    @ConstructorBinding
-//    @ConfigurationProperties(prefix = "strongbox.db.janusgraph")
-//    public class StrongboxJanusGraphProperties extends JanusGraphProperties {
-//
-//        public StrongboxJanusGraphProperties(String configLocation)
-//        {
-//            super(configLocation);
-//        }
-//    }
 
 }

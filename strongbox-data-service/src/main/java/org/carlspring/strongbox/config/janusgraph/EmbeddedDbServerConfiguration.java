@@ -132,26 +132,4 @@ public class EmbeddedDbServerConfiguration implements Condition
         return profile.getName().equals(JanusGraphDbProfile.PROFILE_EMBEDDED);
     }
 
-//    @ConstructorBinding
-//    @ConfigurationProperties(prefix = "strongbox.db.janusgraph")
-//    public class StrongboxJanusGraphProperties extends JanusGraphProperties {
-//
-//        public StrongboxJanusGraphProperties(String configLocation)
-//        {
-//            super(configLocation);
-//        }
-//    }
-
-//    @ConstructorBinding
-//    @ConfigurationProperties(prefix = "strongbox.db.cassandra")
-//    public class StrongboxCassandraEmbeddedProperties extends CassandraEmbeddedProperties {
-//
-//        public StrongboxCassandraEmbeddedProperties(String storageRoot,
-//                                                    String configLocatoion)
-//        {
-//            super(storageRoot, configLocatoion);
-//        }
-//        
-//    }
-
 }
