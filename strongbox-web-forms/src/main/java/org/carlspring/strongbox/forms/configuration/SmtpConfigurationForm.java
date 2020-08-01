@@ -14,20 +14,22 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class SmtpConfigurationForm
 {
 
-    @NotBlank(message = "SMTP host must be provided.", groups = SmtpConfigurationFormChecks.class)
+    @NotBlank(message = "An SMTP host must be provided.", groups = SmtpConfigurationFormChecks.class)
     private String host;
 
-    @NotNull(message = "SMTP port must be provided.", groups = SmtpConfigurationFormChecks.class)
-    @Min(value = 1, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
-    @Max(value = 65535, message = "Port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
+    @NotNull(message = "The SMTP port must be provided.", groups = SmtpConfigurationFormChecks.class)
+    @Min(value = 1, message = "The port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
+    @Max(value = 65535, message = "The port number must be an integer between 1 and 65535.", groups = SmtpConfigurationFormChecks.class)
     private Integer port;
 
     private String username;
 
     private String password;
 
-    @Pattern(regexp = "plain|ssl|tls", flags = Pattern.Flag.CASE_INSENSITIVE, message = "Please set a valid SMTP connection type.",
-            groups = SmtpConfigurationFormChecks.class)
+    @Pattern(regexp = "plain|ssl|tls",
+             flags = Pattern.Flag.CASE_INSENSITIVE,
+             message = "Please, set a valid SMTP connection type.",
+             groups = SmtpConfigurationFormChecks.class)
     private String connection;
 
     public SmtpConfigurationForm()
@@ -126,4 +128,5 @@ public class SmtpConfigurationForm
     {
         // validation group marker interface for fields.
     }
+
 }

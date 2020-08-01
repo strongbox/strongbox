@@ -20,7 +20,7 @@ public enum RepositoryFormConverter
         RepositoryDto result = new RepositoryDto();
         result.setId(source.getId());
         result.setPolicy(source.getPolicy());
-        result.setImplementation(source.getImplementation());
+        result.setStorageProvider(source.getStorageProvider());
         result.setLayout(source.getLayout());
         result.setType(source.getType());
         result.setSecured(source.isSecured());

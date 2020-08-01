@@ -22,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,10 +52,10 @@ public class MavenArtifactController
 {
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "greet", method = RequestMethod.GET)
-    public ResponseEntity greet()
+    @GetMapping(value = "/{storageId}/{repositoryId}")
+    public ResponseEntity<String> checkRepositoryAccess()
     {
-        return new ResponseEntity<>("success", HttpStatus.OK);
+        return super.checkRepositoryAccess();
     }
 
     @ApiOperation(value = "Used to retrieve an artifact")
@@ -140,7 +141,7 @@ public class MavenArtifactController
 
             RepositoryPath srcPath = repositoryPathResolver.resolve(srcRepository, path);
             RepositoryPath destPath = repositoryPathResolver.resolve(destRepository, path);
-            
+
             artifactManagementService.copy(srcPath, destPath);
         }
         catch (ArtifactStorageException e)

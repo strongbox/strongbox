@@ -11,6 +11,7 @@ import java.io.InputStream;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 public abstract class BaseArtifactController
@@ -53,6 +54,11 @@ public abstract class BaseArtifactController
         }
 
         return true;
+    }
+
+    public ResponseEntity<String> checkRepositoryAccess()
+    {
+        return new ResponseEntity<>("success", HttpStatus.OK);
     }
 
 }

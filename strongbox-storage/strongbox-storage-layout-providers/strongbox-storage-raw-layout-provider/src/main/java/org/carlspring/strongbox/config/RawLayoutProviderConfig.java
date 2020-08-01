@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
@@ -14,7 +14,6 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import java.nio.file.FileSystem;
 import java.nio.file.spi.FileSystemProvider;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +36,7 @@ public class RawLayoutProviderConfig
     public LayoutFileSystemProviderFactory rawRepositoryFileSystemProviderFactory(StorageProviderRegistry storageProviderRegistry)
     {
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             LayoutFileSystemProvider result = rawFileSystemProvider(storageProvider.getFileSystemProvider());
 
@@ -60,7 +59,7 @@ public class RawLayoutProviderConfig
         LayoutFileSystemProviderFactory providerFactory = rawRepositoryFileSystemProviderFactory(storageProviderRegistry);
         
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             return rawRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                            providerFactory.create(repository));

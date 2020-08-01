@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.providers.datastore;
+package org.carlspring.strongbox.providers.storage;
 
 import org.carlspring.strongbox.providers.AbstractMappedProviderRegistry;
 
@@ -13,8 +13,9 @@ import org.springframework.stereotype.Component;
 /**
  * @author carlspring
  */
-@Component("storageProviderRegistry")
-public class StorageProviderRegistry extends AbstractMappedProviderRegistry<StorageProvider>
+@Component
+public class StorageProviderRegistry
+        extends AbstractMappedProviderRegistry<StorageProvider>
 {
 
     private static final Logger logger = LoggerFactory.getLogger(StorageProviderRegistry.class);

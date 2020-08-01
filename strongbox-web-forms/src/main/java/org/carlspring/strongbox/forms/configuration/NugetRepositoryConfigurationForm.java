@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.forms.configuration;
 
+import org.carlspring.strongbox.providers.layout.NugetLayoutProvider;
+
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * @author Przemyslaw Fusik
  */
-@JsonTypeName("NuGet")
+@JsonTypeName(NugetLayoutProvider.ALIAS)
 public class NugetRepositoryConfigurationForm
         extends CustomRepositoryConfigurationForm
 {
@@ -39,4 +41,5 @@ public class NugetRepositoryConfigurationForm
     {
         return visitor.visit(this);
     }
+
 }

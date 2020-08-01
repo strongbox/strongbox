@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
 import org.carlspring.strongbox.storage.Storage;
 
 /**

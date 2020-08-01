@@ -2,8 +2,8 @@ package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.npm.metadata.jackson.NpmJacksonMapperFactory;
-import org.carlspring.strongbox.providers.datastore.StorageProvider;
-import org.carlspring.strongbox.providers.datastore.StorageProviderRegistry;
+import org.carlspring.strongbox.providers.storage.StorageProvider;
+import org.carlspring.strongbox.providers.storage.StorageProviderRegistry;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemFactory;
 import org.carlspring.strongbox.providers.io.LayoutFileSystemProviderFactory;
 import org.carlspring.strongbox.providers.layout.LayoutFileSystemProvider;
@@ -21,7 +21,6 @@ import java.nio.file.spi.FileSystemProvider;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -56,7 +55,7 @@ public class NpmLayoutProviderConfig
     public LayoutFileSystemProviderFactory npmRepositoryFileSystemProviderFactory()
     {
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             LayoutFileSystemProvider result = npmFileSystemProvider(storageProvider.getFileSystemProvider());
 
@@ -78,7 +77,7 @@ public class NpmLayoutProviderConfig
         LayoutFileSystemProviderFactory providerFactory = npmRepositoryFileSystemProviderFactory();
         
         return (repository) -> {
-            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getImplementation());
+            StorageProvider storageProvider = storageProviderRegistry.getProvider(repository.getStorageProvider());
 
             return npmRepositoryFileSystem(propertiesBooter, repository, storageProvider.getFileSystem(),
                                            providerFactory.create(repository));

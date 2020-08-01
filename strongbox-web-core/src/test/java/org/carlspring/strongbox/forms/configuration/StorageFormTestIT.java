@@ -2,7 +2,7 @@ package org.carlspring.strongbox.forms.configuration;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.providers.datastore.StorageProviderEnum;
+import org.carlspring.strongbox.providers.storage.FileSystemStorageProvider;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
@@ -61,7 +61,7 @@ public class StorageFormTestIT
         RepositoryForm repositoryForm = new RepositoryForm();
         repositoryForm.setId(ID_VALID);
         repositoryForm.setPolicy(RepositoryPolicyEnum.RELEASE.getPolicy());
-        repositoryForm.setImplementation(StorageProviderEnum.FILESYSTEM.describe());
+        repositoryForm.setStorageProvider(FileSystemStorageProvider.ALIAS);
         repositoryForm.setLayout("Maven 2");
         repositoryForm.setType(RepositoryTypeEnum.HOSTED.getType());
         repositoryForm.setStatus(RepositoryStatusEnum.IN_SERVICE.getStatus());
@@ -139,7 +139,8 @@ public class StorageFormTestIT
 
         // then
         assertThat(violations).as("Violations are empty!").hasSize(1);
-        assertThat(violations).extracting("message").containsAnyOf("A httpConnectionPool must be positive or zero.");
+        assertThat(violations).extracting("message")
+                              .containsAnyOf("The httpConnectionPool value must be greater, or equal to zero.");
     }
 
 }
