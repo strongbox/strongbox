@@ -23,6 +23,7 @@ import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -34,6 +35,7 @@ import org.springframework.test.context.TestExecutionListeners;
 @ContextConfiguration(classes = RepositoriesTestConfig.class)
 @TestExecutionListeners(listeners = { CacheManagerTestExecutionListener.class },
                         mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS)
+@Disabled
 public class ArtifactIdGroupRepositoryTest
 {
 
