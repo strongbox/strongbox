@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
@@ -17,12 +18,14 @@ import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
 import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.db.schema.migration.ChangelogStorage;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -131,12 +134,14 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(artifactIdGroupRepository.findById(artifactIdGroupEntity.getUuid())).isEmpty();
 
         assertThat(g.V()
+                    .not(__.hasLabel(ChangelogStorage.VERTEX_SCHEMA_VERSION))
                     .label()
                     .toSet()).hasSize(3)
                              .containsOnly(Vertices.RAW_ARTIFACT_COORDINATES,
                                            Vertices.GENERIC_ARTIFACT_COORDINATES,
                                            Vertices.ARTIFACT_TAG);
         assertThat(g.E()
+                    .not(__.hasLabel(ChangelogStorage.EDGE_CHANGESET))
                     .count()
                     .next()).isEqualTo(3L);
     }
