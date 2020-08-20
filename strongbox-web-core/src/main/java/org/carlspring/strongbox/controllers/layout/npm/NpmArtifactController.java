@@ -125,13 +125,6 @@ public class NpmArtifactController
     @Inject
     private NpmUnpublishService npmUnpublishService;
 
-    @GetMapping(path = { "{storageId}/{repositoryId}/npm" })
-    public ResponseEntity<String> greet()
-    {
-        // TODO: find out what NPM expect to receive here
-        return ResponseEntity.ok("");
-    }
-
     @GetMapping(path = "{storageId}/{repositoryId}/-/v1/search")
     @PreAuthorize("hasAuthority('ARTIFACTS_VIEW')")
     public void search(@RepositoryMapping Repository repository,
