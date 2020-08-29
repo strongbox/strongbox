@@ -51,6 +51,34 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <target>
+                        1.9
+                    </target>
+                    <compilerArgs>
+                        <arg>
+                            --add-exports=java.base/jdk.internal.misc=ALL-UNNAMED 
+                        </arg>
+                        <arg>
+                            --add-exports=java.base/jdk.internal.ref=ALL-UNNAMED
+                        </arg>
+                        <arg>
+                            --add-exports=java.base/sun.nio.ch=ALL-UNNAMED 
+                        </arg>
+                        <arg>
+                            --add-exports=java.management.rmi/com.sun.jmx.remote.internal.rmi=ALL-UNNAMED 
+                        </arg>
+                        <arg>
+                            --add-exports=java.rmi/sun.rmi.registry=ALL-UNNAMED 
+                        </arg>
+                        <arg>
+                            --add-exports=java.rmi/sun.rmi.server=ALL-UNNAMED 
+                        </arg>
+                        <arg>
+                            --add-exports=java.sql/java.sql=ALL-UNNAMED 
+                        </arg>
+                    </compilerArgs>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -148,7 +176,6 @@
                 </plugins>
             </build>
         </profile>
-
         <profile>
             <id>java-11-build</id>
             <activation>
@@ -171,7 +198,7 @@
                             </systemPropertyVariables>
 
                             <jvmArguments>
-                                -Djdk.attach.allowAttachSelf=true --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED --add-exports java.management.rmi/com.sun.jmx.remote.internal.rmi=ALL-UNNAMED --add-exports java.rmi/sun.rmi.registry=ALL-UNNAMED --add-exports java.rmi/sun.rmi.server=ALL-UNNAMED --add-exports java.sql/java.sql=ALL-UNNAMED  --add-opens java.base/java.lang.module=ALL-UNNAMED --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED --add-opens java.base/jdk.internal.math=ALL-UNNAMED --add-opens java.base/jdk.internal.module=ALL-UNNAMED --add-opens java.base/jdk.internal.util.jar=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
+                                --add-opens java.base/java.lang.module=ALL-UNNAMED --add-opens java.base/jdk.internal.loader=ALL-UNNAMED --add-opens java.base/jdk.internal.ref=ALL-UNNAMED --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED --add-opens java.base/jdk.internal.math=ALL-UNNAMED --add-opens java.base/jdk.internal.module=ALL-UNNAMED --add-opens java.base/jdk.internal.util.jar=ALL-UNNAMED --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED
                             </jvmArguments>
                         </configuration>
 
@@ -193,6 +220,7 @@
                 </plugins>
             </build>
         </profile>
+ 
     </profiles>
 
     <dependencies>

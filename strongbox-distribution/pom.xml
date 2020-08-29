@@ -288,7 +288,19 @@
                             <jvmSettings>
                                 <initialMemorySize>256</initialMemorySize>
                                 <maxMemorySize>1024</maxMemorySize>
-
+                                <extraArguments>
+                                    <extraArgument>
+                                        -Djdk.attach.allowAttachSelf=true
+                                    </extraArgument>
+                                    <extraArgument>--add-opens=java.base/java.lang.module=ALL-UNNAMED</extraArgument>
+                                    <extraArgument>--add-opens=java.base/jdk.internal.loader=ALL-UNNAMED</extraArgument>
+                                    <extraArgument>--add-opens=java.base/jdk.internal.ref=ALL-UNNAMED</extraArgument>
+                                    <extraArgument>--add-opens=java.base/jdk.internal.reflect=ALL-UNNAMED</extraArgument>
+                                    <extraArgument>--add-opens=java.base/jdk.internal.math=ALL-UNNAMED</extraArgument>
+                                    <extraArgument>--add-opens=java.base/jdk.internal.module=ALL-UNNAMED</extraArgument>
+                                    <extraArgument>--add-opens=java.base/jdk.internal.util.jar=ALL-UNNAMED</extraArgument>
+                                    <extraArgument>--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED</extraArgument>
+                                </extraArguments>
                                 <systemProperties>
                                     <systemProperty>appserver.home=.</systemProperty>
                                     <systemProperty>appserver.base=%STRONGBOX_HOME%</systemProperty>
