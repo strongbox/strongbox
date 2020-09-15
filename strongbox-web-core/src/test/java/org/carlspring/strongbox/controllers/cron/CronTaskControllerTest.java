@@ -295,6 +295,31 @@ public class CronTaskControllerTest
     }
 
     @Test
+    public void shouldNotAllowErrorMessageEvaluationVulnerability()
+    {
+        CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
+        cronTaskConfigurationForm.setJobClass(
+                CleanupExpiredArtifactsFromProxyRepositoriesCronJob.class.getName());
+        cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
+        cronTaskConfigurationForm.setFields(
+                Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
+                        "lastAccessedTimeInDays").value("${3+2}").build() }));
+
+        mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
+               .accept(MediaType.APPLICATION_JSON_VALUE)
+               .body(cronTaskConfigurationForm)
+               .when()
+               .put(getContextBaseUrl())
+               .peek()
+               .then()
+               .statusCode(HttpStatus.BAD_REQUEST.value())
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].messages").value(hasItem(stringContainsInOrder(
+                       Arrays.asList(
+                               new String[]{ "Invalid value [${3+2}] type provided. [int] was expected." })))))
+               .expect(MockMvcResultMatchers.jsonPath("errors[0].name").value(equalTo("fields[0].value")));
+    }
+
+    @Test
     public void shouldValidateBooleanTypeFields()
     {
         CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
