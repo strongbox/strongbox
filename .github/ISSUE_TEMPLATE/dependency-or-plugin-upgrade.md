@@ -9,7 +9,7 @@ assignees: ''
 
 # Task Description
 
-We need to upgrade `` to version ``.
+We need to upgrade `com.foo:bar` to version `1.2.3`.
 
 # Tasks
 
