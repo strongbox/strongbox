@@ -13,7 +13,10 @@ import org.carlspring.strongbox.validation.cron.type.CronTaskConfigurationFormFi
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronExpression;
@@ -133,7 +136,7 @@ public class CronTaskConfigurationFormValidator
             if (!cronTaskConfigurationFormFieldTypeValidator.isValid(formFieldValue))
             {
                 context.buildConstraintViolationWithTemplate(
-                        String.format("Invalid value [%s] type provided. [%s] was expected.", formFieldValue,
+                        String.format("Invalid value [%s] type provided. [%s] was expected.", escapeMessageValue(formFieldValue),
                                       definitionFieldType))
                        .addPropertyNode("fields")
                        .addPropertyNode("value")
@@ -152,7 +155,7 @@ public class CronTaskConfigurationFormValidator
                 {
                     context.buildConstraintViolationWithTemplate(
                             String.format("Invalid value [%s] provided. Possible values do not contain this value.",
-                                          formFieldValue))
+                                          escapeMessageValue(formFieldValue)))
                            .addPropertyNode("fields")
                            .addPropertyNode("value")
                            .inIterable().atIndex(correspondingFormFieldIndex)
@@ -165,6 +168,11 @@ public class CronTaskConfigurationFormValidator
         }
 
         return isValid;
+    }
+
+    private String escapeMessageValue(String value)
+    {
+        return Arrays.stream(value.split("\\$")).collect(Collectors.joining("\\$"));
     }
 
     private CronJobDefinition getCorrespondingCronJobDefinition(CronTaskConfigurationForm form,
