@@ -18,7 +18,7 @@ We try our best to help new-joiners get started and eased into the project.
 
 ## Academics
 
-While our aim is providing a stable usable application, we are also treating the project, as if it were a "learning excercise" meaning that we're all here to learn cool new things and share the knowledge. If you'd like to see an exciting new technology, or framework on this project and have a good use case for it, we'd be open to hear about it and help you implement it.
+While our aim is to provide a stable usable application, we are also treating the project, as if it were a "learning excercise" meaning that we're all here to learn cool new things and share the knowledge. If you'd like to see an exciting new technology, or framework on this project and have a good use case for it, we'd be open to hear about it and help you implement it.
 
 ### Professors
 
@@ -52,7 +52,7 @@ Please, follow these basic rules when creating pull requests. Pull requests:
   * Easy to read
   * Have optimized imports
   * Contain a sufficient amount of comments, if this is a new feature
-  * Where applicable, contain a reasonable, (even, if it's just a minimalist), set of test cases, that cover the bases
+  * Where applicable, contain a reasonable, (even, if it's just a minimalistic), set of test cases, that cover the bases
 * Should not:
   * Change the existing formatting of code, unless this is really required, especially of files that have no other changes, or are not related to the pull request at all. (Please, don't enable pre-commit features in IDE-s such as "Reformat code", "Re-arrange code" and so on, as this may add extra noise to the pull and make the diff harder to read. When adding, or changing code, apply the re-formatting, only to the respective changed code blocks).
   * Have unresolved merge conflicts with the base branch
