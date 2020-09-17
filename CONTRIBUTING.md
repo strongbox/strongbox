@@ -10,7 +10,7 @@ We are always pleased to get help with our project! Both experienced and not so 
 
 There are many tasks you can help with, so please feel free to look around our [issue tracker](https://github.com/strongbox/strongbox/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22+label%3A%22good+first+issue%22) for some good first issues that we need help with.
 
-Let us know what you're good at on out [chat] channel, as well as what sort of tasks you're typically interested in, or what areas of your skills you'd like to develop and we'll try to accomodate, by finding you the right tasks. It might be the case that we have tasks that are suitable for you, but just haven't yet been added to the issue tracker, so feel free to ask us how you can help!
+Let us know what you're good at on out [chat] channel, as well as what sort of tasks you're typically interested in, or what areas of your skills you'd like to develop and we'll try to accommodate, by finding you the right tasks. It might be the case that we have tasks that are suitable for you, but just haven't yet been added to the issue tracker, so feel free to ask us how you can help!
 
 We try our best to help new-joiners get started and eased into the project.
 
@@ -18,7 +18,7 @@ We try our best to help new-joiners get started and eased into the project.
 
 ## Academics
 
-While our aim is provide a stable usable application, we are also treating the project, as if it were a "learning excercise" meaning that we're all here to learn cool new things and share the knowledge. If you'd like to see an exciting new technology, or framework on this project and have a good use case for it, we'd be open to hear about it and help you implement it.
+While our aim is providing a stable usable application, we are also treating the project, as if it were a "learning excercise" meaning that we're all here to learn cool new things and share the knowledge. If you'd like to see an exciting new technology, or framework on this project and have a good use case for it, we'd be open to hear about it and help you implement it.
 
 ### Professors
 
@@ -52,14 +52,14 @@ Please, follow these basic rules when creating pull requests. Pull requests:
   * Easy to read
   * Have optimized imports
   * Contain a sufficient amount of comments, if this is a new feature
-  * Where applicable, contain a reasonable, (even, if it's just a minimalistic), set of test cases, that cover the bases
+  * Where applicable, contain a reasonable, (even, if it's just a minimalist), set of test cases, that cover the bases
 * Should not:
   * Change the existing formatting of code, unless this is really required, especially of files that have no other changes, or are not related to the pull request at all. (Please, don't enable pre-commit features in IDE-s such as "Reformat code", "Re-arrange code" and so on, as this may add extra noise to the pull and make the diff harder to read. When adding, or changing code, apply the re-formatting, only to the respective changed code blocks).
   * Have unresolved merge conflicts with the base branch
   * Have failing tests
   * Contain unaddressed **critical** issues reported by Sonar
   * Have commented out dead code. (Commented out code is fine, just not blocks and blocks of it).
-  * Contain `public static void(String[] args])` methods (as those would clearly have been used for the sake of quick testing without an actual test case)
+  * Contain `public static void(String[] args)` methods (as those would clearly have been used for the sake of quick testing without an actual test case)
 
 Once you've created a new pull request, kindly first review the diff thoroughly yourselves, before requesting it to be reviewed by others and merged.
 
