@@ -61,7 +61,7 @@ public class ConfigurableProviderManagerTest
 
     @Inject
     @Database
-    private UserService orientDbUserService;
+    private UserService databaseUserService;
 
     @Inject
     @Yaml
@@ -129,7 +129,7 @@ public class ConfigurableProviderManagerTest
 
         // Check that external user can't be modyfied
         User externalUserToSave = externalUser;
-        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> orientDbUserService.save(externalUserToSave))
+        assertThatExceptionOfType(IllegalStateException.class).isThrownBy(() -> databaseUserService.save(externalUserToSave))
                                                               .withMessageMatching("Can't modify external users.");
 
         // Update external password
@@ -164,13 +164,13 @@ public class ConfigurableProviderManagerTest
         assertThat(concurrentLoadUsers(TEST_CONCURRENT_USER)).allMatch(u -> TEST_CONCURRENT_USER.equals(u.getUsername()));
         
         // expired user replace
-        ((DatabaseUserService) orientDbUserService).expireUser(TEST_CONCURRENT_USER, true);
+        ((DatabaseUserService) databaseUserService).expireUser(TEST_CONCURRENT_USER, true);
         assertThat(concurrentLoadUsers(TEST_CONCURRENT_USER)).allMatch(u -> "yamlUserDetailService".equals(u.getSourceId()));
     }
 
     private void expireUser(String username)
     {
-        ((DatabaseUserService) orientDbUserService).expireUser(username, false);
+        ((DatabaseUserService) databaseUserService).expireUser(username, false);
     }
 
     private List<SpringSecurityUser> concurrentLoadUsers(String testConcurrentUser)

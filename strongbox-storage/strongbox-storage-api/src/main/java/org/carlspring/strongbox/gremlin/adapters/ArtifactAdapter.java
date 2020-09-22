@@ -115,7 +115,7 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
         result.setLastUsed(toLocalDateTime(extractObject(Long.class, t.get().get("lastUsed"))));
         result.setSizeInBytes(extractObject(Long.class, t.get().get("sizeInBytes")));
         result.setDownloadCount(extractObject(Integer.class, t.get().get("downloadCount")));
-        
+
         result.getArtifactArchiveListing()
               .setFilenames(extractPropertyList(String.class, t.get().get("filenames")).stream()
                                                                                        .filter(e -> !e.trim().isEmpty())
@@ -137,8 +137,8 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(Artifact entity)
     {
         ArtifactCoordinates artifactCoordinates = entity.getArtifactCoordinates();
-        String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();        
-        
+        String storedArtifactId = Vertices.ARTIFACT + ":" + UUID.randomUUID().toString();
+
         Set<String> tagNames = entity.getTagSet().stream().map(ArtifactTag::getName).collect(Collectors.toSet());
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.<Vertex, Edge>coalesce(__.<Vertex>outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES),
                                                                                     //cascading create ArtifactCoordinates only
@@ -202,7 +202,7 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
         if (entity.getDownloadCount() != null)
         {
             t = t.property(single, "downloadCount", entity.getDownloadCount());
-        }        
+        }
 
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
 
@@ -218,12 +218,12 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
         }
         t = t.sideEffect(__.properties("checksums").drop());
         t = t.property("checksums", checkSumAlgo);
-        
+
         if (entity.getArtifactFileExists() != null)
         {
             t = t.property(single, "artifactFileExists", entity.getArtifactFileExists());
         }
-        
+
         return t;
     }
 

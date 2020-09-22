@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.gremlin.repositories;
 
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Supplier;
 
 import javax.inject.Inject;
@@ -9,10 +8,8 @@ import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Graph;
-import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
-import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
@@ -22,8 +19,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.repository.CrudRepository;
 
 /**
- * @author sbespalov
+ * Base implementation for Gremlin repositories.
  *
+ * @author sbespalov
  */
 @Transactional
 public abstract class GremlinRepository<S extends Element, E extends DomainObject> implements CrudRepository<E, String>
@@ -36,25 +34,27 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
     private Graph graph;
     @Inject
     protected Session session;
-    
+
     protected EntityTraversalSource g()
     {
         return graph.traversal(EntityTraversalSource.class);
     }
 
     protected abstract EntityTraversal<S, S> start(E entity, Supplier<EntityTraversalSource> g);
-    
+
     protected abstract EntityTraversal<S, S> start(Supplier<EntityTraversalSource> g);
 
-    public <R extends E> R save(Supplier<EntityTraversalSource> g, R entity) {
+    public <R extends E> R save(Supplier<EntityTraversalSource> g, R entity)
+    {
         String uuid = merge(g, entity);
-        
-        return (R) findById(g, uuid).get();    
+
+        return (R) findById(g, uuid).get();
     }
-    
+
     public abstract String merge(Supplier<EntityTraversalSource> g, E entity);
-    
-    public Optional<E> findById(Supplier<EntityTraversalSource> g, String uuid){
+
+    public Optional<E> findById(Supplier<EntityTraversalSource> g, String uuid)
+    {
         String label = adapter().label();
         EntityTraversal<S, E> traversal = start(g).findById(uuid, label)
                                                   .map(adapter().fold());
@@ -63,9 +63,9 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
             return Optional.empty();
         }
 
-        return Optional.of(traversal.next());        
+        return Optional.of(traversal.next());
     }
-    
+
     public Optional<E> findById(String uuid)
     {
         return findById(this::g, uuid);

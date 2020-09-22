@@ -7,11 +7,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
-import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.GremlinDsl;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Edge;
-import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality;
 import org.carlspring.strongbox.data.domain.DomainObject;
@@ -22,10 +20,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 /**
+ * The application specific Gremlin DSL extension. Provides shortcut methods for the traversals that commonly used.
+ *
  * @author sbespalov
  *
  * @param <S>
  * @param <E>
+ * @see <a href="https://tinkerpop.apache.org/docs/current/reference/#gremlin-java-dsl">Domain Specific Languages</a>
  */
 @GremlinDsl(traversalSource = "org.carlspring.strongbox.gremlin.dsl.EntityTraversalSourceDsl")
 public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
@@ -33,6 +34,9 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
     Logger logger = LoggerFactory.getLogger(EntityTraversalDsl.class);
 
+    /**
+     * Defines pseudo `null` for properties with no value, needed because Gremlin do not support `null` values.
+     */
     Object NULL = new Object()
     {
 
@@ -44,6 +48,13 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
 
     };
 
+    /**
+     * Search graph to vertices with specified labels by `uuid`.
+     *
+     * @param uuid `uuid` property value
+     * @param labels vertex labels
+     * @return traversal within the search result
+     */
     @SuppressWarnings("unchecked")
     default GraphTraversal<S, Vertex> findById(Object uuid,
                                                String... labels)
@@ -57,18 +68,37 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
         return result;
     }
 
+    /**
+     * Get the property value for current traversal element, or {@link EntityTraversalDsl#NULL} if no such property.
+     *
+     * @param propertyName name of the property
+     * @return property value traversal
+     */
     @SuppressWarnings("unchecked")
     default Traversal<S, Object> enrichPropertyValue(String propertyName)
     {
         return coalesce(__.properties(propertyName).value(), __.<Object>constant(NULL));
     }
 
+    /**
+     * Get the collection of property values for current traversal element, or {@link EntityTraversalDsl#NULL} if no such property.
+     *
+     * @param propertyName name of the property
+     * @return property values collection traversal
+     */
     @SuppressWarnings("unchecked")
     default Traversal<S, Object> enrichPropertyValues(String propertyName)
     {
         return coalesce(__.propertyMap(propertyName).map(t -> t.get().get(propertyName)), __.<Object>constant(NULL));
     }
 
+    /**
+     * Traverse to the expected entity value, or {@link EntityTraversalDsl#NULL} if no such entity.
+     *
+     * @param <S2> entity type
+     * @param enrichObjectTraversal entity traversal
+     * @return entity value traversal
+     */
     default <S2> Traversal<S, Object> mapToObject(Traversal<S2, Object> enrichObjectTraversal)
     {
         return fold().choose(t -> t.isEmpty(),
@@ -76,6 +106,12 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                              __.<Edge>unfold().map(enrichObjectTraversal));
     }
 
+    /**
+     * Traverse the graph to the specified entity.
+     *
+     * @param entity entity value
+     * @return entity vertex traversal
+     */
     default GraphTraversal<S, Vertex> V(DomainObject entity)
     {
         if (entity instanceof EntityHierarchyNode)
@@ -97,6 +133,14 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
         return V();
     }
 
+    /**
+     * Checks if the given entity exists, and adds or updates the entity as appropriate.
+     *
+     * @param <S2>
+     * @param uuid entity `uuid`
+     * @param unfoldTraversal traversal to unfold the entity on graph
+     * @return entity vertex traversal
+     */
     default <S2> Traversal<S, Vertex> saveV(Object uuid,
                                             UnfoldEntityTraversal<S2, Vertex> unfoldTraversal)
     {
@@ -115,6 +159,14 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                               .map(unfoldTraversal);
     }
 
+    /**
+     * Adds entity with specified `uuid`
+     *
+     * @param <S2>
+     * @param uuid entity `uuid`
+     * @param unfoldTraversal traversal to unfold the entity on graph
+     * @return entity vertex traversal
+     */
     default <S2> Traversal<S, Vertex> addV(Object uuid,
                                            UnfoldEntityTraversal<S2, Vertex> unfoldTraversal)
     {
@@ -130,18 +182,40 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                           .sideEffect(EntityTraversalUtils::created);
     }
 
+    /**
+     * Logs traverser value labeled with action.
+     *
+     * @param <E2>
+     * @param action the action label
+     * @return current traversal
+     */
     @SuppressWarnings("unchecked")
     default <E2> Traversal<S, E2> info(String action)
     {
         return (Traversal<S, E2>) sideEffect(t -> EntityTraversalUtils.info(action, t));
     }
 
+    /**
+     * Logs traverser value labeled with action.
+     *
+     * @param <E2>
+     * @param action the action label
+     * @return current traversal
+     */
     @SuppressWarnings("unchecked")
     default <E2> Traversal<S, E2> debug(String action)
     {
         return (Traversal<S, E2>) sideEffect(t -> EntityTraversalUtils.debug(action, t));
     }
 
+    /**
+     * Sets the property value with {@link Cardinality#set}
+     *
+     * @param <E2>
+     * @param key property key
+     * @param values property value
+     * @return current traversal
+     */
     default <E2> GraphTraversal<S, E2> property(final String key,
                                                 final Set<String> values)
     {

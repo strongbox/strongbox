@@ -10,6 +10,13 @@ import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
 
+/**
+ * Gremlin repository for Vertex based entities.
+ *
+ * @param <E>
+ *
+ * @author sbespalov
+ */
 @Transactional
 public abstract class GremlinVertexRepository<E extends DomainObject> extends GremlinRepository<Vertex, E>
 {

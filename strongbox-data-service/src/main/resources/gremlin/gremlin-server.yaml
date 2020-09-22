@@ -8,12 +8,12 @@ scriptEngines:
     plugins:
       org.janusgraph.graphdb.tinkerpop.plugin.JanusGraphGremlinPlugin: {}
       org.apache.tinkerpop.gremlin.server.jsr223.GremlinServerGremlinPlugin: {}
-      org.apache.tinkerpop.gremlin.jsr223.ImportGremlinPlugin: 
-        classImports: 
+      org.apache.tinkerpop.gremlin.jsr223.ImportGremlinPlugin:
+        classImports:
           - java.lang.Math
           - org.opencypher.gremlin.traversal.CustomFunctions
           - org.opencypher.gremlin.traversal.CustomPredicate
-        methodImports: 
+        methodImports:
           - java.lang.Math#*
           - org.opencypher.gremlin.traversal.CustomPredicate#*
           - org.opencypher.gremlin.traversal.CustomFunctions#*

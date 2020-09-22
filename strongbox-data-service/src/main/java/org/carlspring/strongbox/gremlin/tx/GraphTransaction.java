@@ -19,6 +19,11 @@ import org.opencypher.gremlin.neo4j.ogm.transaction.GremlinTransaction;
 import org.springframework.data.neo4j.transaction.SessionHolder;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+/**
+ * Exposes current thread bound {@link Graph} transaction.
+ *
+ * @author sbespalov
+ */
 public class GraphTransaction implements Graph
 {
     private static final Class<SessionHolder> sessionHolderClass = SessionHolder.class;

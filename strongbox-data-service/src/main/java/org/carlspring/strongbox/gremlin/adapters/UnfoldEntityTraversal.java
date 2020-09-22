@@ -17,6 +17,14 @@ import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.carlspring.strongbox.data.domain.DomainObject;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 
+/**
+ * Traversal wrapper which is used to unfold entity on graph.
+ *
+ * @param <S>
+ * @param <E>
+ *
+ * @author sbespalov
+ */
 public class UnfoldEntityTraversal<S, E> implements EntityTraversal<S, E>
 {
 
@@ -37,7 +45,7 @@ public class UnfoldEntityTraversal<S, E> implements EntityTraversal<S, E>
     {
         return entityLabel;
     }
-    
+
     public DomainObject getEntity()
     {
         return entity;

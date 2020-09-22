@@ -7,7 +7,8 @@ public interface ArtifactCoordinatesResourceConverter<C extends ArtifactCoordina
 
     String convertToPath(C artifactCoordinates);
 
-    default URI convertToResource(C artifactCoordinates) {
+    default URI convertToResource(C artifactCoordinates)
+    {
         return URI.create(convertToPath(artifactCoordinates));
     }
 

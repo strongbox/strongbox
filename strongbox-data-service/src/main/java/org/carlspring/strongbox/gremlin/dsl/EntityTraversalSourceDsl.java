@@ -13,13 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Helper class to create {@link EntityTraversalDsl} instance.
+ *
  * @author sbespalov
  */
 public class EntityTraversalSourceDsl extends GraphTraversalSource
 {
 
     private static final Logger logger = LoggerFactory.getLogger(EntityTraversalSourceDsl.class);
-    
+
     public EntityTraversalSourceDsl(Graph graph,
                                     TraversalStrategies traversalStrategies)
     {
@@ -36,12 +38,18 @@ public class EntityTraversalSourceDsl extends GraphTraversalSource
         super(connection);
     }
 
+    /**
+     * Creates {@link EntityTraversalDsl} instance based on specified entity.
+     *
+     * @param entity
+     * @return
+     */
     public GraphTraversal<Vertex, Vertex> V(DomainObject entity)
     {
         GraphTraversalSource clone = this.clone();
         clone.getBytecode().addStep(GraphTraversal.Symbols.V);
         GraphTraversal<Vertex, Vertex> traversal = new DefaultGraphTraversal<>(clone);
-        
+
         Long vertexId = entity.getNativeId();
         if (vertexId != null)
         {

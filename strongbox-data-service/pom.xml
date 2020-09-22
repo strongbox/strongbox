@@ -56,8 +56,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <annotationProcessors>
-                        <annotationProcessor>org.apache.tinkerpop.gremlin.process.traversal.dsl.GremlinDslProcessor
-                        </annotationProcessor>
+                        <annotationProcessor>org.apache.tinkerpop.gremlin.process.traversal.dsl.GremlinDslProcessor</annotationProcessor>
                     </annotationProcessors>
                 </configuration>
             </plugin>
@@ -110,7 +109,7 @@
             <artifactId>strongbox-common-resources</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
@@ -150,7 +149,7 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
@@ -158,7 +157,7 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-        </dependency>        
+        </dependency>
 
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -198,7 +197,7 @@
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
@@ -242,7 +241,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>org.neo4j</groupId>
-                    <artifactId>neo4j-ogm-bolt-driver</artifactId>                    
+                    <artifactId>neo4j-ogm-bolt-driver</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>

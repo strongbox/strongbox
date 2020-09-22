@@ -41,7 +41,7 @@ public class TransactionalTestService
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public Object createVertexWithNesteedCommit()
+    public Object createVertexWithNestedCommit()
     {
         return createVertexWithCommit();
     }
@@ -50,7 +50,7 @@ public class TransactionalTestService
     public Object createVerticesWithException()
     {
         createVertexWithCommit();
-        createVertexWithNesteedCommit();
+        createVertexWithNestedCommit();
 
         throw new RuntimeException();
     }

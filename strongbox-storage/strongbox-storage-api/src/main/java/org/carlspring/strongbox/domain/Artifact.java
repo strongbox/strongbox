@@ -48,7 +48,7 @@ public interface Artifact extends DomainObject
     Integer getDownloadCount();
 
     void setDownloadCount(Integer downloadCount);
-    
+
     Boolean getArtifactFileExists();
 
     void setArtifactFileExists(Boolean cached);
