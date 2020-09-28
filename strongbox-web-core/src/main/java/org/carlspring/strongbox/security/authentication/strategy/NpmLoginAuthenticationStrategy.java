@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,26 +19,26 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 
 @Component
-public class NpmLoginAuthenticationSupplier
-        extends LayoutAuthenticationSupplier
+public class NpmLoginAuthenticationStrategy
+        extends LayoutAuthenticationStrategy
 {
 
     @Inject
     private ObjectMapper objectMapper;
 
-    public NpmLoginAuthenticationSupplier()
+    public NpmLoginAuthenticationStrategy()
     {
         super(NpmLayoutProvider.ALIAS);
     }
 
     @CheckForNull
     @Override
-    public Authentication supply(@Nonnull HttpServletRequest request)
+    public Authentication convert(@Nonnull HttpServletRequest request)
     {
         NpmUser npmUser = deserializeNpmUser(request);
 
         if (!isValidNpmUser(npmUser) ||
-            !usernamesMatch(request.getRequestURI(), npmUser.getName()))
+                !usernamesMatch(request.getRequestURI(), npmUser.getName()))
         {
             throw new BadCredentialsException("invalid.credentials");
         }

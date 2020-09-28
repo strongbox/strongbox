@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import org.carlspring.strongbox.authentication.api.jwt.JwtAuthentication;
 import org.carlspring.strongbox.security.authentication.JwtTokenFetcher;
@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Order(2)
-class JWTAuthenticationSupplier
-        implements AuthenticationSupplier, JwtTokenFetcher
+class JWTAuthenticationStrategy
+        implements AuthenticationStrategy, JwtTokenFetcher
 {
 
     @Inject
@@ -29,7 +29,7 @@ class JWTAuthenticationSupplier
 
     @CheckForNull
     @Override
-    public Authentication supply(@Nonnull HttpServletRequest request)
+    public Authentication convert(@Nonnull HttpServletRequest request)
     {
         final Optional<String> optToken = getToken(request);
         if (!optToken.isPresent())
@@ -52,7 +52,7 @@ class JWTAuthenticationSupplier
     }
 
     @Override
-    public boolean supports(HttpServletRequest request)
+    public boolean supports(@Nonnull HttpServletRequest request)
     {
         boolean hasHeader = false;
         boolean hasCookie = false;

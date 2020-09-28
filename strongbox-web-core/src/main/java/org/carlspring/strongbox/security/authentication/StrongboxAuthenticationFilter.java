@@ -8,32 +8,35 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
+import org.carlspring.strongbox.security.authentication.strategy.DelegatingAuthenticationConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.security.web.authentication.AuthenticationFilter;
 
 /**
  * @author Przemyslaw Fusik
  */
 public class StrongboxAuthenticationFilter
-        extends OncePerRequestFilter
+        extends AuthenticationFilter
 {
 
     private static final Logger logger = LoggerFactory.getLogger(StrongboxAuthenticationFilter.class);
 
     private final AuthenticationManager authenticationManager;
 
-    private final AuthenticationSuppliers authenticationSuppliers;
+    private final DelegatingAuthenticationConverter delegatingAuthenticationConverter;
 
-    public StrongboxAuthenticationFilter(AuthenticationSuppliers authenticationSuppliers,
+    public StrongboxAuthenticationFilter(DelegatingAuthenticationConverter delegatingAuthenticationConverter,
                                          AuthenticationManager authenticationManager)
     {
-        super();
-        this.authenticationSuppliers = authenticationSuppliers;
+        super(
+            authenticationManager,
+            delegatingAuthenticationConverter
+        );
+        this.delegatingAuthenticationConverter = delegatingAuthenticationConverter;
         this.authenticationManager = authenticationManager;
     }
 
@@ -44,7 +47,7 @@ public class StrongboxAuthenticationFilter
         throws ServletException,
         IOException
     {
-        Authentication authentication = authenticationSuppliers.supply(request);
+        Authentication authentication = delegatingAuthenticationConverter.convert(request);
         if (authentication == null)
         {
             authentication = SecurityContextHolder.getContext().getAuthentication();

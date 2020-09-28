@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.storage.Storage;
@@ -9,11 +9,12 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.core.annotation.Order;
+
 import static org.carlspring.strongbox.web.Constants.ARTIFACT_ROOT_PATH;
 
 @Order(3)
-public abstract class LayoutAuthenticationSupplier
-        implements AuthenticationSupplier
+public abstract class LayoutAuthenticationStrategy
+        implements AuthenticationStrategy
 {
 
     @Inject
@@ -21,7 +22,7 @@ public abstract class LayoutAuthenticationSupplier
 
     private String layoutAlias;
 
-    public LayoutAuthenticationSupplier(String layoutAlias)
+    public LayoutAuthenticationStrategy(String layoutAlias)
     {
         this.layoutAlias = layoutAlias;
     }

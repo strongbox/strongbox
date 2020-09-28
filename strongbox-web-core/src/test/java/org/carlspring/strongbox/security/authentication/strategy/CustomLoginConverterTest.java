@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import javax.inject.Inject;
 
@@ -18,11 +18,11 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Przemyslaw Fusik
  */
 @IntegrationTest
-public class CustomLoginSupplierTest
+public class CustomLoginConverterTest
 {
 
     @Inject
-    private JsonFormLoginSupplier customLoginSupplier;
+    private JsonFormLoginStrategy jsonFormLoginStrategy;
 
     @Inject
     private ObjectMapper objectMapper;
@@ -34,7 +34,7 @@ public class CustomLoginSupplierTest
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        assertThat(customLoginSupplier.supports(request)).isTrue();
+        assertThat(jsonFormLoginStrategy.supports(request)).isTrue();
     }
 
     @Test
@@ -44,7 +44,7 @@ public class CustomLoginSupplierTest
         MockHttpServletRequest request = new MockHttpServletRequest("get", "/api/login");
         request.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        assertThat(customLoginSupplier.supports(request)).isFalse();
+        assertThat(jsonFormLoginStrategy.supports(request)).isFalse();
     }
 
     @Test
@@ -54,11 +54,11 @@ public class CustomLoginSupplierTest
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContentType(MediaType.APPLICATION_XML_VALUE);
 
-        assertThat(customLoginSupplier.supports(request)).isFalse();
+        assertThat(jsonFormLoginStrategy.supports(request)).isFalse();
     }
 
     @Test
-    public void shouldSupply()
+    public void shouldConvert()
             throws Exception
     {
 
@@ -69,7 +69,7 @@ public class CustomLoginSupplierTest
         MockHttpServletRequest request = new MockHttpServletRequest("post", "/api/login");
         request.setContent(objectMapper.writeValueAsBytes(loginInput));
 
-        Authentication authentication = customLoginSupplier.supply(request);
+        Authentication authentication = jsonFormLoginStrategy.convert(request);
 
         assertThat(authentication).isNotNull();
         assertThat(authentication).isInstanceOf(UsernamePasswordAuthenticationToken.class);
