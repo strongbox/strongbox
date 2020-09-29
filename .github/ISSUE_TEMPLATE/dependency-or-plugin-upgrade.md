@@ -15,6 +15,7 @@ We need to upgrade `com.foo:bar` to version `1.2.3`.
 
 The following tasks will need to be carried out:
 * [ ] Update the version in the [strongbox-parent] project.
+* [ ] Apply any required code changes, or dependency excludes.
 * [ ] Test and confirm that there are no issues with the core projects ([strongbox], [strongbox-web-integration-tests], etc) after upgrading.
 
 # Task Relationships
