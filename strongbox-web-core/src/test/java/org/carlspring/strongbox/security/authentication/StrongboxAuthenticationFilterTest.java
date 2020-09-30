@@ -13,7 +13,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-class StrongboxAuthenticationFilterTest {
+class StrongboxAuthenticationFilterTest
+{
 
     private DelegatingAuthenticationConverter delegatingAuthenticationConverter;
     private AuthenticationManager authenticationManager;
@@ -25,7 +26,8 @@ class StrongboxAuthenticationFilterTest {
     private StrongboxAuthenticationFilter strongboxAuthenticationFilter;
 
     @BeforeEach
-    void setup() {
+    void setup()
+    {
         delegatingAuthenticationConverter = Mockito.mock(DelegatingAuthenticationConverter.class);
         authenticationManager = Mockito.mock(AuthenticationManager.class);
 
@@ -33,75 +35,48 @@ class StrongboxAuthenticationFilterTest {
         httpServletResponse = Mockito.mock(HttpServletResponse.class);
         filterChain = Mockito.mock(FilterChain.class);
 
-        strongboxAuthenticationFilter = new StrongboxAuthenticationFilter(
-            delegatingAuthenticationConverter,
-            authenticationManager
-        );
+        strongboxAuthenticationFilter = new StrongboxAuthenticationFilter(delegatingAuthenticationConverter, authenticationManager);
     }
 
     @Test
-    void authenticationIsNullTest() throws ServletException, IOException {
-        Mockito.when(
-            delegatingAuthenticationConverter.convert(httpServletRequest)
-        ).thenReturn(null);
+    void authenticationIsNullTest() throws ServletException, IOException
+    {
+        Mockito.when(delegatingAuthenticationConverter.convert(httpServletRequest)).thenReturn(null);
 
-        strongboxAuthenticationFilter.doFilterInternal(
-            httpServletRequest,
-            httpServletResponse,
-            filterChain
-        );
+        strongboxAuthenticationFilter.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
 
-        Mockito.verify(filterChain).doFilter(
-            httpServletRequest,
-            httpServletResponse
-        );
+        Mockito.verify(filterChain).doFilter(httpServletRequest, httpServletResponse);
 
         Mockito.verifyNoInteractions(authenticationManager);
     }
 
     @Test
-    void authenticationResultIsAuthenticatedTest() throws ServletException, IOException {
+    void authenticationResultIsAuthenticatedTest() throws ServletException, IOException
+    {
         Authentication authentication = Mockito.mock(Authentication.class);
         Mockito.when(authentication.isAuthenticated()).thenReturn(true);
 
-        Mockito.when(
-                delegatingAuthenticationConverter.convert(httpServletRequest)
-        ).thenReturn(authentication);
+        Mockito.when(delegatingAuthenticationConverter.convert(httpServletRequest)).thenReturn(authentication);
 
-        strongboxAuthenticationFilter.doFilterInternal(
-                httpServletRequest,
-                httpServletResponse,
-                filterChain
-        );
+        strongboxAuthenticationFilter.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
 
-        Mockito.verify(filterChain).doFilter(
-                httpServletRequest,
-                httpServletResponse
-        );
+        Mockito.verify(filterChain).doFilter(httpServletRequest, httpServletResponse);
 
         Mockito.verifyNoInteractions(authenticationManager);
     }
 
     @Test
-    void authenticationResultIsNotAuthenticatedTest() throws ServletException, IOException {
+    void authenticationResultIsNotAuthenticatedTest() throws ServletException, IOException
+    {
         Authentication authentication = Mockito.mock(Authentication.class);
         Mockito.when(authentication.isAuthenticated()).thenReturn(false);
 
-        Mockito.when(
-                delegatingAuthenticationConverter.convert(httpServletRequest)
-        ).thenReturn(authentication);
+        Mockito.when(delegatingAuthenticationConverter.convert(httpServletRequest)).thenReturn(authentication);
 
-        strongboxAuthenticationFilter.doFilterInternal(
-            httpServletRequest,
-            httpServletResponse,
-            filterChain
-        );
+        strongboxAuthenticationFilter.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
 
         Mockito.verify(authenticationManager).authenticate(authentication);
 
-        Mockito.verify(filterChain).doFilter(
-            httpServletRequest,
-            httpServletResponse
-        );
+        Mockito.verify(filterChain).doFilter(httpServletRequest, httpServletResponse);
     }
 }

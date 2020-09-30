@@ -32,10 +32,7 @@ public class StrongboxAuthenticationFilter
     public StrongboxAuthenticationFilter(DelegatingAuthenticationConverter delegatingAuthenticationConverter,
                                          AuthenticationManager authenticationManager)
     {
-        super(
-            authenticationManager,
-            delegatingAuthenticationConverter
-        );
+        super(authenticationManager, delegatingAuthenticationConverter);
         this.delegatingAuthenticationConverter = delegatingAuthenticationConverter;
         this.authenticationManager = authenticationManager;
     }

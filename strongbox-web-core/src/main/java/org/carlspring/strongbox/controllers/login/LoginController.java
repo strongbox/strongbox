@@ -36,7 +36,7 @@ import io.swagger.annotations.ApiResponses;
 import static org.carlspring.strongbox.users.security.JwtAuthenticationClaimsProvider.JwtAuthentication;
 
 /**
- * Works in conjunction with {@link JsonFormLoginStrategy}
+ * Works in conjunction with {@link org.carlspring.strongbox.security.authentication.strategy.JsonFormLoginStrategy}
  *
  * @author Przemyslaw Fusik
  */

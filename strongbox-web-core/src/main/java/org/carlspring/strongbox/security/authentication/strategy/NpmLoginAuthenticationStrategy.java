@@ -38,7 +38,7 @@ public class NpmLoginAuthenticationStrategy
         NpmUser npmUser = deserializeNpmUser(request);
 
         if (!isValidNpmUser(npmUser) ||
-                !usernamesMatch(request.getRequestURI(), npmUser.getName()))
+            !usernamesMatch(request.getRequestURI(), npmUser.getName()))
         {
             throw new BadCredentialsException("invalid.credentials");
         }
