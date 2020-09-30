@@ -2,7 +2,7 @@
 name: Dependency or Plugin Upgrade Task
 about: Template for creating dependency, or plugin upgrade tasks
 title: ''
-labels: 'dependency-upgrade'
+labels: 'dependencies'
 assignees: ''
 
 ---
