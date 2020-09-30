@@ -1,4 +1,6 @@
-# ![strongbox-logo][strongbox-logo]
+<p align="center" width="100%">
+    <img src="./logo.png"/>
+</p>
 
 [![Master Build Status][master-build-status-badge]][master-build-status-link]
 [![Master Build Tests][master-build-tests-badge]][master-build-status-link]
@@ -22,28 +24,19 @@ Our goal is to implement a universal repository manager that can host and serve 
 
 Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
-# What's in the works (Q4/2019)
+# What's in the works
 
-* Web UI
-* NuGet (protocol v2) layout support finalization [#1215](https://github.com/strongbox/strongbox/issues/1215)
-* PyPi (Wheel) layout support ([#807](https://github.com/strongbox/strongbox/issues/807), ~~[#808](https://github.com/strongbox/strongbox/issues/808)~~, [#810](https://github.com/strongbox/strongbox/issues/810), [#811](https://github.com/strongbox/strongbox/issues/811), [#812](https://github.com/strongbox/strongbox/issues/812), [#813](https://github.com/strongbox/strongbox/issues/813), [#814](https://github.com/strongbox/strongbox/issues/814), [#815](https://github.com/strongbox/strongbox/issues/815), [#816](https://github.com/strongbox/strongbox/issues/816), ~~[#1179](https://github.com/strongbox/strongbox/issues/1179)~~, [#1180](https://github.com/strongbox/strongbox/issues/1180), [#1185](https://github.com/strongbox/strongbox/issues/1185), ~~[#1284](https://github.com/strongbox/strongbox/issues/1284)~~)
+* Working on migrating to JanusGraph ([#1649](https://github.com/strongbox/strongbox/issues/1649))
 
-# Hacktoberfest 2019
+# Hacktoberfests
 
-We would like to welcome everybody who would like to participate in [Hacktoberfest 2019](https://hacktoberfest.digitalocean.com/) ([#Hacktoberfest](https://hacktoberfest.digitalocean.com/)) to join our project and try to contribute.
+We would like to welcome everybody who would like to participate in [Hacktoberfest](https://hacktoberfest.digitalocean.com/) ([#Hacktoberfest](https://hacktoberfest.digitalocean.com/)) to join our project and try to contribute.
 
 We'd like to invite you to:
 * Check out the Developer's Guide section of our [wiki](https://strongbox.github.io/developer-guide/getting-started.html)
 * [Get the project to build](https://strongbox.github.io/developer-guide/building-the-code.html)
 * Have a look at our pre-selected issues for [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
 * Join our [chat channel](https://chat.carlspring.org/]) to discuss things and get help started
-
-# News
-
-* We have recently:
-  * Added initial support for logging in the UI.
-  * Added a Debian/Ubuntu distribution and need help testing it! (We need testers).
-  * Been busy on our UI.
 
 # Documentation
 
@@ -102,7 +95,7 @@ We'd also like to thank our sponsors for generously providing us with licenses f
 
 
 [<--# Generic Links -->]: #
-[strongbox-logo]: ./strongbox.svg
+[strongbox-logo]: https://gist.githubusercontent.com/steve-todorov/c71ed46b5b07f9a7a64f507e62899619/raw/fadaea8443814846a3494c2044c74b2b6966761d/logo.png
 
 [<--# Badges -->]: #
 [master-build-status-link]: https://jenkins.carlspring.org/blue/organizations/jenkins/strongbox%2Fbuilds%2Fstrongbox/activity?branch=master
