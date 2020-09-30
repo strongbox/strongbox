@@ -25,7 +25,7 @@ def MVN_ARGS = params.getOrDefault("MVN_ARGS", "-Dlogging.debug=false -B -U clea
 MVN_ARGS = MVN_ARGS.replaceAll("(?i)-DskipTests", "") // don't allow -DskipTests so we can control deploy stage.
 def MVN_OPTS = params.getOrDefault("MVN_OPTS", '-XX:+TieredCompilation -XX:TieredStopAtLevel=1')
 def SERVER_ID = 'carlspring'
-def SERVER_URL = 'https://repo.carlspring.org/content/repositories/carlspring-oss-snapshots/'
+def SERVER_URL = 'https://eu.repo.carlspring.org/content/repositories/carlspring-oss-snapshots/'
 
 // notification
 def AUTHOR
