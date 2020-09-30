@@ -1,0 +1,39 @@
+WAP to calculate GCD of two integers. It should have a parameterised constructor to initialize two numbers. It should have two methods namely calculate gcd and display GCD.
+
+PROGRAM:
+
+
+import java.io.*;
+
+public class GCD {
+	int n1,n2;
+	int gcd;
+	GCD(int a,int b){
+		n1=a;
+		n2=b;
+	}
+void calculateGCD() {
+	while(n1!=n2) {
+		if(n1>n2)
+			n1=n1-n2;
+		else
+			n2=n2-n1;
+	}
+	gcd=n1;
+}
+
+void displayGCD() {
+	System.out.println("GCD is "+gcd);
+}
+	public static void main(String[] args) throws IOException {
+		BufferedReader sc =new BufferedReader(new InputStreamReader(System.in));
+		System.out.println("Enter 2 numbers");
+		int a=Integer.parseInt(sc.readLine());
+		int b=Integer.parseInt(sc.readLine());
+
+		GCD g= new GCD(a,b);
+		g.calculateGCD();
+		g.displayGCD();
+	}
+
+}
