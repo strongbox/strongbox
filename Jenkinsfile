@@ -1,9 +1,9 @@
 @Library('jenkins-shared-libraries') _
 
 def SERVER_ID = 'carlspring'
-def SNAPSHOT_SERVER_URL = 'https://repo.carlspring.org/content/repositories/carlspring-oss-snapshots'
-def RELEASE_SERVER_URL = 'https://repo.carlspring.org/content/repositories/carlspring-oss-releases'
-def PR_SERVER_URL = 'https://repo.carlspring.org/content/repositories/carlspring-oss-pull-requests'
+def SNAPSHOT_SERVER_URL = 'https://eu.repo.carlspring.org/content/repositories/carlspring-oss-snapshots'
+def RELEASE_SERVER_URL = 'https://eu.repo.carlspring.org/content/repositories/carlspring-oss-releases'
+def PR_SERVER_URL = 'https://eu.repo.carlspring.org/content/repositories/carlspring-oss-pull-requests'
 
 // Notification settings for "master" and "branch/pr"
 def notifyMaster = [notifyAdmins: true, recipients: [culprits(), requestor()]]
