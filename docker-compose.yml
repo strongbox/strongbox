@@ -13,13 +13,14 @@ services:
          echo ""
          sleep 5
          mkdir -p /workspace/.m2/repositories
-         mvn clean install -DskipTests -Dmaven.repo.local=/workspace/.m2/repositories
+         mvn clean install -U -DskipTests -Dmaven.repo.local=/workspace/.m2/repositories
          cd strongbox-web-core
          mvn spring-boot:run -Dmaven.repo.local=/workspace/.m2/repositories
     ports:
       - 48080:48080
     volumes:
-      - ./:/workspace
+      # - ./:/workspace
+      - $HOME/.m2/repository:/home/jenkins/.m2/repository
     working_dir: /workspace
   openldap:
     image: osixia/openldap:1.3.0
