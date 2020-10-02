@@ -11,7 +11,7 @@ public class CronTaskContextAcceptFilter extends Filter<ILoggingEvent>
 
     @Override
     public FilterReply decide(ILoggingEvent event)
-    {
+    {     // validating if map contains the key strongbox-cron-context-name
         if (event.getMDCPropertyMap().containsKey(STRONGBOX_CRON_CONTEXT_NAME))
         {
             return FilterReply.NEUTRAL;
