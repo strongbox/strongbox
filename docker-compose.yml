@@ -13,7 +13,7 @@ services:
          echo ""
          sleep 5
          mkdir -p /workspace/.m2/repositories
-         mvn clean install -DskipTests
+         mvn clean install -Dintegration.tests
          cd strongbox-web-core
          mvn spring-boot:run
     ports:
