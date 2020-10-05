@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-     <version>1.0-Issue1876-SNAPSHOT</version>
+        <version>1.0-issue-1876-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
