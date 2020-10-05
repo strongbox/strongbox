@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-issue-1856-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -241,7 +241,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>

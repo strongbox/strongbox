@@ -7,13 +7,13 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-issue-1856-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-cron-tasks</artifactId>
     <version>1.0-SNAPSHOT</version>
-    
+
     <name>Strongbox: Cron [Tasks]</name>
 
     <inceptionYear>2019</inceptionYear>
@@ -147,7 +147,7 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>io.rest-assured</groupId>
             <artifactId>spring-mock-mvc</artifactId>
@@ -170,7 +170,7 @@
             <groupId>org.apache.directory.server</groupId>
             <artifactId>apacheds-protocol-ldap</artifactId>
         </dependency>
-        
+
     </dependencies>
 
 </project>

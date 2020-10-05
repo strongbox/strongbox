@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-issue-1856-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -210,7 +210,7 @@
 
                 <configuration>
                     <preWrapperConf>${project.basedir}/src/main/resources/setenv.conf</preWrapperConf>
-                    
+
                     <configurationDirectory>etc</configurationDirectory>
 
                     <repositoryLayout>flat</repositoryLayout>
@@ -378,7 +378,7 @@
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
@@ -393,7 +393,7 @@
                             <controlDir>${basedir}/src/main/resources/deb</controlDir>
                             <skipPOMs>false</skipPOMs>
                             <dataSet>
-                            
+
                                 <data>
                                     <src>${basedir}/target/assembly/strongbox-${project.version}/bin</src>
                                     <type>directory</type>
@@ -472,7 +472,7 @@
                                         <dirmode>775</dirmode>
                                     </mapper>
                                 </data>
-                                
+
                                 <data>
                                     <linkName>/etc/systemd/system/strongbox.service</linkName>
                                         <linkTarget>/opt/strongbox/strongbox.service</linkTarget>
@@ -484,7 +484,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
         </plugins>
     </build>
 
@@ -512,7 +512,7 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            
+
             <properties>
                 <strongbox.log.file>logback-spring.xml</strongbox.log.file>
             </properties>
@@ -522,7 +522,7 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-            
+
             <properties>
                 <strongbox.log.file>logback-spring-debug.xml</strongbox.log.file>
             </properties>
