@@ -25,7 +25,7 @@ This pull request closes strongbox/strongbox#
 
 # Code Review And Pre-Merge Checklist
 
-* [ ] My code follows the [coding convnetion](https://strongbox.github.io/developer-guide/coding-convention.html) of this project.
+* [ ] My code follows the [coding convention](https://strongbox.github.io/developer-guide/coding-convention.html) of this project.
 * [ ] I have performed a self-review of my own code.
 * [ ] I have commented my code in hard-to-understand areas.
 * [ ] My changes generate no new warnings.
