@@ -213,8 +213,7 @@ pipeline {
                             }
 
                             dir("windows") {
-                                withMavenPlus(maven: 'maven-3.6',
-                                              mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534',
+                                withMavenPlus(mavenSettingsConfig: '67aaee2b-ca74-4ae1-8eb9-c8f16eb5e534',
                                               mavenOpts: MVN_OPTS,
                                               options: [artifactsPublisher(disabled: true)]) {
 
