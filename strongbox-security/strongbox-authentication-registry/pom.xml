@@ -67,7 +67,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-user-management</artifactId>
             <version>${project.version}</version>
-        </dependency>        
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>com.unboundid</groupId>
-			<artifactId>unboundid-ldapsdk</artifactId>
+            <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
