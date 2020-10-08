@@ -164,7 +164,7 @@
 
         <dependency>
             <groupId>com.unboundid</groupId>
-			<artifactId>unboundid-ldapsdk</artifactId>
+            <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
         
     </dependencies>
