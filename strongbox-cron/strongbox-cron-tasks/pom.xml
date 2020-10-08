@@ -165,8 +165,6 @@
         <dependency>
             <groupId>com.unboundid</groupId>
 			<artifactId>unboundid-ldapsdk</artifactId>
-			<version>5.1.1</version>
-			<scope>test</scope>
         </dependency>
         
     </dependencies>
