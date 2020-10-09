@@ -15,6 +15,7 @@ import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
@@ -86,8 +87,8 @@ public class NugetFilterODataParserTest
         Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
-                .and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
-                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
+                .and(Predicate.of(ExpOperator.EQ.of(Properties.STORAGE_ID, repository.getStorage().getId())))
+                .and(Predicate.of(ExpOperator.EQ.of(Properties.REPOSITORY_ID, repository.getId())));
 
         selector.select("COUNT(*)");
 
@@ -95,7 +96,7 @@ public class NugetFilterODataParserTest
         
         assertThat(((OQueryTemplate<Long, ArtifactEntity>) queryTemplate).calculateQueryString(selector)).isEqualTo("SELECT COUNT(*) FROM ArtifactEntry WHERE " +
                                                                                                                    "artifactCoordinates.coordinates.id.toLowerCase() = :id_0 AND tagSet CONTAINS (name = :name_1) AND " +
-                                                                                                                   "artifactCoordinates.coordinates.version = :version_1 AND storageId = :storageId_1 AND repositoryId = :repositoryId_2 LIMIT 1000");
+                                                                                                                   "artifactCoordinates.coordinates.version = :version_1 AND " + Properties.STORAGE_ID + " = :storageId_1 AND " + Properties.REPOSITORY_ID + " = :repositoryId_2 LIMIT 1000");
         
         Map<String, Object> parameterMap = ((OQueryTemplate<Long, ArtifactEntity>) queryTemplate).exposeParameterMap(selector.getPredicate());
 
@@ -129,8 +130,8 @@ public class NugetFilterODataParserTest
         Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
-                .and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
-                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
+                .and(Predicate.of(ExpOperator.EQ.of(Properties.STORAGE_ID, repository.getStorage().getId())))
+                .and(Predicate.of(ExpOperator.EQ.of(Properties.REPOSITORY_ID, repository.getId())));
 
         selector.select("artifactCoordinates.coordinates.id");
 

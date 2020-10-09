@@ -8,6 +8,8 @@ import java.util.Map;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+
+import org.carlspring.strongbox.db.schema.Properties;
 import org.springframework.util.MultiValueMap;
 
 /**
@@ -27,7 +29,7 @@ public class RequestBodyValidationErrorsJsonSerializer
         for (final Map.Entry<String, List<String>> entry : value.entrySet())
         {
             gen.writeStartObject();
-            gen.writeFieldName("name");
+            gen.writeFieldName(Properties.NAME);
             gen.writeString( entry.getKey());
             gen.writeFieldName("messages");
             gen.writeStartArray();

@@ -24,6 +24,7 @@ import org.carlspring.strongbox.authentication.api.CustomAuthenticationItemMappe
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry;
 import org.carlspring.strongbox.authentication.registry.AuthenticationProvidersRegistry.MergePropertiesContext;
 import org.carlspring.strongbox.authentication.support.AuthenticationConfigurationContext;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.users.service.UserAlreadyExistsException;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
@@ -218,7 +219,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
             Map<String, Object> properties = authenticationProvidersRegistry.getAuthenticationProperties(item.getName());
 
             properties.put("order", item.getOrder());
-            properties.put("enabled", Boolean.TRUE.equals(item.getEnabled()));
+            properties.put(Properties.ENABLED, Boolean.TRUE.equals(item.getEnabled()));
 
             mergePropertiesContext = mergePropertiesContext.merge(item.getName(), properties);
 

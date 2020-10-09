@@ -18,6 +18,7 @@
 package org.carlspring.strongbox.storage.metadata.nuget;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Properties;
 
 import javax.xml.bind.*;
 import javax.xml.bind.annotation.*;
@@ -435,7 +436,7 @@ public class Nuspec implements Serializable
         /**
          * Package Version
          */
-        @XmlElement(name = "version", namespace = NUSPEC_XML_NAMESPACE_2011)
+        @XmlElement(name = Properties.VERSION, namespace = NUSPEC_XML_NAMESPACE_2011)
         @XmlJavaTypeAdapter(value = VersionTypeAdapter.class)
         public SemanticVersion version;
 

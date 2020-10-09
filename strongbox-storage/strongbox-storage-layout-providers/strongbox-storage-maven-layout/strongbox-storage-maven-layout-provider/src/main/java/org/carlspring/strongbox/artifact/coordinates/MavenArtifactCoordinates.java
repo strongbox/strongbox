@@ -11,6 +11,7 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -151,7 +152,7 @@ public class MavenArtifactCoordinates
     }
 
     @Override
-    @XmlAttribute(name = "version")
+    @XmlAttribute(name = Properties.VERSION)
     public String getVersion()
     {
         return super.getVersion();
@@ -195,7 +196,7 @@ public class MavenArtifactCoordinates
     @Override
     public String toString()
     {
-        return "MavenArtifactCoordinates{" + "groupId='" + getGroupId() + '\'' + ", artifactId='" + getArtifactId() + '\'' +
+        return Vertices.MAVEN_ARTIFACT_COORDINATES+"{" + "groupId='" + getGroupId() + '\'' + ", artifactId='" + getArtifactId() + '\'' +
                ", version='" + getVersion() + '\'' + ", classifier='" + getClassifier() + '\'' + ", extension='" + getExtension() +
                '\'' + ", as path: " + convertToPath(this) + '}';
     }

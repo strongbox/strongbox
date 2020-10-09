@@ -41,6 +41,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
@@ -510,7 +511,7 @@ public class EntryProperties
         elements.add(createMicrosoftElement("MailingListUrl", true, this.mailingListUrl));
         elements.add(createMicrosoftElement("BugTrackerUrl", true, this.bugTrackerUrl));
         elements.add(createMicrosoftElement("ReportAbuseUrl", true, this.reportAbuseUrl));
-        elements.add(createMicrosoftElement("DownloadCount", false, this.downloadCount));
+        elements.add(createMicrosoftElement(Properties.DOWNLOAD_COUNT, false, this.downloadCount));
         elements.add(createMicrosoftElement("VersionDownloadCount", false, this.versionDownloadCount));
         elements.add(createMicrosoftElement("RatingsCount", false, this.ratingsCount));
         elements.add(createMicrosoftElement("VersionRatingsCount", false, this.versionRatingsCount));
@@ -565,7 +566,7 @@ public class EntryProperties
         this.mailingListUrl = getTextContent(hashMap, "MailingListUrl");
         this.bugTrackerUrl = getTextContent(hashMap, "BugTrackerUrl");
         this.reportAbuseUrl = getTextContent(hashMap, "ReportAbuseUrl");
-        this.downloadCount = getIntegerContent(hashMap.get("DownloadCount"));
+        this.downloadCount = getIntegerContent(hashMap.get(Properties.DOWNLOAD_COUNT));
         this.versionDownloadCount = getIntegerContent(hashMap.get("VersionDownloadCount"));
         this.ratingsCount = getIntegerContent(hashMap.get("RatingsCount"));
         this.versionRatingsCount = getIntegerContent(hashMap.get("VersionRatingsCount"));

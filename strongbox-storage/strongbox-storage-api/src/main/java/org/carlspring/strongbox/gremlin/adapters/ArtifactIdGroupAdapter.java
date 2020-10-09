@@ -51,12 +51,12 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
                                                                         .orElse(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                                                                                   .inV());
 
-        return __.<Vertex, Object>project("id", "uuid", "storageId", "repositoryId", "name", "artifacts")
+        return __.<Vertex, Object>project("id", Properties.UUID, Properties.STORAGE_ID, Properties.REPOSITORY_ID, Properties.NAME, "artifacts")
                  .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("storageId"))
-                 .by(__.enrichPropertyValue("repositoryId"))
-                 .by(__.enrichPropertyValue("name"))
+                 .by(__.enrichPropertyValue(Properties.UUID))
+                 .by(__.enrichPropertyValue(Properties.STORAGE_ID))
+                 .by(__.enrichPropertyValue(Properties.REPOSITORY_ID))
+                 .by(__.enrichPropertyValue(Properties.NAME))
                  .by(artifactsTraversal.dedup()
                                        .map(artifactAdapter.fold(layoutArtifactCoordinatesClass))
                                        .map(EntityTraversalUtils::castToObject)
@@ -72,10 +72,10 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
 
     private ArtifactIdGroup map(Traverser<Map<String, Object>> t)
     {
-        ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get("storageId")),
-                extractObject(String.class, t.get().get("repositoryId")), extractObject(String.class, t.get().get("name")));
+        ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get(Properties.STORAGE_ID)),
+                extractObject(String.class, t.get().get(Properties.REPOSITORY_ID)), extractObject(String.class, t.get().get(Properties.NAME)));
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get("uuid")));
+        result.setUuid(extractObject(String.class, t.get().get(Properties.UUID)));
         Collection<Artifact> artifacts = (Collection<Artifact>) t.get().get("artifacts");
         artifacts.stream().forEach(result::addArtifact);
 
@@ -131,15 +131,15 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
 
         if (entity.getStorageId() != null)
         {
-            t = t.property(single, "storageId", entity.getStorageId());
+            t = t.property(single, Properties.STORAGE_ID, entity.getStorageId());
         }
         if (entity.getRepositoryId() != null)
         {
-            t = t.property(single, "repositoryId", entity.getRepositoryId());
+            t = t.property(single, Properties.REPOSITORY_ID, entity.getRepositoryId());
         }
         if (entity.getName() != null)
         {
-            t = t.property(single, "name", entity.getName());
+            t = t.property(single, Properties.NAME, entity.getName());
         }
 
         return t;

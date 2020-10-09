@@ -8,6 +8,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.__;
@@ -43,9 +44,9 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<Vertex, Object>project("id", "uuid")
+        return __.<Vertex, Object>project("id", Properties.UUID)
                  .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
+                 .by(__.enrichPropertyValue(Properties.UUID))
                  .map(this::map);
     }
 
@@ -53,7 +54,7 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     {
         C result = newInstance();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get("uuid")));
+        result.setUuid(extractObject(String.class, t.get().get(Properties.UUID)));
 
         return result;
     }

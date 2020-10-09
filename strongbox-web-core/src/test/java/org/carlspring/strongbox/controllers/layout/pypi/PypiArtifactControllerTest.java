@@ -11,6 +11,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.rest.common.PypiRestAssuredBaseTest;
@@ -65,7 +66,7 @@ public class PypiArtifactControllerTest extends PypiRestAssuredBaseTest
         mockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                .multiPart("filetype", "sdist")
                .multiPart(":action", "File_Upload")
-               .multiPart("name", "hello-world-pipy")
+               .multiPart(Properties.NAME, "hello-world-pipy")
                .multiPart("metadata_version", "1.0")
                .multiPart("content", packagePath.toFile())
                .when()
@@ -80,7 +81,7 @@ public class PypiArtifactControllerTest extends PypiRestAssuredBaseTest
         mockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                .multiPart("filetype", "wheel")
                .multiPart(":action", "file_upload")
-               .multiPart("name", "hello-world-pipy")
+               .multiPart(Properties.NAME, "hello-world-pipy")
                .multiPart("metadata_version", "1.0")
                .multiPart("content", packagePath.toFile())
                .when()
@@ -95,7 +96,7 @@ public class PypiArtifactControllerTest extends PypiRestAssuredBaseTest
         mockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                .multiPart("filetype", "sdist")
                .multiPart(":action", "file_upload")
-               .multiPart("name", "hello-world-pipy")
+               .multiPart(Properties.NAME, "hello-world-pipy")
                .multiPart("metadata_version", "1.0")
                .multiPart("content", packagePath.toFile())
                .when()
@@ -179,7 +180,7 @@ public class PypiArtifactControllerTest extends PypiRestAssuredBaseTest
             mockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                    .multiPart("filetype", "sdist")
                    .multiPart(":action", "file_upload")
-                   .multiPart("name", "hello_world_pypi")
+                   .multiPart(Properties.NAME, "hello_world_pypi")
                    .multiPart("metadata_version", "1.0")
                    .multiPart("content", path.toFile())
                    .when()

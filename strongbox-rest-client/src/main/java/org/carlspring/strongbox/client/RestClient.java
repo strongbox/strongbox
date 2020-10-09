@@ -2,6 +2,7 @@ package org.carlspring.strongbox.client;
 
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
 import org.carlspring.strongbox.forms.configuration.StorageForm;
 import org.carlspring.strongbox.storage.Storage;
@@ -50,12 +51,12 @@ public class RestClient
 
     public static ArtifactClient getTestInstance()
     {
-        return getTestInstance("deployer", "password");
+        return getTestInstance("deployer", Properties.PASSWORD);
     }
 
     public static RestClient getTestInstanceLoggedInAsAdmin()
     {
-        return getTestInstance("admin", "password");
+        return getTestInstance("admin", Properties.PASSWORD);
     }
 
     public static RestClient getTestInstance(String username,
@@ -246,7 +247,7 @@ public class RestClient
     {
         String url = getContextBaseUrl() + "/api/configuration/strongbox/proxy-configuration" +
                      (storageId != null && repositoryId != null ?
-                      "?storageId=" + storageId + "&repositoryId=" + repositoryId : "");
+                      "?" + Properties.STORAGE_ID + "=" + storageId + "&" + Properties.REPOSITORY_ID + "=" + repositoryId : "");
 
         WebTarget resource = getClientInstance().target(url);
         setupAuthentication(resource);

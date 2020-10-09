@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
@@ -55,9 +56,9 @@ public class ProxyConfigurationController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setProxyConfiguration(@ApiParam(value = "The storageId")
-                                                @RequestParam(value = "storageId", required = false) String storageId,
+                                                @RequestParam(value = Properties.STORAGE_ID, required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
-                                                @RequestParam(value = "repositoryId", required = false)
+                                                @RequestParam(value = Properties.REPOSITORY_ID, required = false)
                                                         String repositoryId,
                                                 @ApiParam(value = "The proxy configuration for this proxy repository", required = true)
                                                 @RequestBody @Validated({ Default.class,
@@ -94,9 +95,9 @@ public class ProxyConfigurationController
     @GetMapping(value = "",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getProxyConfiguration(@ApiParam(value = "The storageId")
-                                                @RequestParam(value = "storageId", required = false) String storageId,
+                                                @RequestParam(value = Properties.STORAGE_ID, required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
-                                                @RequestParam(value = "repositoryId", required = false)
+                                                @RequestParam(value = Properties.REPOSITORY_ID, required = false)
                                                         String repositoryId,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {

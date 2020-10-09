@@ -15,6 +15,7 @@ import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
@@ -54,7 +55,7 @@ public class ArtifactTagServiceTest
         ArtifactTag ltsTag = artifactTagService.findOneOrCreate("LTS");
         assertThat(g.V()
                     .hasLabel(Vertices.ARTIFACT_TAG)
-                    .has("uuid", P.within("release", "latest", "LTS"))
+                    .has(Properties.UUID, P.within("release", "latest", "LTS"))
                     .count()
                     .next()).isEqualTo(3);
 

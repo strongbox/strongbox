@@ -4,6 +4,7 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.InstanceNameEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.configuration.CorsConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
@@ -175,15 +176,15 @@ public class ServerConfigurationControllerTestIT
         );
 
         SmtpConfigurationForm smtpConfigurationForm = new SmtpConfigurationForm(
-                "localhost", 25, "tls", "username", "password"
+                "localhost", 25, "tls", Properties.USERNAME, Properties.PASSWORD
         );
 
         ProxyConfigurationForm proxyConfigurationForm = new ProxyConfigurationForm(
                 "localhost",
                 3218,
                 "direct",
-                "username",
-                "password",
+                Properties.USERNAME,
+                Properties.PASSWORD,
                 Arrays.asList("http://example.com", "https://github.com/strongbox")
         );
 

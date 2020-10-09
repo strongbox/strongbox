@@ -2,6 +2,7 @@ package org.carlspring.strongbox.data.domain;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.neo4j.ogm.annotation.Id;
 
 /**
@@ -45,7 +46,7 @@ public class DomainEntity implements DomainObject
     public void applyUnfold(Traverser<Vertex> t)
     {
         setNativeId((Long) t.get().id());
-        setUuid((String) t.get().property("uuid").value());
+        setUuid((String) t.get().property(Properties.UUID).value());
     }
 
     @Override
@@ -84,7 +85,7 @@ public class DomainEntity implements DomainObject
     {
         final StringBuilder sb = new StringBuilder(this.getClass().getSimpleName());
         sb.append("{");
-        sb.append(", uuid='").append(uuid).append('\'');
+        sb.append(", "+Properties.UUID+"='").append(uuid).append('\'');
         sb.append('}');
         return sb.toString();
     }

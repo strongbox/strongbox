@@ -79,7 +79,7 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                     .bothV()
-                    .properties("uuid")
+                    .properties(Properties.UUID)
                     .map(p -> p.get().value())
                     .toList()).contains(artifactEntityOne.getUuid(),
                                         artifactEntityTwo.getUuid(),

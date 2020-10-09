@@ -4,6 +4,7 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
@@ -169,8 +170,8 @@ public class NpmArtifactControllerTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        NpmUser strongboxUser1 = new NpmUser("admin", "password");
-        NpmUser strongboxUser2 = new NpmUser("deployer", "password");
+        NpmUser strongboxUser1 = new NpmUser("admin", Properties.PASSWORD);
+        NpmUser strongboxUser2 = new NpmUser("deployer", Properties.PASSWORD);
         NpmUser nonStrongboxUser = new NpmUser("notARealUser", "notARealPassword");
 
         //can login with strongbox user
@@ -289,7 +290,7 @@ public class NpmArtifactControllerTest
                .peek()
                .then()
                .assertThat()
-               .body("name", equalTo(packageId))
+               .body(Properties.NAME, equalTo(packageId))
                .and()
                .assertThat()
                .body("versions." + "'" + packageVersion + "'" + ".version", equalTo(packageVersion))

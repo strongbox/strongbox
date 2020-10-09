@@ -2,6 +2,7 @@ package org.carlspring.strongbox.artifact.generator;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.config.PypiLayoutProviderTestConfig;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.PypiTestArtifact;
@@ -32,9 +33,9 @@ public class PypiArtifactGeneratorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testWHLFile(@PypiTestRepository(repositoryId = "repositoryId")
+    public void testWHLFile(@PypiTestRepository(repositoryId = Properties.REPOSITORY_ID)
                             Repository repository,
-                            @PypiTestArtifact(repositoryId = "repositoryId",
+                            @PypiTestArtifact(repositoryId = Properties.REPOSITORY_ID,
                                               resource = "org-carlspring-123-strongbox-testing-pypi.whl",
                                               bytesSize = 4096)
                             Path artifactPath)
@@ -57,9 +58,9 @@ public class PypiArtifactGeneratorTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testTARFile(@PypiTestRepository(repositoryId = "repositoryId")
+    public void testTARFile(@PypiTestRepository(repositoryId = Properties.REPOSITORY_ID)
                             Repository repository,
-                            @PypiTestArtifact(repositoryId = "repositoryId",
+                            @PypiTestArtifact(repositoryId = Properties.REPOSITORY_ID,
                                               resource = "strongbox-testing-1.0.tar.gz",
                                               bytesSize = 4096)
                             Path artifactPath)

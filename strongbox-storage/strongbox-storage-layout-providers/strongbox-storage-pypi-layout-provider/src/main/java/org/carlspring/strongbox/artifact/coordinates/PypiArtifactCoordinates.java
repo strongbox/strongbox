@@ -22,7 +22,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
  * @author alecg956
  */
 @NodeEntity(Vertices.PYPI_ARTIFACT_COORDINATES)
-@XmlRootElement(name = "PypiArtifactCoordinates")
+@XmlRootElement(name = Vertices.PYPI_ARTIFACT_COORDINATES)
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = PypiArtifactCoordinates.LAYOUT_NAME, alias = PypiArtifactCoordinates.LAYOUT_ALIAS)
 public class PypiArtifactCoordinates

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.validation.configuration.routing;
 
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.storage.routing.RoutingRuleRepositoryForm;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 
@@ -43,10 +44,10 @@ public class RoutingRuleRepositoryFormValidator
             {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message)
-                       .addPropertyNode("storageId")
+                       .addPropertyNode(Properties.STORAGE_ID)
                        .addConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message)
-                       .addPropertyNode("repositoryId")
+                       .addPropertyNode(Properties.REPOSITORY_ID)
                        .addConstraintViolation();
             }
             else

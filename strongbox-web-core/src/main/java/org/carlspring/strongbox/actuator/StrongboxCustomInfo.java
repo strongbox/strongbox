@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.actuator;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
@@ -24,7 +25,7 @@ public class StrongboxCustomInfo implements InfoContributor
     public void contribute(Info.Builder builder)
     {
         Map<String, String> strongboxInfo = new HashMap<>();
-        strongboxInfo.put("version", propertiesBooter.getStrongboxVersion());
+        strongboxInfo.put(Properties.VERSION, propertiesBooter.getStrongboxVersion());
         strongboxInfo.put("revision", propertiesBooter.getStrongboxRevision());
 
         builder.withDetail("strongbox", strongboxInfo);

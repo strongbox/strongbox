@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.users;
 
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.users.PasswordEncodeForm;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
 
@@ -57,7 +58,7 @@ public class PasswordEncoderController
 
         if (accept.equals(MediaType.APPLICATION_JSON_VALUE))
         {
-            response = Collections.singletonMap("password", encoded);
+            response = Collections.singletonMap(Properties.PASSWORD, encoded);
         }
 
         return ResponseEntity.ok().body(response);

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.users;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.users.PasswordEncodeForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
@@ -45,7 +46,7 @@ public class PasswordEncoderControllerTest
                              MediaType.TEXT_PLAIN_VALUE })
     public void shouldEncodeProperly(String acceptedHeader)
     {
-        final PasswordEncodeForm form = new PasswordEncodeForm("password");
+        final PasswordEncodeForm form = new PasswordEncodeForm(Properties.PASSWORD);
 
         ValidatableMockMvcResponse response = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                                      .accept(acceptedHeader)
@@ -58,7 +59,7 @@ public class PasswordEncoderControllerTest
 
         if (acceptedHeader.equals(MediaType.APPLICATION_JSON_VALUE))
         {
-            response.body("password", CoreMatchers.not(form.getPassword()));
+            response.body(Properties.PASSWORD, CoreMatchers.not(form.getPassword()));
         }
         else
         {
@@ -70,7 +71,7 @@ public class PasswordEncoderControllerTest
     @WithAnonymousUser
     public void shouldRequireAuthenticationAccess()
     {
-        final PasswordEncodeForm form = new PasswordEncodeForm("password");
+        final PasswordEncodeForm form = new PasswordEncodeForm(Properties.PASSWORD);
 
         String decodedErrorMessage = getI18nInsufficientAuthenticationErrorMessage();
 
@@ -90,7 +91,7 @@ public class PasswordEncoderControllerTest
     @WithUserDetails("deployer")
     public void shouldAllowOnlyAdminAccess()
     {
-        final PasswordEncodeForm form = new PasswordEncodeForm("password");
+        final PasswordEncodeForm form = new PasswordEncodeForm(Properties.PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)

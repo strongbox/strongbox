@@ -2,6 +2,8 @@ package org.carlspring.strongbox.configuration;
 
 import java.io.Serializable;
 
+import org.carlspring.strongbox.db.schema.Properties;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -32,8 +34,8 @@ public class MutableSmtpConfiguration
     public MutableSmtpConfiguration(@JsonProperty("host") String host,
                                     @JsonProperty("port") Integer port,
                                     @JsonProperty("connection") String connection,
-                                    @JsonProperty("username") String username,
-                                    @JsonProperty("password") String password)
+                                    @JsonProperty(Properties.USERNAME) String username,
+                                    @JsonProperty(Properties.PASSWORD) String password)
     {
         this.host = host;
         this.port = port;

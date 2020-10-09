@@ -12,6 +12,7 @@ import javax.inject.Inject;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
@@ -121,7 +122,7 @@ public class NpmArtifactControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
-               .body("name", equalTo("react"))
+               .body(Properties.NAME, equalTo("react"))
                .body("versions.size()", greaterThan(0));
 
         Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,

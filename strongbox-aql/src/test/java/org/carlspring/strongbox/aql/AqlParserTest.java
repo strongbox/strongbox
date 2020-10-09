@@ -5,6 +5,7 @@ import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 
 import java.util.ArrayList;
@@ -171,7 +172,7 @@ public class AqlParserTest
                            "ArtifactEntry " +
                            "WHERE " +
                            "artifactCoordinates IS NOT NULL  " +
-                           "AND ((storageId = :storageId_0) " +
+                           "AND (("+ Properties.STORAGE_ID +" = :storageId_0) " +
                            "AND repositoryId = :repositoryId_1 " +
                            "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
                            "AND ( NOT ((artifactCoordinates.coordinates.artifactId = :artifactId_1)) OR " +

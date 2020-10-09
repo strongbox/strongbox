@@ -15,6 +15,8 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutDescription;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutLocator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
@@ -70,7 +72,7 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
         ArtifactIdGroup artifactIdGroup = new ArtifactIdGroupEntity(storageId, repositoryId, artifactId);
         EntityTraversal<Vertex, ArtifactIdGroup> t = g().V()
                                                         .hasLabel(Vertices.ARTIFACT_ID_GROUP)
-                                                        .has("uuid", artifactIdGroup.getUuid())
+                                                        .has(Properties.UUID, artifactIdGroup.getUuid())
                                                         .map(adapter.fold(Optional.ofNullable(repository)
                                                                                   .map(org.carlspring.strongbox.storage.repository.Repository::getLayout)
                                                                                   .map(ArtifactLayoutLocator.getLayoutByNameEntityMap()::get)
@@ -197,7 +199,7 @@ interface ArtifactIdGroupQueries
     @Query("OPTIONAL MATCH (aig:`ArtifactIdGroup`) " +
            "WHERE aig.uuid IN $artifactIdGroupIds " +
            "WITH aig " +
-           "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
+           "MATCH (aig)-[r0:"+Edges.ARTIFACT_GROUP_HAS_ARTIFACTS+"]->(artifact:"+Vertices.ARTIFACT+")-[r1]->(genericCoordinates:"+Vertices.GENERIC_ARTIFACT_COORDINATES+")<-[r2]-(layoutCoordinates) " +
            "UNWIND keys(genericCoordinates) AS coordinate " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
            "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
@@ -209,11 +211,11 @@ interface ArtifactIdGroupQueries
     @Query("OPTIONAL MATCH (aig:`ArtifactIdGroup`) " +
            "WHERE aig.uuid IN $artifactIdGroupIds " +
            "WITH aig " +
-           "MATCH (aig)-[r0:ArtifactGroupHasArtifacts]->(artifact:Artifact)-[r1]->(genericCoordinates:GenericArtifactCoordinates)<-[r2]-(layoutCoordinates) " +
+           "MATCH (aig)-[r0:"+Edges.ARTIFACT_GROUP_HAS_ARTIFACTS+"]->(artifact:"+Vertices.ARTIFACT+")-[r1]->(genericCoordinates:"+Vertices.GENERIC_ARTIFACT_COORDINATES+")<-[r2]-(layoutCoordinates) " +
            "UNWIND keys(genericCoordinates) AS coordinate " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, coordinate " +
            "WHERE coordinate STARTS WITH 'coordinates.' AND genericCoordinates[coordinate] IN $coordinateValues " +
-           "OPTIONAL MATCH (artifact)-[r4]->(tag:ArtifactTag) " +
+           "OPTIONAL MATCH (artifact)-[r4]->(tag:"+Vertices.ARTIFACT_TAG+") " +
            "WITH aig, r0, artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
            "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates,  r4, tag " +
            "ORDER BY aig.name, genericCoordinates.version " +

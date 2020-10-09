@@ -13,6 +13,7 @@ import org.carlspring.strongbox.authorization.dto.AuthorizationConfigDto;
 import org.carlspring.strongbox.authorization.dto.RoleDto;
 import org.carlspring.strongbox.authorization.service.AuthorizationConfigService;
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.PrivilegeListForm;
 import org.carlspring.strongbox.forms.RoleForm;
 import org.carlspring.strongbox.users.domain.Privileges;
@@ -120,7 +121,7 @@ public class AuthorizationConfigController
     @DeleteMapping(value = "/role/{name}",
                    produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role", required = true)
-                                     @PathVariable("name") String name,
+                                     @PathVariable(Properties.NAME) String name,
                                      @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         try

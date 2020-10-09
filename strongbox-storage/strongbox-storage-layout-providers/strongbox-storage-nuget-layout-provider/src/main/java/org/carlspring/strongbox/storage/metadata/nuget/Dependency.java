@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.carlspring.strongbox.db.schema.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static java.text.MessageFormat.format;
@@ -103,7 +104,7 @@ public class Dependency implements Serializable
 
         Dependency dependency = new Dependency();
         String id = matcher.group("pkgId");
-        String versionRangeString = matcher.group("version");
+        String versionRangeString = matcher.group(Properties.VERSION);
         String frameWorkString = matcher.group("frameWork");
 
         dependency.id = id;
@@ -150,7 +151,7 @@ public class Dependency implements Serializable
     /**
      * @return string representation of a range of versions
      */
-    @XmlAttribute(name = "version")
+    @XmlAttribute(name = Properties.VERSION)
     public String getVersionRangeString()
     {
         if (versionRange == null)

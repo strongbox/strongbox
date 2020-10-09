@@ -4,6 +4,8 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import org.carlspring.strongbox.db.schema.Properties;
+
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
@@ -19,9 +21,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 public @interface RepositoryMapping
 {
 
-    String storageVariableName() default "storageId";
+    String storageVariableName() default Properties.STORAGE_ID;
 
-    String repositoryVariableName() default "repositoryId";
+    String repositoryVariableName() default Properties.REPOSITORY_ID;
 
     boolean allowOutOfServiceRepository() default false;
 }

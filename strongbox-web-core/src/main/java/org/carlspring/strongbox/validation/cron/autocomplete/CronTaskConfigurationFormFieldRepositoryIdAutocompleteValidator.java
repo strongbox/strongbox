@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.validation.cron.autocomplete;
 
 import org.carlspring.strongbox.configuration.Configuration;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.storage.Storage;
 
@@ -35,6 +36,6 @@ public class CronTaskConfigurationFormFieldRepositoryIdAutocompleteValidator
     @Override
     public boolean supports(String name)
     {
-        return "repositoryId".equals(name);
+        return Properties.REPOSITORY_ID.equals(name);
     }
 }

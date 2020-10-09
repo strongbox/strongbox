@@ -20,6 +20,7 @@ import static org.hamcrest.Matchers.nullValue;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.forms.users.UserForm;
@@ -178,7 +179,7 @@ public class UserControllerTestIT
                     String username)
     {
         deleteCreatedUser(username);
-        UserForm test = buildUser(username, "password");
+        UserForm test = buildUser(username, Properties.PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -201,7 +202,7 @@ public class UserControllerTestIT
                                                     String username)
     {
         deleteCreatedUser(username);
-        UserForm test = buildUser(username, "password");
+        UserForm test = buildUser(username, Properties.PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -432,7 +433,7 @@ public class UserControllerTestIT
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
         final String username = "test-user";
-        final String newPassword = "password";
+        final String newPassword = Properties.PASSWORD;
 
         UserDto user = new UserDto();
         user.setEnabled(true);

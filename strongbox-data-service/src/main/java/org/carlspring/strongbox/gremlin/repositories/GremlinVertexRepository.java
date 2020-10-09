@@ -6,6 +6,7 @@ import javax.transaction.Transactional;
 
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.data.domain.DomainObject;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.gremlin.adapters.UnfoldEntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalSource;
@@ -36,7 +37,7 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
                                               .next();
         session.clear();
 
-        return resultVertex.<String>property("uuid").value();
+        return resultVertex.<String>property(Properties.UUID).value();
     }
 
     @Override

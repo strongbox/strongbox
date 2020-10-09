@@ -3,6 +3,7 @@ package org.carlspring.strongbox.controllers.configuration;
 import com.google.common.collect.Lists;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -120,8 +121,8 @@ public class ProxyConfigurationControllerTestIT
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
-               .param("storageId", storageId)
-               .param("repositoryId", repositoryId)
+               .param(Properties.STORAGE_ID, storageId)
+               .param(Properties.REPOSITORY_ID, repositoryId)
                .when()
                .put(url)
                .then()

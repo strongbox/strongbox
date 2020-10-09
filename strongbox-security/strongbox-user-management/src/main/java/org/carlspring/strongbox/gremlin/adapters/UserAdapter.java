@@ -6,6 +6,7 @@ import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLocalD
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.toLong;
 
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
@@ -46,40 +47,40 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
     public EntityTraversal<Vertex, User> fold()
     {
         return __.<Vertex, Object>project("id",
-                                          "uuid",
-                                          "password",
-                                          "enabled",
+        								  Properties.UUID,
+        								  Properties.PASSWORD,
+        								  Properties.ENABLED,
                                           "roles",
-                                          "securityTokenKey",
-                                          "lastUpdated",
-                                          "sourceId")
+                                          Properties.SECURITY_TOKEN_KEY,
+                                          Properties.LAST_UPDATED,
+                                          Properties.SOURCE_ID)
                  .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("password"))
-                 .by(__.enrichPropertyValue("enabled"))
+                 .by(__.enrichPropertyValue(Properties.UUID))
+                 .by(__.enrichPropertyValue(Properties.PASSWORD))
+                 .by(__.enrichPropertyValue(Properties.ENABLED))
                  .by(__.outE(Edges.USER_HAS_SECURITY_ROLES)
                        .inV()
                        .map(securityRoleAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
-                 .by(__.enrichPropertyValue("securityTokenKey"))
-                 .by(__.enrichPropertyValue("lastUpdated"))
-                 .by(__.enrichPropertyValue("sourceId"))
+                 .by(__.enrichPropertyValue(Properties.SECURITY_TOKEN_KEY))
+                 .by(__.enrichPropertyValue(Properties.LAST_UPDATED))
+                 .by(__.enrichPropertyValue(Properties.SOURCE_ID))
                  .map(this::map);
     }
 
     private User map(Traverser<Map<String, Object>> t)
     {
-        UserEntity result = new UserEntity(extractObject(String.class, t.get().get("uuid")));
+        UserEntity result = new UserEntity(extractObject(String.class, t.get().get(Properties.UUID)));
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
 
-        result.setPassword(extractObject(String.class, t.get().get("password")));
-        result.setEnabled(extractObject(Boolean.class, t.get().get("enabled")));
+        result.setPassword(extractObject(String.class, t.get().get(Properties.PASSWORD)));
+        result.setEnabled(extractObject(Boolean.class, t.get().get(Properties.ENABLED)));
         List<SecurityRole> userRoles = (List<SecurityRole>) t.get().get("roles");
         result.setRoles(new HashSet<>(userRoles));
-        result.setSecurityTokenKey(extractObject(String.class, t.get().get("securityTokenKey")));
-        result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get("lastUpdated"))));
-        result.setSourceId(extractObject(String.class, t.get().get("sourceId")));
+        result.setSecurityTokenKey(extractObject(String.class, t.get().get(Properties.SECURITY_TOKEN_KEY)));
+        result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get(Properties.LAST_UPDATED))));
+        result.setSourceId(extractObject(String.class, t.get().get(Properties.SOURCE_ID)));
 
         return result;
     }
@@ -121,22 +122,22 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         if (entity.getPassword() != null)
         {
-            t = t.property(single, "password", entity.getPassword());
+            t = t.property(single, Properties.PASSWORD, entity.getPassword());
         }
         if (entity.getSecurityTokenKey() != null)
         {
-            t = t.property(single, "securityTokenKey", entity.getSecurityTokenKey());
+            t = t.property(single, Properties.SECURITY_TOKEN_KEY, entity.getSecurityTokenKey());
         }
         if (entity.getSourceId() != null)
         {
-            t = t.property(single, "sourceId", entity.getSourceId());
+            t = t.property(single, Properties.SOURCE_ID, entity.getSourceId());
         }
         if (entity.getLastUpdated() != null)
         {
-            t = t.property(single, "lastUpdated", toLong(entity.getLastUpdated()));
+            t = t.property(single, Properties.LAST_UPDATED, toLong(entity.getLastUpdated()));
         }
 
-        t = t.property(single, "enabled", entity.isEnabled());
+        t = t.property(single, Properties.ENABLED, entity.isEnabled());
 
         return t;
     }

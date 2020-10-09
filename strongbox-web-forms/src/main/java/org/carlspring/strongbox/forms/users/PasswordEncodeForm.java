@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.forms.users;
 
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.validation.users.Password;
 
 import java.io.Serializable;
@@ -14,11 +15,11 @@ public class PasswordEncodeForm
 {
 
     @Password(min = 8)
-    @JsonProperty("password")
+    @JsonProperty(Properties.PASSWORD)
     private String password;
 
     @JsonCreator
-    public PasswordEncodeForm(@JsonProperty("password") String password)
+    public PasswordEncodeForm(@JsonProperty(Properties.PASSWORD) String password)
     {
         this.password = password;
     }

@@ -4,6 +4,7 @@ import org.carlspring.strongbox.client.ArtifactOperationException;
 import org.carlspring.strongbox.client.ArtifactTransportException;
 import org.carlspring.strongbox.client.BaseArtifactClient;
 import org.carlspring.strongbox.client.IArtifactClient;
+import org.carlspring.strongbox.db.schema.Properties;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -309,7 +310,7 @@ public class RestAssuredArtifactClient
                      (artifactPath != null ? artifactPath : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                    .params("version", version,
+                    .params(Properties.VERSION, version,
                             "classifier", classifier,
                             "metadataType", metadataType)
                     .when()
@@ -346,7 +347,7 @@ public class RestAssuredArtifactClient
 
         query = URLEncoder.encode(query, "UTF-8");
 
-        return givenLocal().params("repositoryId", repositoryId,
+        return givenLocal().params(Properties.REPOSITORY_ID, repositoryId,
                                    "q", query,
                                    "searchProvider", searchProvider)
                            .header("accept", mediaType)

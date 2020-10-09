@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 
 import org.apache.http.HttpHeaders;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -79,7 +80,7 @@ public class AccountControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("username", equalTo("admin"));
+               .body(Properties.USERNAME, equalTo("admin"));
     }
 
     @Test
@@ -105,7 +106,7 @@ public class AccountControllerTest
     {
         UserDto testUser = new UserDto();
         testUser.setUsername("test-account-update");
-        testUser.setPassword("password");
+        testUser.setPassword(Properties.PASSWORD);
         userService.save(testUser);
 
         User userEntity = userService.findByUsername(testUser.getUsername());
@@ -129,7 +130,7 @@ public class AccountControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("securityTokenKey", equalTo("1234"));
+               .body(Properties.SECURITY_TOKEN_KEY, equalTo("1234"));
 
 
         // Change password & security token
@@ -153,7 +154,7 @@ public class AccountControllerTest
                .peek() // Use peek() to print the output
                .then()
                .statusCode(HttpStatus.OK.value())
-               .body("securityTokenKey", equalTo("12345"));
+               .body(Properties.SECURITY_TOKEN_KEY, equalTo("12345"));
 
         assertThat(updatedUser.getPassword()).isNotEqualTo(userEntity.getPassword());
     }
@@ -164,7 +165,7 @@ public class AccountControllerTest
     {
         UserDto testUser = new UserDto();
         testUser.setUsername("test-account-update-additional");
-        testUser.setPassword("password");
+        testUser.setPassword(Properties.PASSWORD);
         testUser.setRoles(null);
         testUser.setEnabled(true);
         userService.save(testUser);
@@ -197,7 +198,7 @@ public class AccountControllerTest
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("roles", hasSize(0))
-               .body("enabled", equalTo(true));
+               .body(Properties.ENABLED, equalTo(true));
     }
 
     /**
@@ -212,7 +213,7 @@ public class AccountControllerTest
         
         UserDto testUser = new UserDto();
         testUser.setUsername(username);
-        testUser.setPassword("password");
+        testUser.setPassword(Properties.PASSWORD);
         testUser.setSourceId(null);
         testUser.setRoles(null);
         testUser.setEnabled(true);

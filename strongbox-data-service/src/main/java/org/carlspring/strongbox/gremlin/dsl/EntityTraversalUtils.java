@@ -15,6 +15,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Property;
 import org.carlspring.strongbox.data.domain.DomainObject;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.strongbox.util.Commons;
 
 /**
@@ -76,7 +77,7 @@ public class EntityTraversalUtils
         System.out.println(String.format("[%s]-[%s]-[%s]",
                                          t.get().label(),
                                          t.get().id(),
-                                         t.get().property("uuid").orElse("empty")));
+                                         t.get().property(Properties.UUID).orElse("empty")));
     }
 
     public static <T extends DomainObject> List<T> reduceHierarchy(List<T> entityList)
@@ -118,7 +119,7 @@ public class EntityTraversalUtils
 
     static <E2> void created(Traverser<E2> t)
     {
-        info("Created", t);
+        info(Properties.CREATED, t);
     }
 
     static <E2> void info(String action,
@@ -128,7 +129,7 @@ public class EntityTraversalUtils
                                                      action,
                                                      ((Element) t.get()).label(),
                                                      ((Element) t.get()).id(),
-                                                     ((Element) t.get()).property("uuid")
+                                                     ((Element) t.get()).property(Properties.UUID)
                                                                         .orElse("null")));
     }
 
@@ -139,7 +140,7 @@ public class EntityTraversalUtils
                                                       action,
                                                       ((Element) t.get()).label(),
                                                       ((Element) t.get()).id(),
-                                                      ((Element) t.get()).property("uuid")
+                                                      ((Element) t.get()).property(Properties.UUID)
                                                                          .orElse("null")));
     }
 

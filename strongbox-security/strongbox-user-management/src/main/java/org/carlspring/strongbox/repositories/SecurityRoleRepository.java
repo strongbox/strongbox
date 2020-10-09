@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.repositories;
 
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
 import org.carlspring.strongbox.gremlin.adapters.SecurityRoleAdapter;
@@ -47,7 +48,7 @@ interface SecurityRoleQueries
         extends org.springframework.data.repository.Repository<SecurityRole, String>
 {
 
-    @Query("MATCH (securityRole:SecurityRole) " +
+    @Query("MATCH (securityRole:"+Vertices.SECURITY_ROLE+") " +
            "RETURN securityRole")
     List<SecurityRole> findAllUserRoles();
 

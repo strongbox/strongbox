@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.carlspring.strongbox.db.schema.Properties;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.MoreObjects;
@@ -40,8 +42,8 @@ public class MutableProxyConfiguration
     @JsonCreator
     public MutableProxyConfiguration(@JsonProperty("host") String host,
                                      @JsonProperty("port") Integer port,
-                                     @JsonProperty("username") String username,
-                                     @JsonProperty("password") String password,
+                                     @JsonProperty(Properties.USERNAME) String username,
+                                     @JsonProperty(Properties.PASSWORD) String password,
                                      @JsonProperty("type") String type,
                                      @JsonProperty("nonProxyHosts") List<String> nonProxyHosts)
     {
@@ -143,8 +145,8 @@ public class MutableProxyConfiguration
         return MoreObjects.toStringHelper(this)
                           .add("host", host)
                           .add("port", port)
-                          .add("username", username)
-                          .add("password", password)
+                          .add(Properties.USERNAME, username)
+                          .add(Properties.PASSWORD, password)
                           .add("type", type)
                           .add("nonProxyHosts", nonProxyHosts)
                           .toString();

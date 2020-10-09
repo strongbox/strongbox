@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.jobs.DownloadRemoteMavenIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.MergeMavenGroupRepositoryIndexCronJob;
 import org.carlspring.strongbox.cron.jobs.RebuildMavenIndexesCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.storage.Storage;
@@ -72,8 +73,8 @@ public class MavenRepositoryManagementStrategy
         configuration.setName("Remote index download for " + storageId + ":" + repositoryId);
         configuration.setJobClass(DownloadRemoteMavenIndexCronJob.class.getName());
         configuration.setCronExpression(cronExpression);
-        configuration.addProperty("storageId", storageId);
-        configuration.addProperty("repositoryId", repositoryId);
+        configuration.addProperty(Properties.STORAGE_ID, storageId);
+        configuration.addProperty(Properties.REPOSITORY_ID, repositoryId);
         configuration.setImmediateExecution(true);
 
         try
@@ -95,8 +96,8 @@ public class MavenRepositoryManagementStrategy
         configuration.setName("Rebuild Maven Index Cron Job for " + storageId + ":" + repositoryId);
         configuration.setJobClass(RebuildMavenIndexesCronJob.class.getName());
         configuration.setCronExpression(cronExpression);
-        configuration.addProperty("storageId", storageId);
-        configuration.addProperty("repositoryId", repositoryId);
+        configuration.addProperty(Properties.STORAGE_ID, storageId);
+        configuration.addProperty(Properties.REPOSITORY_ID, repositoryId);
         configuration.setImmediateExecution(true);
 
         try
@@ -118,8 +119,8 @@ public class MavenRepositoryManagementStrategy
         configuration.setName("Merge maven group repository index cron job " + storageId + ":" + repositoryId);
         configuration.setJobClass(MergeMavenGroupRepositoryIndexCronJob.class.getName());
         configuration.setCronExpression(cronExpression);
-        configuration.addProperty("storageId", storageId);
-        configuration.addProperty("repositoryId", repositoryId);
+        configuration.addProperty(Properties.STORAGE_ID, storageId);
+        configuration.addProperty(Properties.REPOSITORY_ID, repositoryId);
         configuration.setImmediateExecution(false);
 
         try

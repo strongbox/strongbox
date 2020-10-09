@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.controllers.BaseController;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
@@ -42,9 +43,9 @@ public class MavenMetadataManagementController
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
     @PostMapping(produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
-                                  @RequestParam("storageId") String storageId,
+                                  @RequestParam(Properties.STORAGE_ID) String storageId,
                                   @ApiParam(value = "The repositoryId")
-                                  @RequestParam(value = "repositoryId", required = false) String repositoryId,
+                                  @RequestParam(value = Properties.REPOSITORY_ID, required = false) String repositoryId,
                                   @ApiParam(value = "The path")
                                   @RequestParam(value = "path", required = false) String path)
             throws IOException,
@@ -81,7 +82,7 @@ public class MavenMetadataManagementController
                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @ApiParam(value = "The version of the artifact.", required = true)
-                                 @RequestParam(name = "version") String version,
+                                 @RequestParam(name = Properties.VERSION) String version,
                                  @ApiParam(value = "The classifier of the artifact.")
                                  @RequestParam(name = "classifier") String classifier,
                                  @ApiParam(value = "The type of metadata (artifact/snapshot/plugin).")

@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.repositories;
 
+import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.gremlin.adapters.EntityTraversalAdapter;
 import org.carlspring.strongbox.gremlin.adapters.UserAdapter;
@@ -57,12 +58,12 @@ interface UserQueries
         extends org.springframework.data.repository.Repository<User, String>
 {
 
-    @Query("MATCH (user:User)-[r]->(securityRole:SecurityRole) " +
+    @Query("MATCH (user:User)-[r]->(securityRole:"+Vertices.SECURITY_ROLE+") " +
            "WHERE securityRole.uuid=$role " +
            "RETURN user, r, securityRole")
     List<User> findUsersWithRole(@Param("role") String role);
 
-    @Query("MATCH (user:User)-[r]->(securityRole:SecurityRole) " +
+    @Query("MATCH (user:User)-[r]->(securityRole:"+Vertices.SECURITY_ROLE+") " +
            "RETURN user, r, securityRole")
     List<User> findAllUsers();
 

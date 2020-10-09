@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.configuration;
 
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RemoteRepositoryForm;
@@ -564,7 +565,7 @@ public class StoragesConfigurationControllerTestIT
 
         // 2. Check proxy configuration from storage created.
         givenCustom().accept(MediaType.APPLICATION_JSON_VALUE)
-                     .params("storageId", storageId, "repositoryId", repositoryId1)
+                     .params(Properties.STORAGE_ID, storageId, Properties.REPOSITORY_ID, repositoryId1)
                      .when()
                      .get(url)
                      .peek() // Use peek() to print the output

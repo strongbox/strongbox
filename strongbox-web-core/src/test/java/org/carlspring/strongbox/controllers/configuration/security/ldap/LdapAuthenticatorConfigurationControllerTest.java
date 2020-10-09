@@ -8,6 +8,7 @@ import org.carlspring.strongbox.authentication.api.ldap.LdapConfiguration;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -160,8 +161,8 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void ldapConfigurationTestRequiresUrl()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-        form.setUsername("username");
-        form.setPassword("password");
+        form.setUsername(Properties.USERNAME);
+        form.setPassword(Properties.PASSWORD);
 
         form.getConfiguration().setUrl(null);
 
@@ -182,8 +183,8 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void ldapConfigurationTestRequiresValidUrl()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-        form.setUsername("username");
-        form.setPassword("password");
+        form.setUsername(Properties.USERNAME);
+        form.setPassword(Properties.PASSWORD);
 
         form.getConfiguration().setUrl("http://host:port?thisIsWrongUrl=true");
 
@@ -205,7 +206,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(Properties.PASSWORD);
 
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
@@ -235,7 +236,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.getConfiguration().setManagerPassword("secret");
 
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(Properties.PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -273,7 +274,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(Properties.PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -292,7 +293,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("stodorov");
-        form.setPassword("password");
+        form.setPassword(Properties.PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -330,7 +331,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("przemyslaw.fusik");
-        form.setPassword("password");
+        form.setPassword(Properties.PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -368,7 +369,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("testuser1");
-        form.setPassword("password");
+        form.setPassword(Properties.PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -407,7 +408,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
 
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(Properties.PASSWORD);
 
         form.getConfiguration()
             .setRoleMappingList(Stream.of(new ExternalRoleMapping("ArtifactsManager", "ARTIFACTS_MANAGER"),

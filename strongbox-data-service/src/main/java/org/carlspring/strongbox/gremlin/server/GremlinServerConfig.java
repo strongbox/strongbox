@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import org.apache.tinkerpop.gremlin.server.GremlinServer;
 import org.apache.tinkerpop.gremlin.server.Settings;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.janusgraph.core.JanusGraph;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,7 +17,7 @@ import org.springframework.core.io.Resource;
  * @author sbespalov
  */
 @Configuration
-@ConditionalOnProperty(prefix = "strongbox.graph.gremlin.server", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "strongbox.graph.gremlin.server", name = Properties.ENABLED, havingValue = "true")
 public class GremlinServerConfig
 {
 

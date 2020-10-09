@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers;
 
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -100,7 +101,7 @@ public class BrowseController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE})
-    public Object repositories(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
+    public Object repositories(@ApiParam(value = "The storageId", required = true) @PathVariable(Properties.STORAGE_ID) String storageId,
                                HttpServletRequest request,
                                ModelMap model,
                                @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)

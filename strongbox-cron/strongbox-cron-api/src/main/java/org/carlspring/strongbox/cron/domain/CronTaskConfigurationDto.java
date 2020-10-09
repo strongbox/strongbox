@@ -8,6 +8,8 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import org.carlspring.strongbox.db.schema.Properties;
 import org.springframework.util.Assert;
 
 /**
@@ -38,8 +40,8 @@ public class CronTaskConfigurationDto
     }
 
     @JsonCreator
-    public CronTaskConfigurationDto(@JsonProperty(value = "uuid", required = true) UUID uuid,
-                                    @JsonProperty(value = "name", required = true) String name)
+    public CronTaskConfigurationDto(@JsonProperty(value = Properties.UUID, required = true) UUID uuid,
+                                    @JsonProperty(value = Properties.NAME, required = true) String name)
     {
         this.uuid = uuid;
         this.name = name;

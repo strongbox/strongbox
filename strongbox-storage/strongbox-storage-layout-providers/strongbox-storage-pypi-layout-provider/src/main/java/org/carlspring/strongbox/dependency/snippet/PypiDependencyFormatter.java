@@ -2,6 +2,7 @@ package org.carlspring.strongbox.dependency.snippet;
 
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.providers.layout.AbstractLayoutProvider;
 import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
 
@@ -56,7 +57,7 @@ public class PypiDependencyFormatter
         PypiArtifactCoordinates coordinates = (PypiArtifactCoordinates) inputCoordinates;
         String sb = coordinates.getId(); 
 
-        if (!"version".equals(coordinates.getVersion()))
+        if (!Properties.VERSION.equals(coordinates.getVersion()))
         {
             sb += " == " + coordinates.getVersion();
         }

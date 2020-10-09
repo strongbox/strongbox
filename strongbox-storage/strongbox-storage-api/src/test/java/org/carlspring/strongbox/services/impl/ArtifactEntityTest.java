@@ -17,6 +17,7 @@ import org.carlspring.strongbox.StorageApiTestConfig;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.repositories.ArtifactCoordinatesRepository;
@@ -234,7 +235,7 @@ public class ArtifactEntityTest
         updateArtifactAttributes(groupId);
 
         List<Artifact> entries = artifactEntityRepository.findMatching(5, null,
-                                                                       PageRequest.of(0, Integer.MAX_VALUE, Sort.by("'uuid'")))
+                                                                       PageRequest.of(0, Integer.MAX_VALUE, Sort.by("'"+Properties.UUID+"'")))
                                                          .stream()
                                                          .filter(e -> e.getArtifactCoordinates()
                                                                        .getId()

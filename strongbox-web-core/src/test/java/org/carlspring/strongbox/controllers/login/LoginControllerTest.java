@@ -2,6 +2,7 @@ package org.carlspring.strongbox.controllers.login;
 
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.dto.UserDto;
@@ -92,7 +93,7 @@ public class LoginControllerTest
     {
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("admin");
-        loginInput.setPassword("password");
+        loginInput.setPassword(Properties.PASSWORD);
 
         // Check if login returns proper response.
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -114,7 +115,7 @@ public class LoginControllerTest
     {
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("admin");
-        loginInput.setPassword("password");
+        loginInput.setPassword(Properties.PASSWORD);
 
         // Get a token
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -152,7 +153,7 @@ public class LoginControllerTest
     {
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("przemyslaw_fusik");
-        loginInput.setPassword("password");
+        loginInput.setPassword(Properties.PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -196,7 +197,7 @@ public class LoginControllerTest
     {
         UserDto cacheEvictionTestUser = new UserDto();
         cacheEvictionTestUser.setUsername("admin-cache-eviction-test");
-        cacheEvictionTestUser.setPassword("password");
+        cacheEvictionTestUser.setPassword(Properties.PASSWORD);
         cacheEvictionTestUser.setRoles(ImmutableSet.of("ADMIN"));
         cacheEvictionTestUser.setEnabled(true);
         cacheEvictionTestUser.setSecurityTokenKey("admin-cache-eviction-test-secret");
@@ -204,7 +205,7 @@ public class LoginControllerTest
 
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("admin-cache-eviction-test");
-        loginInput.setPassword("password");
+        loginInput.setPassword(Properties.PASSWORD);
 
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                          .accept(MediaType.APPLICATION_JSON_VALUE)

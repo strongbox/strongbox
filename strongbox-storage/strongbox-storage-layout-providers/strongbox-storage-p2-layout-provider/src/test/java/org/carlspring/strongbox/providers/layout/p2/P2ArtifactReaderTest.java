@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.providers.layout.p2;
 
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
+import org.carlspring.strongbox.db.schema.Properties;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -96,7 +97,7 @@ public class P2ArtifactReaderTest
 
         Map<String, String> expectedProperties = new HashMap<>();
         expectedProperties.put("id", ID);
-        expectedProperties.put("version", VERSION);
+        expectedProperties.put(Properties.VERSION, VERSION);
         expectedProperties.put("classifier", CLASSIFIER);
         expectedProperties.put("download.size", "1");
         expectedProperties.forEach(

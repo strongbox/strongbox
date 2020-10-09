@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
 import org.carlspring.strongbox.cron.services.JobManager;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.event.cron.CronTaskEvent;
 import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
@@ -84,8 +85,8 @@ public class BaseCronJobWithMavenIndexingTestCase
             throws Exception
     {
         Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("storageId", storageId);
-        properties.put("repositoryId", repositoryId);
+        properties.put(Properties.STORAGE_ID, storageId);
+        properties.put(Properties.REPOSITORY_ID, repositoryId);
         if (additionalProperties != null)
         {
             additionalProperties.accept(properties);
