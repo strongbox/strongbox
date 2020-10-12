@@ -196,7 +196,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("errors[0]['name']", equalTo("configuration.url"))
                .body("errors[0]['messages'][0]", equalTo("must be a valid URI"));
     }
-	@Disabled
+
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldFailWithInvalidConfiguration()
@@ -220,8 +220,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .put(getContextBaseUrl() + "/test")
                .peek()
                .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("LDAP configuration test failed"));
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body("message", equalTo("Failed to test LDAP configuration."));
     }
 
     @WithMockUser(authorities = "ADMIN")
