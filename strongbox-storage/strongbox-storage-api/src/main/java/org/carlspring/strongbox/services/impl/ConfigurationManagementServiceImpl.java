@@ -1,10 +1,12 @@
 package org.carlspring.strongbox.services.impl;
 
 import org.carlspring.strongbox.client.MutableRemoteRepositoryRetryArtifactDownloadConfiguration;
+import org.carlspring.strongbox.config.util.UpdatableMultipartConfigElement;
 import org.carlspring.strongbox.configuration.*;
 import org.carlspring.strongbox.event.repository.RepositoryEvent;
 import org.carlspring.strongbox.event.repository.RepositoryEventListenerRegistry;
 import org.carlspring.strongbox.event.repository.RepositoryEventTypeEnum;
+import org.carlspring.strongbox.exception.SizeFormatValidationException;
 import org.carlspring.strongbox.providers.layout.LayoutProvider;
 import org.carlspring.strongbox.providers.layout.LayoutProviderRegistry;
 import org.carlspring.strongbox.service.ProxyRepositoryConnectionPoolConfigurationService;
@@ -15,6 +17,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.servlet.MultipartConfigElement;
 
 import java.io.IOException;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -57,6 +60,9 @@ public class ConfigurationManagementServiceImpl
 
     @Inject
     private PlatformTransactionManager transactionManager;
+
+    @Inject
+    private MultipartConfigElement multipartConfigElement;
 
     /**
      * Yes, this is a state object.
@@ -616,6 +622,40 @@ public class ConfigurationManagementServiceImpl
         {
             writeLock.unlock();
         }
+    }
+
+    @Override
+    public boolean setMaxUploadFileSize(String maxFileSizeString) throws SizeFormatValidationException
+    {
+
+        if(this.multipartConfigElement instanceof UpdatableMultipartConfigElement){
+            Long parsedSize = parseUploadSize(maxFileSizeString);
+            ((UpdatableMultipartConfigElement) multipartConfigElement).setMaxFileSize(parsedSize);
+            return true;
+        }
+
+        return false;
+    }
+
+    private Long parseUploadSize(String maxFileSizeString) throws SizeFormatValidationException
+    {
+
+        maxFileSizeString = maxFileSizeString.toUpperCase();
+        String sizeUnit = maxFileSizeString.replaceAll("[^A-Z]", "");
+        Long size = Long.parseLong(maxFileSizeString.replaceAll("[^0-9]", ""));
+
+        int pow;
+        switch (sizeUnit){
+            case "B": {pow = 0; break;}
+            case "KB": {pow = 1; break;}
+            case "MB": {pow = 2; break;}
+            case "GB": {pow = 3; break;}
+            default: throw new SizeFormatValidationException(sizeUnit + " is not acceptable upload size unit");
+        }
+
+        Long multiplier = new Double(Math.pow(1024,pow)).longValue();
+
+        return multiplier*size;
     }
 
 }

@@ -32,6 +32,9 @@ public class ServerSettingsForm
     @JsonProperty
     private Integer port;
 
+    @JsonProperty
+    private String maxFileUploadSizeString;
+
     @Valid
     @JsonProperty
     private CorsConfigurationForm corsConfigurationForm = new CorsConfigurationForm();
@@ -130,6 +133,11 @@ public class ServerSettingsForm
     public void setProxyConfigurationForm(ProxyConfigurationForm proxyConfigurationForm)
     {
         this.proxyConfigurationForm = proxyConfigurationForm;
+    }
+
+    public String getMaxFileUploadSizeString()
+    {
+        return this.maxFileUploadSizeString;
     }
 
 }

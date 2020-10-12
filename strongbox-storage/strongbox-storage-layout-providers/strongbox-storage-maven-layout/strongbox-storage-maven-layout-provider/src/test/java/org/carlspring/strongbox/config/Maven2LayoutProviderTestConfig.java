@@ -41,7 +41,8 @@ import static org.mockito.Matchers.any;
           StorageApiConfig.class,
           Maven2LayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
-          ClientConfig.class
+          ClientConfig.class,
+          StorageMultipartConfig.class
 })
 public class Maven2LayoutProviderTestConfig
 {

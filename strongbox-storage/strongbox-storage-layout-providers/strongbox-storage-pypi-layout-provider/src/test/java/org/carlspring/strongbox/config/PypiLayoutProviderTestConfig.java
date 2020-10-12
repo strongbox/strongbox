@@ -26,7 +26,9 @@ import static org.mockito.ArgumentMatchers.any;
           StorageApiConfig.class,
           PypiLayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
-          ClientConfig.class })
+          ClientConfig.class,
+          StorageMultipartConfig.class
+})
 public class PypiLayoutProviderTestConfig
 {
 

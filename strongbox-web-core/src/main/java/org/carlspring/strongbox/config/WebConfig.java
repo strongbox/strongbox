@@ -78,6 +78,7 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
 @Import({ CommonConfig.class,
           StrongboxSecurityConfig.class,
           StorageApiConfig.class,
+          StorageMultipartConfig.class,
           EventsConfig.class,
           StorageCoreConfig.class,
           UsersConfig.class,

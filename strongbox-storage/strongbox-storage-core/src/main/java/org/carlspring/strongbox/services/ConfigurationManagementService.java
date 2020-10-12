@@ -5,6 +5,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.MutableSmtpConfiguration;
+import org.carlspring.strongbox.exception.SizeFormatValidationException;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.routing.MutableRoutingRule;
@@ -96,4 +97,5 @@ public interface ConfigurationManagementService
 
     void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration) throws IOException;
 
+    boolean setMaxUploadFileSize(String maxFileSizeString) throws SizeFormatValidationException;
 }

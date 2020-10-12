@@ -120,6 +120,11 @@
                             </dependency>
                         </dependencies>
                         <configuration>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                </manifest>
+                            </archive>
                             <configLocation>strongbox-checks.xml</configLocation>
                             <consoleOutput>true</consoleOutput>
                         </configuration>

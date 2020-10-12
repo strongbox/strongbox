@@ -14,7 +14,8 @@ import org.springframework.context.annotation.Import;
           CommonConfig.class,
           ClientConfig.class,
           DataServiceConfig.class,
-          TestingCoreConfig.class
+          TestingCoreConfig.class,
+          StorageMultipartConfig.class
         })
 public class RawLayoutProviderTestConfig
 {

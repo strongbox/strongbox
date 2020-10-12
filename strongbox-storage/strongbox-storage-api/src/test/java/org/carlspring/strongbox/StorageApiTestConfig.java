@@ -18,7 +18,8 @@ import org.springframework.context.annotation.Import;
           EventsConfig.class,
           StorageCoreConfig.class,
           StorageApiConfig.class,
-          NullLayoutConfiguration.class
+          NullLayoutConfiguration.class,
+          StorageMultipartConfig.class
 })
 public class StorageApiTestConfig
 {

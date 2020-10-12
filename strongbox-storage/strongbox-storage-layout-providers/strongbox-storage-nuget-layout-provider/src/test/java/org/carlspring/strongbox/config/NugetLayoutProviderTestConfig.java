@@ -29,7 +29,8 @@ import static org.mockito.Matchers.any;
           NugetLayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
           ClientConfig.class,
-          CronTasksConfig.class
+          CronTasksConfig.class,
+          StorageMultipartConfig.class
 })
 public class NugetLayoutProviderTestConfig
 {
