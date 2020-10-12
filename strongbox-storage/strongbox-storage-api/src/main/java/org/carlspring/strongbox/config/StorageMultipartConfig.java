@@ -21,8 +21,10 @@ public class StorageMultipartConfig
     public MultipartConfigElement multipartConfigElement()
     {
         MultipartConfigElement multipartConfigElement = multipartProperties.createMultipartConfig();
-        return new UpdatableMultipartConfigElement(multipartConfigElement.getLocation(), multipartConfigElement.getMaxFileSize(),
-                multipartConfigElement.getMaxRequestSize(), multipartConfigElement.getFileSizeThreshold());
+        return new UpdatableMultipartConfigElement(multipartConfigElement.getLocation(),
+                                                   multipartConfigElement.getMaxFileSize(),
+                                                   multipartConfigElement.getMaxRequestSize(),
+                                                   multipartConfigElement.getFileSizeThreshold());
     }
 
 }
