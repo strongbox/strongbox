@@ -630,8 +630,17 @@ public class ConfigurationManagementServiceImpl
 
         if (this.multipartConfigElement instanceof UpdatableMultipartConfigElement)
         {
-            Long parsedSize = parseUploadSize(maxFileSizeString);
-            ((UpdatableMultipartConfigElement) multipartConfigElement).setMaxFileSize(parsedSize);
+            Long uploadSize;
+            if(maxFileSizeString.equals("unlimited"))
+            {
+                uploadSize = -1l;
+            }
+            else
+            {
+                uploadSize = parseUploadSize(maxFileSizeString);
+            }
+
+            ((UpdatableMultipartConfigElement) multipartConfigElement).setMaxFileSize(uploadSize);
             
             return true;
         }
