@@ -628,9 +628,11 @@ public class ConfigurationManagementServiceImpl
     public boolean setMaxUploadFileSize(String maxFileSizeString) throws SizeFormatValidationException
     {
 
-        if(this.multipartConfigElement instanceof UpdatableMultipartConfigElement){
+        if (this.multipartConfigElement instanceof UpdatableMultipartConfigElement)
+        {
             Long parsedSize = parseUploadSize(maxFileSizeString);
             ((UpdatableMultipartConfigElement) multipartConfigElement).setMaxFileSize(parsedSize);
+            
             return true;
         }
 
