@@ -648,11 +648,16 @@ public class ConfigurationManagementServiceImpl
 
         int pow;
         switch (sizeUnit){
-            case "B": {pow = 0; break;}
-            case "KB": {pow = 1; break;}
-            case "MB": {pow = 2; break;}
-            case "GB": {pow = 3; break;}
-            default: throw new SizeFormatValidationException(sizeUnit + " is not acceptable upload size unit");
+            case "B":
+                pow = 0; break;
+            case "KB": 
+                pow = 1; break;
+            case "MB":
+                pow = 2; break;
+            case "GB":
+                pow = 3; break;
+            default:
+                throw new SizeFormatValidationException(sizeUnit + " is not acceptable upload size unit");
         }
 
         Long multiplier = new Double(Math.pow(1024,pow)).longValue();
