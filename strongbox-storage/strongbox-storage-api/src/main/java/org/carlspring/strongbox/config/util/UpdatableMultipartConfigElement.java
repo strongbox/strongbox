@@ -7,10 +7,10 @@ public class UpdatableMultipartConfigElement extends MultipartConfigElement
 
     private volatile long maxFileSize = -1;
 
-    public UpdatableMultipartConfigElement(String location,
-                                           long maxFileSize,
-                                           long maxRequestSize,
-                                           int fileSizeThreshold)
+    public UpdatableMultipartConfigElement(final String location,
+                                           final long maxFileSize,
+                                           final long maxRequestSize,
+                                           final int fileSizeThreshold)
     {
         super(location, maxFileSize, maxRequestSize, fileSizeThreshold);
     }
@@ -26,4 +26,3 @@ public class UpdatableMultipartConfigElement extends MultipartConfigElement
         this.maxFileSize = maxFileSize;
     }
 }
-
