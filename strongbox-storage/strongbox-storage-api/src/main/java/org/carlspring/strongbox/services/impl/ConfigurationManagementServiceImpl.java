@@ -627,7 +627,8 @@ public class ConfigurationManagementServiceImpl
     @Override
     public boolean setMaxUploadFileSize(String maxUploadSizeString) throws SizeFormatValidationException
     {
-        if (!(this.multipartConfigElement instanceof UpdatableMultipartConfigElement)) {
+        if (!(this.multipartConfigElement instanceof UpdatableMultipartConfigElement))
+        {
             return false;
         }
 
