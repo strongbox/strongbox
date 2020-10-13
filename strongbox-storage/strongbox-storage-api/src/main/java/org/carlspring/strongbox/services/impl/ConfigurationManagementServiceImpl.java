@@ -638,7 +638,7 @@ public class ConfigurationManagementServiceImpl
         long uploadSize;
         if(maxUploadSizeString.equals("UNLIMITED"))
         {
-            uploadSize = -1l;
+            uploadSize = -1L;
             maxUploadSizeString = maxUploadSizeString.toLowerCase();
         }
         else
