@@ -672,7 +672,7 @@ public class ConfigurationManagementServiceImpl
                 throw new SizeFormatValidationException(sizeUnit + " is not acceptable upload size unit");
         }
 
-        Long multiplier = new Double(Math.pow(1024,pow)).longValue();
+        Long multiplier = Double.valueOf(Math.pow(1024,pow)).longValue();
 
         return multiplier*size;
     }
