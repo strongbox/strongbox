@@ -647,7 +647,8 @@ public class ConfigurationManagementServiceImpl
         Long size = Long.parseLong(maxFileSizeString.replaceAll("[^0-9]", ""));
 
         int pow;
-        switch (sizeUnit){
+        switch (sizeUnit)
+        {
             case "B":
                 pow = 0; break;
             case "KB": 
