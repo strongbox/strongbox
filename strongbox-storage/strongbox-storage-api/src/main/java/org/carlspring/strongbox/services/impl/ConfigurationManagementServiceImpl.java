@@ -635,7 +635,7 @@ public class ConfigurationManagementServiceImpl
         maxUploadSizeString = maxUploadSizeString.replaceAll("\\s+", "");
         maxUploadSizeString = maxUploadSizeString.toUpperCase();
 
-        Long uploadSize;
+        long uploadSize;
         if(maxUploadSizeString.equals("UNLIMITED"))
         {
             uploadSize = -1l;
