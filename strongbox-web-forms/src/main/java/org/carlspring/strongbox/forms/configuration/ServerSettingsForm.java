@@ -33,7 +33,7 @@ public class ServerSettingsForm
     private Integer port;
 
     @JsonProperty
-    private String maxFileUploadSizeString;
+    private String maxUploadSize;
 
     @Valid
     @JsonProperty
@@ -135,9 +135,14 @@ public class ServerSettingsForm
         this.proxyConfigurationForm = proxyConfigurationForm;
     }
 
-    public String getMaxFileUploadSizeString()
+    public void setMaxUploadSize(String maxUploadSize)
     {
-        return this.maxFileUploadSizeString;
+        this.maxUploadSize = maxUploadSize;
+    }
+
+    public String getMaxUploadSize()
+    {
+        return this.maxUploadSize;
     }
 
 }

@@ -625,34 +625,36 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
-    public boolean setMaxUploadFileSize(String maxFileSizeString) throws SizeFormatValidationException
+    public boolean setMaxUploadFileSize(String maxUploadSizeString) throws SizeFormatValidationException
     {
         if (!(this.multipartConfigElement instanceof UpdatableMultipartConfigElement)) {
             return false;
         }
 
+        maxUploadSizeString.replaceAll("\\s+","");
+        maxUploadSizeString = maxUploadSizeString.toUpperCase();
+
         Long uploadSize;
-        if(maxFileSizeString.equals("unlimited"))
+        if(maxUploadSizeString.equals("UNLIMITED"))
         {
             uploadSize = -1l;
+            maxUploadSizeString = maxUploadSizeString.toLowerCase();
         }
         else
         {
-            uploadSize = parseUploadSize(maxFileSizeString);
+            uploadSize = parseUploadSize(maxUploadSizeString);
         }
 
         ((UpdatableMultipartConfigElement) multipartConfigElement).setMaxFileSize(uploadSize);
-        this.configuration.setMaxFileUploadSize(maxFileSizeString);
+        this.configuration.setMaxFileUploadSize(maxUploadSizeString);
 
         return true;
     }
 
-    private Long parseUploadSize(String maxFileSizeString) throws SizeFormatValidationException
+    private Long parseUploadSize(String maxUploadSizeString) throws SizeFormatValidationException
     {
-
-        maxFileSizeString = maxFileSizeString.toUpperCase();
-        String sizeUnit = maxFileSizeString.replaceAll("[^A-Z]", "");
-        Long size = Long.parseLong(maxFileSizeString.replaceAll("[^0-9]", ""));
+        String sizeUnit = maxUploadSizeString.replaceAll("[^A-Z]", "");
+        Long size = Long.parseLong(maxUploadSizeString.replaceAll("[^0-9]", ""));
 
         int pow;
         switch (sizeUnit)

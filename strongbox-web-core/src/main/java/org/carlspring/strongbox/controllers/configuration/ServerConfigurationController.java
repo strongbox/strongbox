@@ -249,9 +249,9 @@ public class ServerConfigurationController
         configurationManagementService.setPort(serverSettingsForm.getPort());
         configurationManagementService.setInstanceName(serverSettingsForm.getInstanceName());
 
-        if (serverSettingsForm.getMaxFileUploadSizeString() != null)
+        if (serverSettingsForm.getMaxUploadSize() != null)
         {
-            String maxFileUploadSize = serverSettingsForm.getMaxFileUploadSizeString();
+            String maxFileUploadSize = serverSettingsForm.getMaxUploadSize();
             configurationManagementService.setMaxUploadFileSize(maxFileUploadSize);
         }
 
@@ -342,6 +342,7 @@ public class ServerConfigurationController
         settings.setBaseUrl(configuration.getBaseUrl());
         settings.setInstanceName(configuration.getInstanceName());
         settings.setPort(configuration.getPort());
+        settings.setMaxUploadSize(configuration.getMaxFileUploadSize());
         settings.setCorsConfigurationForm(
                 CorsConfigurationForm.fromConfiguration(configuration.getCorsConfiguration())
         );
