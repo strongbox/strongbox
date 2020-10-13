@@ -632,7 +632,7 @@ public class ConfigurationManagementServiceImpl
             return false;
         }
 
-        maxUploadSizeString.replaceAll("\\s+","");
+        maxUploadSizeString = maxUploadSizeString.replaceAll("\\s+", "");
         maxUploadSizeString = maxUploadSizeString.toUpperCase();
 
         Long uploadSize;
