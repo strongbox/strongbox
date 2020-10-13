@@ -636,7 +636,7 @@ public class ConfigurationManagementServiceImpl
         maxUploadSizeString = maxUploadSizeString.toUpperCase();
 
         long uploadSize;
-        if(maxUploadSizeString.equals("UNLIMITED"))
+        if (maxUploadSizeString.equals("UNLIMITED"))
         {
             uploadSize = -1L;
             maxUploadSizeString = maxUploadSizeString.toLowerCase();
@@ -661,13 +661,17 @@ public class ConfigurationManagementServiceImpl
         switch (sizeUnit)
         {
             case "B":
-                pow = 0; break;
+                pow = 0;
+                break;
             case "KB": 
-                pow = 1; break;
+                pow = 1;
+                break;
             case "MB":
-                pow = 2; break;
+                pow = 2;
+                break;
             case "GB":
-                pow = 3; break;
+                pow = 3;
+                break;
             default:
                 throw new SizeFormatValidationException(sizeUnit + " is not acceptable upload size unit");
         }
