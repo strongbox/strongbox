@@ -627,25 +627,24 @@ public class ConfigurationManagementServiceImpl
     @Override
     public boolean setMaxUploadFileSize(String maxFileSizeString) throws SizeFormatValidationException
     {
-
-        if (this.multipartConfigElement instanceof UpdatableMultipartConfigElement)
-        {
-            Long uploadSize;
-            if(maxFileSizeString.equals("unlimited"))
-            {
-                uploadSize = -1l;
-            }
-            else
-            {
-                uploadSize = parseUploadSize(maxFileSizeString);
-            }
-
-            ((UpdatableMultipartConfigElement) multipartConfigElement).setMaxFileSize(uploadSize);
-            
-            return true;
+        if (!(this.multipartConfigElement instanceof UpdatableMultipartConfigElement)) {
+            return false;
         }
 
-        return false;
+        Long uploadSize;
+        if(maxFileSizeString.equals("unlimited"))
+        {
+            uploadSize = -1l;
+        }
+        else
+        {
+            uploadSize = parseUploadSize(maxFileSizeString);
+        }
+
+        ((UpdatableMultipartConfigElement) multipartConfigElement).setMaxFileSize(uploadSize);
+        this.configuration.setMaxFileUploadSize(maxFileSizeString);
+
+        return true;
     }
 
     private Long parseUploadSize(String maxFileSizeString) throws SizeFormatValidationException

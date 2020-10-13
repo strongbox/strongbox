@@ -33,6 +33,8 @@ public class MutableConfiguration
 
     private int port = 48080;
 
+    private String maxFileUploadSize = "unlimited";
+
     /**
      * The global proxy settings to use when no per-repository proxy settings have been defined.
      */
@@ -112,6 +114,16 @@ public class MutableConfiguration
     public void setPort(int port)
     {
         this.port = port;
+    }
+
+    public String getMaxFileUploadSize()
+    {
+        return maxFileUploadSize;
+    }
+
+    public void setMaxFileUploadSize(String maxFileUploadSize)
+    {
+        this.maxFileUploadSize = maxFileUploadSize;
     }
 
     public MutableProxyConfiguration getProxyConfiguration()
