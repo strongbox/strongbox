@@ -252,7 +252,7 @@ public class ServerConfigurationController
         if (serverSettingsForm.getMaxFileUploadSizeString() != null)
         {
             String maxFileUploadSize = serverSettingsForm.getMaxFileUploadSizeString();
-            boolean wasAbleToSet = configurationManagementService.setMaxUploadFileSize(maxFileUploadSize);
+            configurationManagementService.setMaxUploadFileSize(maxFileUploadSize);
         }
 
         if (serverSettingsForm.getCorsConfigurationForm() != null)

@@ -97,5 +97,10 @@ public interface ConfigurationManagementService
 
     void setSmtpSettings(MutableSmtpConfiguration smtpConfiguration) throws IOException;
 
+    /**
+     * Attempts to set max file upload size globally
+     * if global MultipartConfigElement is set to instance of UpdatableMultipartConfigElement
+     * the change is set successfully and method returns true, returns false otherwise
+     * */
     boolean setMaxUploadFileSize(String maxFileSizeString) throws SizeFormatValidationException;
 }
