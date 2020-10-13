@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.exception;
 
-public class SizeFormatValidationException extends RuntimeException {
+public class SizeFormatValidationException extends RuntimeException
+{
 
     public SizeFormatValidationException(final String message)
     {
