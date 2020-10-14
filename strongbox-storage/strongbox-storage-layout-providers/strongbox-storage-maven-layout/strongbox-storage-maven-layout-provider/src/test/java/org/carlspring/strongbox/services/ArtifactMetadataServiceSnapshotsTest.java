@@ -5,6 +5,7 @@ import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
 import org.carlspring.strongbox.artifact.coordinates.MavenArtifactCoordinates;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -371,7 +372,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @MavenRepository(policy = RepositoryPolicyEnum.SNAPSHOT)
     private @interface MavenSnapshotRepository
     {
-        @AliasFor(annotation = MavenRepository.class, attribute = "repositoryId")
+        @AliasFor(annotation = MavenRepository.class, attribute = Properties.REPOSITORY_ID)
         String value();
     }
 

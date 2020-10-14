@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -101,7 +103,7 @@ public class NugetArtifactController
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                         @RepositoryMapping Repository repository,
                                         @PathVariable("packageId") String packageId,
-                                        @PathVariable("version") String version)
+                                        @PathVariable(VERSION) String version)
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();

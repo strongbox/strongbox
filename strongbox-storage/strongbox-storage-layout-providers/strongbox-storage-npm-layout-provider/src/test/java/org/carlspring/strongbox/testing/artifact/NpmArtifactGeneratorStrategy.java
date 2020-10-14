@@ -2,6 +2,7 @@ package org.carlspring.strongbox.testing.artifact;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
+import org.carlspring.strongbox.db.schema.Properties;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -28,7 +29,7 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
                                                                         version,
                                                                         (String) attributesMap.get("extension"));
         Path packagePath = artifactGenerator.generateArtifact(coordinates, bytesSize);
-        if (!Optional.ofNullable(attributesMap.get("repositoryId"))
+        if (!Optional.ofNullable(attributesMap.get(Properties.REPOSITORY_ID))
                      .filter(repositoryId -> ((String) repositoryId).trim().length() > 0)
                      .isPresent())
         {

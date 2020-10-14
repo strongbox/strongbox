@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
 import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.metadata.MetadataHelper;
@@ -267,7 +268,7 @@ public class MavenMetadataManagementControllerTest
     @MavenRepository(policy = RepositoryPolicyEnum.SNAPSHOT)
     private @interface MavenSnapshotRepository
     {
-        @AliasFor(annotation = MavenRepository.class, attribute = "repositoryId")
+        @AliasFor(annotation = MavenRepository.class, attribute = Properties.REPOSITORY_ID)
         String value();
     }
 }

@@ -9,6 +9,7 @@ import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSF
 import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_DELETE_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.SUCCESSFUL_UPDATE_USER;
 import static org.carlspring.strongbox.controllers.users.UserController.USER_DELETE_FORBIDDEN;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.containsString;
@@ -17,11 +18,19 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.inject.Inject;
+
+import org.apache.commons.collections4.SetUtils;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.users.support.UserOutput;
 import org.carlspring.strongbox.controllers.users.support.UserResponseEntity;
-import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.SecurityRole;
+import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.forms.users.UserForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.domain.SystemRole;
@@ -29,15 +38,6 @@ import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.service.UserService;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
-
-import javax.inject.Inject;
-
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.commons.collections4.SetUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -178,7 +178,7 @@ public class UserControllerTestIT
                     String username)
     {
         deleteCreatedUser(username);
-        UserForm test = buildUser(username, "password");
+        UserForm test = buildUser(username, PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -201,7 +201,7 @@ public class UserControllerTestIT
                                                     String username)
     {
         deleteCreatedUser(username);
-        UserForm test = buildUser(username, "password");
+        UserForm test = buildUser(username, PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
@@ -432,7 +432,7 @@ public class UserControllerTestIT
     void shouldBeAbleToUpdateRoles(String acceptHeader)
     {
         final String username = "test-user";
-        final String newPassword = "password";
+        final String newPassword = PASSWORD;
 
         UserDto user = new UserDto();
         user.setEnabled(true);

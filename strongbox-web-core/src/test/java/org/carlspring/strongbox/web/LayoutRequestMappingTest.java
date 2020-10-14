@@ -9,6 +9,8 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.configuration.StoragesConfigurationManager;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -141,8 +143,8 @@ public class LayoutRequestMappingTest
     {
 
         @GetMapping(path = "/{storageId}/{repositoryId}/**")
-        void download(@PathVariable(name = "storageId") String storageId,
-                  @PathVariable(name = "repositoryId") String repositoryId)
+        void download(@PathVariable(name = STORAGE_ID) String storageId,
+                  @PathVariable(name = REPOSITORY_ID) String repositoryId)
             throws JsonProcessingException,
             IOException;
 
@@ -155,8 +157,8 @@ public class LayoutRequestMappingTest
     {
 
         @GetMapping(path = "/{storageId}/{repositoryId}/**")
-        void download(@PathVariable(name = "storageId") String storageId,
-                  @PathVariable(name = "repositoryId") String repositoryId)
+        void download(@PathVariable(name = STORAGE_ID) String storageId,
+                  @PathVariable(name = REPOSITORY_ID) String repositoryId)
             throws JsonProcessingException,
             IOException;
 

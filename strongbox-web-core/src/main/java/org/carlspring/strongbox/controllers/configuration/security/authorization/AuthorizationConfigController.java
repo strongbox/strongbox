@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.controllers.configuration.security.authorization;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 import java.io.IOException;
@@ -120,7 +121,7 @@ public class AuthorizationConfigController
     @DeleteMapping(value = "/role/{name}",
                    produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role", required = true)
-                                     @PathVariable("name") String name,
+                                     @PathVariable(NAME) String name,
                                      @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader) throws IOException
     {
         try

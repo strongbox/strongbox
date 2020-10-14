@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.artifact.generator;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
@@ -210,7 +213,7 @@ public class NpmArtifactGenerator
 
             jGenerator.writeStartObject();
             jGenerator.writeStringField("_id", packageJson.getName());
-            jGenerator.writeStringField("name", packageJson.getName());
+            jGenerator.writeStringField(NAME, packageJson.getName());
 
             // versions
             jGenerator.writeFieldName("versions");
@@ -219,8 +222,8 @@ public class NpmArtifactGenerator
             jGenerator.writeStartObject();
 
             // version
-            jGenerator.writeStringField("name", packageJson.getName());
-            jGenerator.writeStringField("version", packageJson.getVersion());
+            jGenerator.writeStringField(NAME, packageJson.getName());
+            jGenerator.writeStringField(VERSION, packageJson.getVersion());
 
             // dist
             jGenerator.writeFieldName("dist");

@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.gremlin.dsl;
 
+import static org.carlspring.strongbox.db.schema.Properties.CREATED;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -76,7 +79,7 @@ public class EntityTraversalUtils
         System.out.println(String.format("[%s]-[%s]-[%s]",
                                          t.get().label(),
                                          t.get().id(),
-                                         t.get().property("uuid").orElse("empty")));
+                                         t.get().property(UUID).orElse("empty")));
     }
 
     public static <T extends DomainObject> List<T> reduceHierarchy(List<T> entityList)
@@ -118,7 +121,7 @@ public class EntityTraversalUtils
 
     static <E2> void created(Traverser<E2> t)
     {
-        info("Created", t);
+        info(CREATED, t);
     }
 
     static <E2> void info(String action,
@@ -128,7 +131,7 @@ public class EntityTraversalUtils
                                                      action,
                                                      ((Element) t.get()).label(),
                                                      ((Element) t.get()).id(),
-                                                     ((Element) t.get()).property("uuid")
+                                                     ((Element) t.get()).property(UUID)
                                                                         .orElse("null")));
     }
 
@@ -139,7 +142,7 @@ public class EntityTraversalUtils
                                                       action,
                                                       ((Element) t.get()).label(),
                                                       ((Element) t.get()).id(),
-                                                      ((Element) t.get()).property("uuid")
+                                                      ((Element) t.get()).property(UUID)
                                                                          .orElse("null")));
     }
 

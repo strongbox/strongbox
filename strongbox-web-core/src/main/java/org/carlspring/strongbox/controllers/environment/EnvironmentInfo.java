@@ -2,6 +2,8 @@ package org.carlspring.strongbox.controllers.environment;
 
 import java.util.Objects;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,21 +14,21 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "name",
+		NAME,
         "value",
 })
 public class EnvironmentInfo
         implements Comparable<EnvironmentInfo>
 {
 
-    @JsonProperty("name")
+    @JsonProperty(NAME)
     private String name;
 
     @JsonProperty("value")
     private String value;
 
     @JsonCreator
-    public EnvironmentInfo(@JsonProperty("name") String name,
+    public EnvironmentInfo(@JsonProperty(NAME) String name,
                            @JsonProperty("value") String value)
     {
         this.name = name;

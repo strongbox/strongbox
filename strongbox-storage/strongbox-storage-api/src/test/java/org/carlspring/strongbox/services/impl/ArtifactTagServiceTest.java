@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.services.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ public class ArtifactTagServiceTest
         ArtifactTag ltsTag = artifactTagService.findOneOrCreate("LTS");
         assertThat(g.V()
                     .hasLabel(Vertices.ARTIFACT_TAG)
-                    .has("uuid", P.within("release", "latest", "LTS"))
+                    .has(UUID, P.within("release", "latest", "LTS"))
                     .count()
                     .next()).isEqualTo(3);
 

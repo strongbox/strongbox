@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.gremlin.server;
 
+import static org.carlspring.strongbox.db.schema.Properties.ENABLED;
+
 import java.io.InputStream;
 
 import org.apache.tinkerpop.gremlin.server.GremlinServer;
@@ -16,7 +18,7 @@ import org.springframework.core.io.Resource;
  * @author sbespalov
  */
 @Configuration
-@ConditionalOnProperty(prefix = "strongbox.graph.gremlin.server", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "strongbox.graph.gremlin.server", name = ENABLED, havingValue = "true")
 public class GremlinServerConfig
 {
 

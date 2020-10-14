@@ -1,13 +1,15 @@
 package org.carlspring.strongbox.repository;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
-
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -50,8 +52,8 @@ public class NugetRepositoryManagementStrategy
         configuration.setName(downloadRemoteFeedCronJobName);
         configuration.setJobClass(DownloadRemoteFeedCronJob.class.getName());
         configuration.setCronExpression("0 0 0 * * ?"); // Execute once daily at 00:00:00
-        configuration.addProperty("storageId", storageId);
-        configuration.addProperty("repositoryId", repositoryId);
+        configuration.addProperty(STORAGE_ID, storageId);
+        configuration.addProperty(REPOSITORY_ID, repositoryId);
         configuration.setImmediateExecution(true);
 
         try

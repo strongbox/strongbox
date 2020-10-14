@@ -26,6 +26,7 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
@@ -62,30 +63,30 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
     public EntityTraversal<Vertex, Artifact> fold(Optional<Class<? extends GenericArtifactCoordinates>> layoutArtifactCoordinatesClass)
     {
         return __.<Vertex, Object>project("id",
-                                          "uuid",
-                                          "storageId",
-                                          "repositoryId",
-                                          "lastUpdated",
-                                          "lastUsed",
-                                          "created",
-                                          "sizeInBytes",
-                                          "downloadCount",
-                                          "filenames",
-                                          "checksums",
+        								  Properties.UUID,
+        								  Properties.STORAGE_ID,
+        								  Properties.REPOSITORY_ID,
+        								  Properties.LAST_UPDATED,
+        								  Properties.LAST_USED,
+        								  Properties.CREATED,
+        								  Properties.SIZE_IN_BYTES,
+                                          Properties.DOWNLOAD_COUNT,
+                                          Properties.FILE_NAMES,
+                                          Properties.CHECKSUMS,
                                           "artifactCoordinates",
                                           "tags",
-                                          "artifactFileExists")
+                                          Properties.ARTIFACT_FILE_EXISTS)
                  .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("storageId"))
-                 .by(__.enrichPropertyValue("repositoryId"))
-                 .by(__.enrichPropertyValue("lastUpdated"))
-                 .by(__.enrichPropertyValue("lastUsed"))
-                 .by(__.enrichPropertyValue("created"))
-                 .by(__.enrichPropertyValue("sizeInBytes"))
-                 .by(__.enrichPropertyValue("downloadCount"))
-                 .by(__.enrichPropertyValues("filenames"))
-                 .by(__.enrichPropertyValues("checksums"))
+                 .by(__.enrichPropertyValue(Properties.UUID))
+                 .by(__.enrichPropertyValue(Properties.STORAGE_ID))
+                 .by(__.enrichPropertyValue(Properties.REPOSITORY_ID))
+                 .by(__.enrichPropertyValue(Properties.LAST_UPDATED))
+                 .by(__.enrichPropertyValue(Properties.LAST_USED))
+                 .by(__.enrichPropertyValue(Properties.CREATED))
+                 .by(__.enrichPropertyValue(Properties.SIZE_IN_BYTES))
+                 .by(__.enrichPropertyValue(Properties.DOWNLOAD_COUNT))
+                 .by(__.enrichPropertyValues(Properties.FILE_NAMES))
+                 .by(__.enrichPropertyValues(Properties.CHECKSUMS))
                  .by(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                        .mapToObject(__.inV()
                                       .map(artifactCoordinatesAdapter.fold(layoutArtifactCoordinatesClass))
@@ -95,40 +96,40 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
                        .map(artifactTagAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
-                 .by(__.enrichPropertyValue("artifactFileExists"))
+                 .by(__.enrichPropertyValue(Properties.ARTIFACT_FILE_EXISTS))
                  .map(this::map);
     }
 
     private Artifact map(Traverser<Map<String, Object>> t)
     {
-        String storageId = extractObject(String.class, t.get().get("storageId"));
-        String repositoryId = extractObject(String.class, t.get().get("repositoryId"));
+        String storageId = extractObject(String.class, t.get().get(Properties.STORAGE_ID));
+        String repositoryId = extractObject(String.class, t.get().get(Properties.REPOSITORY_ID));
         ArtifactCoordinates artifactCoordinates = extractObject(ArtifactCoordinates.class,
                                                                 t.get().get("artifactCoordinates"));
 
         ArtifactEntity result = new ArtifactEntity(storageId, repositoryId, artifactCoordinates);
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get("uuid")));
+        result.setUuid(extractObject(String.class, t.get().get(Properties.UUID)));
 
-        result.setCreated(toLocalDateTime(extractObject(Long.class, t.get().get("created"))));
-        result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get("lastUpdated"))));
-        result.setLastUsed(toLocalDateTime(extractObject(Long.class, t.get().get("lastUsed"))));
-        result.setSizeInBytes(extractObject(Long.class, t.get().get("sizeInBytes")));
-        result.setDownloadCount(extractObject(Integer.class, t.get().get("downloadCount")));
+        result.setCreated(toLocalDateTime(extractObject(Long.class, t.get().get(Properties.CREATED))));
+        result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get(Properties.LAST_UPDATED))));
+        result.setLastUsed(toLocalDateTime(extractObject(Long.class, t.get().get(Properties.LAST_USED))));
+        result.setSizeInBytes(extractObject(Long.class, t.get().get(Properties.SIZE_IN_BYTES)));
+        result.setDownloadCount(extractObject(Integer.class, t.get().get(Properties.DOWNLOAD_COUNT)));
 
         result.getArtifactArchiveListing()
-              .setFilenames(extractPropertyList(String.class, t.get().get("filenames")).stream()
+              .setFilenames(extractPropertyList(String.class, t.get().get(Properties.FILE_NAMES)).stream()
                                                                                        .filter(e -> !e.trim().isEmpty())
                                                                                        .collect(Collectors.toSet()));
 
-        result.addChecksums(extractPropertyList(String.class, t.get().get("checksums")).stream()
+        result.addChecksums(extractPropertyList(String.class, t.get().get(Properties.CHECKSUMS)).stream()
                                                                                        .filter(e -> !e.trim().isEmpty())
                                                                                        .collect(Collectors.toSet()));
 
         List<ArtifactTag> tags = (List<ArtifactTag>) t.get().get("tags");
         result.setTagSet(new HashSet<>(tags));
 
-        result.setArtifactFileExists(extractObject(Boolean.class, t.get().get("artifactFileExists")));
+        result.setArtifactFileExists(extractObject(Boolean.class, t.get().get(Properties.ARTIFACT_FILE_EXISTS)));
 
         return result;
     }
@@ -149,7 +150,7 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
                                                             .store(storedArtifactId)
                                                             .sideEffect(__.V()
                                                                         .hasLabel(Vertices.ARTIFACT_TAG)
-                                                                        .has("uuid", P.within(tagNames))
+                                                                        .has(Properties.UUID, P.within(tagNames))
                                                                         .addE(Edges.ARTIFACT_HAS_TAGS)
                                                                         .from(__.select(storedArtifactId).unfold()));
 
@@ -177,38 +178,38 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
 
         if (entity.getStorageId() != null)
         {
-            t = t.property(single, "storageId", entity.getStorageId());
+            t = t.property(single, Properties.STORAGE_ID, entity.getStorageId());
         }
         if (entity.getRepositoryId() != null)
         {
-            t = t.property(single, "repositoryId", entity.getRepositoryId());
+            t = t.property(single, Properties.REPOSITORY_ID, entity.getRepositoryId());
         }
         if (entity.getCreated() != null)
         {
-            t = t.property(single, "created", toLong(entity.getCreated()));
+            t = t.property(single, Properties.CREATED, toLong(entity.getCreated()));
         }
         if (entity.getLastUpdated() != null)
         {
-            t = t.property(single, "lastUpdated", toLong(entity.getLastUpdated()));
+            t = t.property(single, Properties.LAST_UPDATED, toLong(entity.getLastUpdated()));
         }
         if (entity.getLastUsed() != null)
         {
-            t = t.property(single, "lastUsed", toLong(entity.getLastUsed()));
+            t = t.property(single, Properties.LAST_USED, toLong(entity.getLastUsed()));
         }
         if (entity.getSizeInBytes() != null)
         {
-            t = t.property(single, "sizeInBytes", entity.getSizeInBytes());
+            t = t.property(single, Properties.SIZE_IN_BYTES, entity.getSizeInBytes());
         }
         if (entity.getDownloadCount() != null)
         {
-            t = t.property(single, "downloadCount", entity.getDownloadCount());
+            t = t.property(single, Properties.DOWNLOAD_COUNT, entity.getDownloadCount());
         }
 
         ArtifactArchiveListing artifactArchiveListing = entity.getArtifactArchiveListing();
 
         Set<String> filenames = artifactArchiveListing.getFilenames();
-        t = t.sideEffect(__.properties("filenames").drop());
-        t = t.property("filenames", filenames);
+        t = t.sideEffect(__.properties(Properties.FILE_NAMES).drop());
+        t = t.property(Properties.FILE_NAMES, filenames);
 
         Map<String, String> checksums = entity.getChecksums();
         Set<String> checkSumAlgo = new HashSet<>();
@@ -216,12 +217,12 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
         {
             checkSumAlgo.add("{" + alg + "}" + checksums.get(alg));
         }
-        t = t.sideEffect(__.properties("checksums").drop());
-        t = t.property("checksums", checkSumAlgo);
+        t = t.sideEffect(__.properties(Properties.CHECKSUMS).drop());
+        t = t.property(Properties.CHECKSUMS, checkSumAlgo);
 
         if (entity.getArtifactFileExists() != null)
         {
-            t = t.property(single, "artifactFileExists", entity.getArtifactFileExists());
+            t = t.property(single, Properties.ARTIFACT_FILE_EXISTS, entity.getArtifactFileExists());
         }
 
         return t;

@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
+import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -78,7 +79,7 @@ public class NugetArtifactCoordinates
     }
 
     @Override
-    @XmlAttribute(name="version")
+    @XmlAttribute(name=Properties.VERSION)
     public String getVersion()
     {
         return super.getVersion();

@@ -34,7 +34,7 @@ import org.neo4j.ogm.annotation.NodeEntity;
  */
 @NodeEntity(Vertices.RPM_ARTIFACT_COORDINATES)
 @SuppressWarnings("serial")
-@XmlRootElement(name = "PypiArtifactCoordinates")
+@XmlRootElement(name = Vertices.PYPI_ARTIFACT_COORDINATES)
 @XmlAccessorType(XmlAccessType.NONE)
 @ArtifactCoordinatesLayout(name = RpmArtifactCoordinates.LAYOUT_NAME, alias = RpmArtifactCoordinates.LAYOUT_ALIAS)
 public class RpmArtifactCoordinates

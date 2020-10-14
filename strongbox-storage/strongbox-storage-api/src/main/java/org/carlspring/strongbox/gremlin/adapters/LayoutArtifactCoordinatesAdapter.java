@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 import java.util.Map;
 
@@ -43,9 +44,9 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<Vertex, Object>project("id", "uuid")
+        return __.<Vertex, Object>project("id", UUID)
                  .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
+                 .by(__.enrichPropertyValue(UUID))
                  .map(this::map);
     }
 
@@ -53,7 +54,7 @@ public abstract class LayoutArtifactCoordinatesAdapter<C extends LayoutArtifactC
     {
         C result = newInstance();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get("uuid")));
+        result.setUuid(extractObject(String.class, t.get().get(UUID)));
 
         return result;
     }

@@ -31,6 +31,9 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 
+import static org.carlspring.strongbox.db.schema.Properties.USERNAME;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
+
 /**
  * @author Przemyslaw Fusik
  * @author Pablo Tirado
@@ -160,8 +163,8 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void ldapConfigurationTestRequiresUrl()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-        form.setUsername("username");
-        form.setPassword("password");
+        form.setUsername(USERNAME);
+        form.setPassword(PASSWORD);
 
         form.getConfiguration().setUrl(null);
 
@@ -182,8 +185,8 @@ public class LdapAuthenticatorConfigurationControllerTest
     public void ldapConfigurationTestRequiresValidUrl()
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
-        form.setUsername("username");
-        form.setPassword("password");
+        form.setUsername(USERNAME);
+        form.setPassword(PASSWORD);
 
         form.getConfiguration().setUrl("http://host:port?thisIsWrongUrl=true");
 
@@ -205,7 +208,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(PASSWORD);
 
         List<String> userDnPatterns = new ArrayList<>();
         userDnPatterns.add("uid={0},ou=AllUsers");
@@ -235,7 +238,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.getConfiguration().setManagerPassword("secret");
 
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -273,7 +276,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -292,7 +295,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("stodorov");
-        form.setPassword("password");
+        form.setPassword(PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -330,7 +333,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("przemyslaw.fusik");
-        form.setPassword("password");
+        form.setPassword(PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -368,7 +371,7 @@ public class LdapAuthenticatorConfigurationControllerTest
     {
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
         form.setUsername("testuser1");
-        form.setPassword("password");
+        form.setPassword(PASSWORD);
 
         mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
                .contentType(ContentType.JSON)
@@ -407,7 +410,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         LdapConfigurationTestForm form = getLdapConfigurationTestForm();
 
         form.setUsername("mtodorov");
-        form.setPassword("password");
+        form.setPassword(PASSWORD);
 
         form.getConfiguration()
             .setRoleMappingList(Stream.of(new ExternalRoleMapping("ArtifactsManager", "ARTIFACTS_MANAGER"),

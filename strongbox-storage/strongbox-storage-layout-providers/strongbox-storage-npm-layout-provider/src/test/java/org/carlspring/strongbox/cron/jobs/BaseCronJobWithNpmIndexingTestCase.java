@@ -1,12 +1,8 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
-import org.carlspring.strongbox.event.cron.CronTaskEvent;
-import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 
-import javax.inject.Inject;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -15,7 +11,14 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
+import org.carlspring.strongbox.cron.services.CronTaskConfigurationService;
+import org.carlspring.strongbox.event.cron.CronTaskEvent;
+import org.carlspring.strongbox.event.cron.CronTaskEventTypeEnum;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.junit.jupiter.api.TestInfo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -68,8 +71,8 @@ public class BaseCronJobWithNpmIndexingTestCase
             throws Exception
     {
         Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("storageId", storageId);
-        properties.put("repositoryId", repositoryId);
+        properties.put(STORAGE_ID, storageId);
+        properties.put(REPOSITORY_ID, repositoryId);
         if (additionalProperties != null)
         {
             additionalProperties.accept(properties);

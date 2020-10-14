@@ -1,25 +1,38 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.inject.Inject;
+
+import org.apache.maven.artifact.ArtifactUtils;
 import org.carlspring.strongbox.controllers.BaseController;
 import org.carlspring.strongbox.services.ArtifactMetadataService;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MetadataType;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.RepositoryMapping;
-
-import javax.inject.Inject;
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-
-import io.swagger.annotations.*;
-import org.apache.maven.artifact.ArtifactUtils;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Martin Todorov
@@ -42,9 +55,9 @@ public class MavenMetadataManagementController
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
     @PostMapping(produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
-                                  @RequestParam("storageId") String storageId,
+                                  @RequestParam(STORAGE_ID) String storageId,
                                   @ApiParam(value = "The repositoryId")
-                                  @RequestParam(value = "repositoryId", required = false) String repositoryId,
+                                  @RequestParam(value = REPOSITORY_ID, required = false) String repositoryId,
                                   @ApiParam(value = "The path")
                                   @RequestParam(value = "path", required = false) String path)
             throws IOException,
@@ -81,7 +94,7 @@ public class MavenMetadataManagementController
                    produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity delete(@RepositoryMapping Repository repository,
                                  @ApiParam(value = "The version of the artifact.", required = true)
-                                 @RequestParam(name = "version") String version,
+                                 @RequestParam(name = VERSION) String version,
                                  @ApiParam(value = "The classifier of the artifact.")
                                  @RequestParam(name = "classifier") String classifier,
                                  @ApiParam(value = "The type of metadata (artifact/snapshot/plugin).")
