@@ -1,13 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
-        <artifactId>strongbox-npm-metadata-parent</artifactId>
+        <artifactId>strongbox-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../strongbox-npm-metadata-parent</relativePath>
+        <relativePath/>
     </parent>
 
     <artifactId>strongbox-npm-metadata-jackson</artifactId>
@@ -90,7 +90,7 @@
                             <scripts>
                                 <script><![CDATA[
                                         new File( "$project.basedir/target/META-INF").mkdirs();
-                                        
+
                                         def replaceRef(schemaFileName){
                                             new File( "$project.basedir/target/META-INF/$schemaFileName" ).withWriter { w ->
                                               new File( "$project.basedir/target/generated-resources/META-INF/$schemaFileName" ).eachLine { line ->
@@ -98,12 +98,12 @@
                                               }
                                             }
                                         }
-                                        
+
                                         replaceRef("package-version.schema.json");
                                         replaceRef("package-feed.schema.json");
                                         replaceRef("changes-feed.schema.json");
                                         replaceRef("search-result.schema.json");
-                                        
+
                                 ]]></script>
                             </scripts>
                         </configuration>
@@ -113,7 +113,7 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy-all</artifactId>
-                        <version>${groovy.version}</version>
+                        <version>${version.groovy}</version>
                         <scope>runtime</scope>
                     </dependency>
                 </dependencies>
@@ -125,6 +125,7 @@
                     <sourceDirectory>${project.build.directory}/META-INF</sourceDirectory>
                     <targetPackage>org.carlspring.strongbox.npm.metadata</targetPackage>
                     <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+                    <useCommonsLang3>true</useCommonsLang3>
                 </configuration>
                 <executions>
                     <execution>
@@ -139,6 +140,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
@@ -149,10 +154,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
 </project>
