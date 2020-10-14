@@ -1,6 +1,8 @@
 package org.carlspring.strongbox.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.db.schema.Properties.TAG_NAME;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +18,6 @@ import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.db.schema.migration.ChangelogStorage;
 import org.carlspring.strongbox.domain.Artifact;
@@ -25,7 +26,6 @@ import org.carlspring.strongbox.domain.ArtifactIdGroup;
 import org.carlspring.strongbox.domain.ArtifactIdGroupEntity;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.gremlin.tx.TransactionContext;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -79,7 +79,7 @@ public class ArtifactIdGroupRepositoryTest
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                     .bothV()
-                    .properties(Properties.UUID)
+                    .properties(UUID)
                     .map(p -> p.get().value())
                     .toList()).contains(artifactEntityOne.getUuid(),
                                         artifactEntityTwo.getUuid(),
@@ -114,7 +114,7 @@ public class ArtifactIdGroupRepositoryTest
 
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
-                    .sideEffect(t -> System.out.println(t.get().property(Properties.TAG_NAME).orElse("no-tag")))
+                    .sideEffect(t -> System.out.println(t.get().property(TAG_NAME).orElse("no-tag")))
                     .toList()).hasSize(2);
 
         artifactRepository.delete(artifactEntityOne);

@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.providers.layout.p2;
 
 import org.carlspring.strongbox.artifact.coordinates.P2ArtifactCoordinates;
-import org.carlspring.strongbox.db.schema.Properties;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -58,7 +58,7 @@ public class P2ArtifactReader
     {
         foundArtifact.addProperty("repoUrl", baseDir);
         foundArtifact.addProperty("id", p2Artifact.getId());
-        foundArtifact.addProperty(Properties.VERSION, p2Artifact.getVersion());
+        foundArtifact.addProperty(VERSION, p2Artifact.getVersion());
         foundArtifact.addProperty("classifier", p2Artifact.getClassifier());
         P2Properties properties = p2Artifact.getProperties();
         if (properties != null)

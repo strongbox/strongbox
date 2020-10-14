@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers.layout.nuget;
 
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -32,7 +34,6 @@ import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Paginator;
 import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.nuget.NugetSearchRequest;
@@ -102,7 +103,7 @@ public class NugetArtifactController
     public ResponseEntity deletePackage(@RequestHeader(name = "X-NuGet-ApiKey", required = false) String apiKey,
                                         @RepositoryMapping Repository repository,
                                         @PathVariable("packageId") String packageId,
-                                        @PathVariable(Properties.VERSION) String version)
+                                        @PathVariable(VERSION) String version)
     {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();

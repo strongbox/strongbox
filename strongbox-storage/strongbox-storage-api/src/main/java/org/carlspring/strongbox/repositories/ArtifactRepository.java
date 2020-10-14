@@ -1,5 +1,10 @@
 package org.carlspring.strongbox.repositories;
 
+import static org.carlspring.strongbox.db.schema.Properties.ARTIFACT_FILE_EXISTS;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +17,6 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutDescription;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutLocator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.db.schema.Edges;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.gremlin.adapters.ArtifactAdapter;
@@ -83,13 +87,13 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact>
     {
         EntityTraversal<Vertex, Vertex> t = g().V()
                                                .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
-                                               .has(Properties.UUID, path)
+                                               .has(UUID, path)
                                                .inE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                                                .otherV()
                                                .hasLabel(Vertices.ARTIFACT)
-                                               .has(Properties.STORAGE_ID, storageId)
-                                               .has(Properties.REPOSITORY_ID, repositoryId)
-                                               .has(Properties.ARTIFACT_FILE_EXISTS, true);
+                                               .has(STORAGE_ID, storageId)
+                                               .has(REPOSITORY_ID, repositoryId)
+                                               .has(ARTIFACT_FILE_EXISTS, true);
         return t.hasNext();
     }
 
@@ -101,12 +105,12 @@ public class ArtifactRepository extends GremlinVertexRepository<Artifact>
         
         EntityTraversal<Vertex, Artifact> t = g().V()
                                                  .hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES)
-                                                 .has(Properties.UUID, path)
+                                                 .has(UUID, path)
                                                  .inE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                                                  .otherV()
                                                  .hasLabel(Vertices.ARTIFACT)
-                                                 .has(Properties.STORAGE_ID, storageId)
-                                                 .has(Properties.REPOSITORY_ID, repositoryId)
+                                                 .has(STORAGE_ID, storageId)
+                                                 .has(REPOSITORY_ID, repositoryId)
                                                  .map(artifactAdapter.fold(Optional.ofNullable(repository)
                                                                            .map(org.carlspring.strongbox.storage.repository.Repository::getLayout)
                                                                            .map(ArtifactLayoutLocator.getLayoutByNameEntityMap()::get)
@@ -133,8 +137,8 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
            "MATCH (genericCoordinates)<-[r2]-(layoutCoordinates) " +
            "WITH artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag " +
            "RETURN artifact, r1, genericCoordinates, r2, layoutCoordinates, r4, tag")
-    List<Artifact> findByPathLike(@Param(Properties.STORAGE_ID) String storageId,
-                                  @Param(Properties.REPOSITORY_ID) String repositoryId,
+    List<Artifact> findByPathLike(@Param(STORAGE_ID) String storageId,
+                                  @Param(REPOSITORY_ID) String repositoryId,
                                   @Param("path") String path);
 
     @Query(value = "MATCH (genericCoordinates:"+Vertices.GENERIC_ARTIFACT_COORDINATES+")<-[r1]-(artifact:"+Vertices.ARTIFACT+") " +
@@ -155,8 +159,8 @@ interface ArtifactEntityQueries extends org.springframework.data.repository.Repo
     @Query("MATCH (genericCoordinates:"+Vertices.GENERIC_ARTIFACT_COORDINATES+")<-[r1]-(artifact:"+Vertices.ARTIFACT+") " +
            "WHERE genericCoordinates.uuid=$path and artifact.storageId=$storageId and artifact.repositoryId=$repositoryId " +
            "RETURN EXISTS(artifact.uuid)")
-    Boolean artifactEntityExists(@Param(Properties.STORAGE_ID) String storageId,
-                                 @Param(Properties.REPOSITORY_ID) String repositoryId,
+    Boolean artifactEntityExists(@Param(STORAGE_ID) String storageId,
+                                 @Param(REPOSITORY_ID) String repositoryId,
                                  @Param("path") String path);
 
 }

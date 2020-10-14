@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.configuration.ProxyConfiguration;
-import org.carlspring.strongbox.db.schema.Properties;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 import org.carlspring.strongbox.json.MapValuesJsonSerializer;
 import org.carlspring.strongbox.json.StringArrayToMapJsonDeserializer;
 import org.carlspring.strongbox.storage.StorageData;
@@ -37,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
 @Immutable
 @XmlAccessorType(XmlAccessType.FIELD)
 @SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
-@JsonIgnoreProperties(value = {Properties.STORAGE_ID}, allowGetters = true)
+@JsonIgnoreProperties(value = {STORAGE_ID}, allowGetters = true)
 public class RepositoryData
         implements Repository
 {
@@ -350,7 +350,7 @@ public class RepositoryData
     /**
      * This field is mainly used in the UI so don't remove it!
      */
-    @JsonGetter(Properties.STORAGE_ID)
+    @JsonGetter(STORAGE_ID)
     public String getStorageId()
     {
         return this.storage != null ? this.storage.getId() : null;

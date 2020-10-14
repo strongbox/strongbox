@@ -34,7 +34,8 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.config.NpmLayoutProviderConfig.NpmObjectMapper;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.db.schema.Properties;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
 import org.carlspring.strongbox.npm.NpmSearchRequest;
 import org.carlspring.strongbox.npm.NpmViewRequest;
 import org.carlspring.strongbox.npm.metadata.DistTags;
@@ -230,7 +231,7 @@ public class NpmArtifactController
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
         Paginator paginator = new Paginator();
-        paginator.setProperty(Properties.VERSION);
+        paginator.setProperty(VERSION);
 
         List<Path> searchResult = provider.search(storageId, repositoryId, predicate, paginator);
 
@@ -384,7 +385,7 @@ public class NpmArtifactController
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(path = "{storageId}/{repositoryId}/{name:.+}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity publish(@RepositoryMapping Repository repository,
-                                  @PathVariable(name = Properties.NAME) String name,
+                                  @PathVariable(name = NAME) String name,
                                   HttpServletRequest request)
             throws Exception
     {

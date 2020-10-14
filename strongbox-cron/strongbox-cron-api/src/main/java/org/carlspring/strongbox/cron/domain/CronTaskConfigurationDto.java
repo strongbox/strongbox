@@ -1,16 +1,18 @@
 package org.carlspring.strongbox.cron.domain;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.util.Assert;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import org.carlspring.strongbox.db.schema.Properties;
-import org.springframework.util.Assert;
 
 /**
  * @author Yougeshwar
@@ -40,8 +42,8 @@ public class CronTaskConfigurationDto
     }
 
     @JsonCreator
-    public CronTaskConfigurationDto(@JsonProperty(value = Properties.UUID, required = true) UUID uuid,
-                                    @JsonProperty(value = Properties.NAME, required = true) String name)
+    public CronTaskConfigurationDto(@JsonProperty(value = UUID, required = true) UUID uuid,
+                                    @JsonProperty(value = NAME, required = true) String name)
     {
         this.uuid = uuid;
         this.name = name;

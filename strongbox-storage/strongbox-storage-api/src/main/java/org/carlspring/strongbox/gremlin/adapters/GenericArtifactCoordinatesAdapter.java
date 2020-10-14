@@ -4,6 +4,10 @@ import static org.apache.tinkerpop.gremlin.structure.VertexProperty.Cardinality.
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractPropertyList;
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+import static org.carlspring.strongbox.db.schema.Properties.CREATED;
+
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -11,7 +15,6 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.GenericArtifactCoordinatesEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
@@ -41,10 +44,10 @@ public class GenericArtifactCoordinatesAdapter
     @Override
     public EntityTraversal<Vertex, GenericArtifactCoordinates> fold()
     {
-        return __.<Vertex, Object>project("id", Properties.UUID, Properties.VERSION, "coordinates")
+        return __.<Vertex, Object>project("id", UUID, VERSION, "coordinates")
                  .by(__.id())
-                 .by(__.enrichPropertyValue(Properties.UUID))
-                 .by(__.enrichPropertyValue(Properties.VERSION))
+                 .by(__.enrichPropertyValue(UUID))
+                 .by(__.enrichPropertyValue(VERSION))
                  .by(__.propertyMap())
                  .map(this::map);
     }
@@ -53,13 +56,13 @@ public class GenericArtifactCoordinatesAdapter
     {
         GenericArtifactCoordinatesEntity result = new GenericArtifactCoordinatesEntity();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get(Properties.UUID)));
-        result.setVersion(extractObject(String.class, t.get().get(Properties.VERSION)));
+        result.setUuid(extractObject(String.class, t.get().get(UUID)));
+        result.setVersion(extractObject(String.class, t.get().get(VERSION)));
 
         Map<String, Object> coordinates = (Map<String, Object>) t.get().get("coordinates");
-        coordinates.remove(Properties.UUID);
-        coordinates.remove(Properties.VERSION);
-        coordinates.remove(Properties.CREATED);
+        coordinates.remove(UUID);
+        coordinates.remove(VERSION);
+        coordinates.remove(CREATED);
         coordinates.entrySet()
                    .stream()
                    .forEach(e -> result.setCoordinate(e.getKey().replace("coordinates.", ""),
@@ -75,7 +78,7 @@ public class GenericArtifactCoordinatesAdapter
 
         if (entity.getVersion() != null)
         {
-            t = t.property(single, Properties.VERSION, entity.getVersion());
+            t = t.property(single, VERSION, entity.getVersion());
         }
 
         for (Entry<String, String> coordinateEntry : entity.getCoordinates().entrySet())

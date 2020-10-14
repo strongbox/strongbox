@@ -2,6 +2,7 @@ package org.carlspring.strongbox.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -17,7 +18,6 @@ import org.assertj.core.api.Condition;
 import org.carlspring.strongbox.artifact.coordinates.RawArtifactCoordinates;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
 import org.carlspring.strongbox.db.schema.Edges;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactArchiveListing;
@@ -89,23 +89,23 @@ public class ArtifactRepositoryTest
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                     .bothV()
-                    .properties(Properties.UUID)
+                    .properties(UUID)
                     .map(p -> p.get().value())
                     .toList()).contains(artifactEntity.getUuid(), path).hasSize(2);
-        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has(Properties.UUID, path).hasNext()).isTrue();
-        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has(Properties.UUID, path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
         assertThat(g.E()
                     .hasLabel(Edges.EXTENDS)
                     .bothV()
-                    .properties(Properties.UUID)
+                    .properties(UUID)
                     .map(p -> p.get().value())
                     .toList()).contains(path, atIndex(0)).contains(path, atIndex(0)).hasSize(2);
 
         artifactRepository.delete(artifactEntity);
         assertThat(artifactRepository.findById(artifactEntity.getUuid())).isEmpty();
 
-        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has(Properties.UUID, path).hasNext()).isTrue();
-        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has(Properties.UUID, path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
         assertThat(g.E().hasLabel(Edges.EXTENDS).hasNext()).isTrue();
         assertThat(g.E().hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).hasNext()).isFalse();
     }

@@ -1,16 +1,17 @@
 package org.carlspring.strongbox.validation;
 
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.util.MultiValueMap;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-
-import org.carlspring.strongbox.db.schema.Properties;
-import org.springframework.util.MultiValueMap;
 
 /**
  * @author Przemyslaw Fusik
@@ -29,7 +30,7 @@ public class RequestBodyValidationErrorsJsonSerializer
         for (final Map.Entry<String, List<String>> entry : value.entrySet())
         {
             gen.writeStartObject();
-            gen.writeFieldName(Properties.NAME);
+            gen.writeFieldName(NAME);
             gen.writeString( entry.getKey());
             gen.writeFieldName("messages");
             gen.writeStartArray();

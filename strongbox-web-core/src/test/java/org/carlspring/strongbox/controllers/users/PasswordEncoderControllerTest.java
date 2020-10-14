@@ -1,13 +1,12 @@
 package org.carlspring.strongbox.controllers.users;
 
-import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.db.schema.Properties;
-import org.carlspring.strongbox.forms.users.PasswordEncodeForm;
-import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
 
 import javax.inject.Inject;
 
-import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.forms.users.PasswordEncodeForm;
+import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.transaction.annotation.Transactional;
+
+import io.restassured.module.mockmvc.response.ValidatableMockMvcResponse;
 
 /**
  * @author Przemyslaw Fusik
@@ -46,7 +47,7 @@ public class PasswordEncoderControllerTest
                              MediaType.TEXT_PLAIN_VALUE })
     public void shouldEncodeProperly(String acceptedHeader)
     {
-        final PasswordEncodeForm form = new PasswordEncodeForm(Properties.PASSWORD);
+        final PasswordEncodeForm form = new PasswordEncodeForm(PASSWORD);
 
         ValidatableMockMvcResponse response = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                                      .accept(acceptedHeader)
@@ -59,7 +60,7 @@ public class PasswordEncoderControllerTest
 
         if (acceptedHeader.equals(MediaType.APPLICATION_JSON_VALUE))
         {
-            response.body(Properties.PASSWORD, CoreMatchers.not(form.getPassword()));
+            response.body(PASSWORD, CoreMatchers.not(form.getPassword()));
         }
         else
         {
@@ -71,7 +72,7 @@ public class PasswordEncoderControllerTest
     @WithAnonymousUser
     public void shouldRequireAuthenticationAccess()
     {
-        final PasswordEncodeForm form = new PasswordEncodeForm(Properties.PASSWORD);
+        final PasswordEncodeForm form = new PasswordEncodeForm(PASSWORD);
 
         String decodedErrorMessage = getI18nInsufficientAuthenticationErrorMessage();
 
@@ -91,7 +92,7 @@ public class PasswordEncoderControllerTest
     @WithUserDetails("deployer")
     public void shouldAllowOnlyAdminAccess()
     {
-        final PasswordEncodeForm form = new PasswordEncodeForm(Properties.PASSWORD);
+        final PasswordEncodeForm form = new PasswordEncodeForm(PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)

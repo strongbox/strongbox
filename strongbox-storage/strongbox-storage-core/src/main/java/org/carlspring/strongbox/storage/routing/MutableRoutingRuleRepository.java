@@ -1,9 +1,11 @@
 package org.carlspring.strongbox.storage.routing;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+
 import java.io.Serializable;
 
 import org.carlspring.strongbox.configuration.ConfigurationUtils;
-import org.carlspring.strongbox.db.schema.Properties;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -32,8 +34,8 @@ public class MutableRoutingRuleRepository
 
     
     @JsonCreator
-    public MutableRoutingRuleRepository(@JsonProperty(Properties.STORAGE_ID) String storageId,
-                                        @JsonProperty(Properties.REPOSITORY_ID) String repositoryId)
+    public MutableRoutingRuleRepository(@JsonProperty(STORAGE_ID) String storageId,
+                                        @JsonProperty(REPOSITORY_ID) String repositoryId)
     {
         this.storageId = storageId;
         this.repositoryId = repositoryId;

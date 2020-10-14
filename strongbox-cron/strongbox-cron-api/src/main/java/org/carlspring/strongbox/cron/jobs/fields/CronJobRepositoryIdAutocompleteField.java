@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.cron.jobs.fields;
 
-import javax.annotation.concurrent.Immutable;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
 
-import org.carlspring.strongbox.db.schema.Properties;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * @author Przemyslaw Fusik
@@ -24,6 +24,6 @@ public class CronJobRepositoryIdAutocompleteField
     @Override
     public String getValue()
     {
-        return Properties.REPOSITORY_ID;
+        return REPOSITORY_ID;
     }
 }

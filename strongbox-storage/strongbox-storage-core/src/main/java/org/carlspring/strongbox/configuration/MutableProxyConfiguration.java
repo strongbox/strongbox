@@ -1,10 +1,11 @@
 package org.carlspring.strongbox.configuration;
 
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
+import static org.carlspring.strongbox.db.schema.Properties.USERNAME;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.carlspring.strongbox.db.schema.Properties;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -42,8 +43,8 @@ public class MutableProxyConfiguration
     @JsonCreator
     public MutableProxyConfiguration(@JsonProperty("host") String host,
                                      @JsonProperty("port") Integer port,
-                                     @JsonProperty(Properties.USERNAME) String username,
-                                     @JsonProperty(Properties.PASSWORD) String password,
+                                     @JsonProperty(USERNAME) String username,
+                                     @JsonProperty(PASSWORD) String password,
                                      @JsonProperty("type") String type,
                                      @JsonProperty("nonProxyHosts") List<String> nonProxyHosts)
     {
@@ -145,8 +146,8 @@ public class MutableProxyConfiguration
         return MoreObjects.toStringHelper(this)
                           .add("host", host)
                           .add("port", port)
-                          .add(Properties.USERNAME, username)
-                          .add(Properties.PASSWORD, password)
+                          .add(USERNAME, username)
+                          .add(PASSWORD, password)
                           .add("type", type)
                           .add("nonProxyHosts", nonProxyHosts)
                           .toString();

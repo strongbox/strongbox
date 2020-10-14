@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
-import org.carlspring.strongbox.db.schema.Properties;
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -21,8 +22,8 @@ public class NpmUser
     }
 
     @JsonCreator
-    public NpmUser(@JsonProperty(value = Properties.NAME, required = true) String name,
-                   @JsonProperty(value = Properties.PASSWORD, required = true) String password)
+    public NpmUser(@JsonProperty(value = NAME, required = true) String name,
+                   @JsonProperty(value = PASSWORD, required = true) String password)
     {
         this.name = name;
         this.password = password;

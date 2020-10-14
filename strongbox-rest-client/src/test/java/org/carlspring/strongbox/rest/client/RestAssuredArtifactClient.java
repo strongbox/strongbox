@@ -1,10 +1,7 @@
 package org.carlspring.strongbox.rest.client;
 
-import org.carlspring.strongbox.client.ArtifactOperationException;
-import org.carlspring.strongbox.client.ArtifactTransportException;
-import org.carlspring.strongbox.client.BaseArtifactClient;
-import org.carlspring.strongbox.client.IArtifactClient;
-import org.carlspring.strongbox.db.schema.Properties;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,15 +9,20 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import org.carlspring.strongbox.client.ArtifactOperationException;
+import org.carlspring.strongbox.client.ArtifactTransportException;
+import org.carlspring.strongbox.client.BaseArtifactClient;
+import org.carlspring.strongbox.client.IArtifactClient;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+
 import com.google.common.io.ByteStreams;
+
 import io.restassured.http.ContentType;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import io.restassured.response.ExtractableResponse;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 
 /**
  * Implementation of {@link IArtifactClient} for rest-assured tests.
@@ -310,7 +312,7 @@ public class RestAssuredArtifactClient
                      (artifactPath != null ? artifactPath : "");
 
         givenLocal().contentType(MediaType.TEXT_PLAIN_VALUE)
-                    .params(Properties.VERSION, version,
+                    .params(VERSION, version,
                             "classifier", classifier,
                             "metadataType", metadataType)
                     .when()
@@ -347,7 +349,7 @@ public class RestAssuredArtifactClient
 
         query = URLEncoder.encode(query, "UTF-8");
 
-        return givenLocal().params(Properties.REPOSITORY_ID, repositoryId,
+        return givenLocal().params(REPOSITORY_ID, repositoryId,
                                    "q", query,
                                    "searchProvider", searchProvider)
                            .header("accept", mediaType)

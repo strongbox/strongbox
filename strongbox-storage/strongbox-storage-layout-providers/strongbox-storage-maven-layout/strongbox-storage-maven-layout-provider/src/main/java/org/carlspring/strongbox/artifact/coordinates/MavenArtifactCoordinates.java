@@ -11,7 +11,6 @@ import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.artifact.MavenRepositoryArtifact;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 import org.neo4j.ogm.annotation.NodeEntity;
@@ -152,7 +151,7 @@ public class MavenArtifactCoordinates
     }
 
     @Override
-    @XmlAttribute(name = Properties.VERSION)
+    @XmlAttribute(name = VERSION)
     public String getVersion()
     {
         return super.getVersion();

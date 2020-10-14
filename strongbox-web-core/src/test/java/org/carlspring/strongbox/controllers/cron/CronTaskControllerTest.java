@@ -4,7 +4,10 @@ import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 import org.carlspring.strongbox.cron.domain.CronTasksConfigurationDto;
 import org.carlspring.strongbox.cron.jobs.*;
-import org.carlspring.strongbox.db.schema.Properties;
+
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+
 import org.carlspring.strongbox.forms.cron.CronTaskConfigurationForm;
 import org.carlspring.strongbox.forms.cron.CronTaskConfigurationFormField;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
@@ -112,10 +115,10 @@ public class CronTaskControllerTest
         cronTaskConfigurationForm.setJobClass(RebuildMavenIndexesCronJob.class.getName());
         cronTaskConfigurationForm.setFields(Arrays.asList(
                 new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
-                		Properties.STORAGE_ID).value(
+                		STORAGE_ID).value(
                         "storage0").build(),
                                                       CronTaskConfigurationFormField.newBuilder().name(
-                                                    		  Properties.REPOSITORY_ID).value(
+                                                    		  REPOSITORY_ID).value(
                                                               "releases").build() }));
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -140,10 +143,10 @@ public class CronTaskControllerTest
         cronTaskConfigurationForm.setCronExpression("daddy");
         cronTaskConfigurationForm.setFields(Arrays.asList(
                 new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
-                		Properties.STORAGE_ID).value(
+                		STORAGE_ID).value(
                         "storage0").build(),
                                                       CronTaskConfigurationFormField.newBuilder().name(
-                                                    		  Properties.REPOSITORY_ID).value(
+                                                    		  REPOSITORY_ID).value(
                                                               "releases").build() }));
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -166,10 +169,10 @@ public class CronTaskControllerTest
         CronTaskConfigurationForm cronTaskConfigurationForm = new CronTaskConfigurationForm();
         cronTaskConfigurationForm.setFields(Arrays.asList(
                 new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
-                		Properties.STORAGE_ID).value(
+                		STORAGE_ID).value(
                         "storage0").build(),
                                                       CronTaskConfigurationFormField.newBuilder().name(
-                                                    		  Properties.REPOSITORY_ID).value(
+                                                    		  REPOSITORY_ID).value(
                                                               "releases").build() }));
 
         cronTaskConfigurationForm.setJobClass(RebuildMavenIndexesCronJob.class.getName());
@@ -199,10 +202,10 @@ public class CronTaskControllerTest
         cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
         cronTaskConfigurationForm.setFields(Arrays.asList(
                 new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
-                		Properties.STORAGE_ID).value(
+                		STORAGE_ID).value(
                         "storage0").build(),
                                                       CronTaskConfigurationFormField.newBuilder().name(
-                                                    		  Properties.REPOSITORY_ID).value(
+                                                    		  REPOSITORY_ID).value(
                                                               "").build() }));
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -227,7 +230,7 @@ public class CronTaskControllerTest
         cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
         cronTaskConfigurationForm.setFields(
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
-                		Properties.REPOSITORY_ID).value("mummy").build() }));
+                		REPOSITORY_ID).value("mummy").build() }));
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -252,7 +255,7 @@ public class CronTaskControllerTest
         cronTaskConfigurationForm.setCronExpression("0 11 11 11 11 ? 2100");
         cronTaskConfigurationForm.setFields(
                 Arrays.asList(new CronTaskConfigurationFormField[]{ CronTaskConfigurationFormField.newBuilder().name(
-                		Properties.STORAGE_ID).value("mummy").build() }));
+                		STORAGE_ID).value("mummy").build() }));
 
         System.out.println(objectMapper.writeValueAsString(cronTaskConfigurationForm));
 

@@ -17,18 +17,20 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import static java.text.MessageFormat.format;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.carlspring.strongbox.db.schema.Properties;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static java.text.MessageFormat.format;
 
 /**
  * Description of dependence
@@ -104,7 +106,7 @@ public class Dependency implements Serializable
 
         Dependency dependency = new Dependency();
         String id = matcher.group("pkgId");
-        String versionRangeString = matcher.group(Properties.VERSION);
+        String versionRangeString = matcher.group(VERSION);
         String frameWorkString = matcher.group("frameWork");
 
         dependency.id = id;
@@ -151,7 +153,7 @@ public class Dependency implements Serializable
     /**
      * @return string representation of a range of versions
      */
-    @XmlAttribute(name = Properties.VERSION)
+    @XmlAttribute(name = VERSION)
     public String getVersionRangeString()
     {
         if (versionRange == null)

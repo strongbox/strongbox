@@ -1,15 +1,16 @@
 package org.carlspring.strongbox.actuator;
 
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.booters.PropertiesBooter;
-import org.carlspring.strongbox.db.schema.Properties;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.info.Info;
 import org.springframework.boot.actuate.info.InfoContributor;
 import org.springframework.stereotype.Component;
-
-import javax.inject.Inject;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author: adavid9
@@ -25,7 +26,7 @@ public class StrongboxCustomInfo implements InfoContributor
     public void contribute(Info.Builder builder)
     {
         Map<String, String> strongboxInfo = new HashMap<>();
-        strongboxInfo.put(Properties.VERSION, propertiesBooter.getStrongboxVersion());
+        strongboxInfo.put(VERSION, propertiesBooter.getStrongboxVersion());
         strongboxInfo.put("revision", propertiesBooter.getStrongboxRevision());
 
         builder.withDetail("strongbox", strongboxInfo);

@@ -17,19 +17,30 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
-import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
-import org.carlspring.strongbox.db.schema.Properties;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
 
-import javax.xml.bind.*;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import javax.xml.transform.sax.SAXSource;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.ValidationEvent;
+import javax.xml.bind.ValidationEventHandler;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.transform.sax.SAXSource;
+
+import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -436,7 +447,7 @@ public class Nuspec implements Serializable
         /**
          * Package Version
          */
-        @XmlElement(name = Properties.VERSION, namespace = NUSPEC_XML_NAMESPACE_2011)
+        @XmlElement(name = VERSION, namespace = NUSPEC_XML_NAMESPACE_2011)
         @XmlJavaTypeAdapter(value = VersionTypeAdapter.class)
         public SemanticVersion version;
 

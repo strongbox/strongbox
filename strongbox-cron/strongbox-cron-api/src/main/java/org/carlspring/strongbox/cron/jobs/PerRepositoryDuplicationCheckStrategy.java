@@ -1,12 +1,13 @@
 package org.carlspring.strongbox.cron.jobs;
 
-import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
-import org.carlspring.strongbox.db.schema.Properties;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 
 import java.util.Collection;
 import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.carlspring.strongbox.cron.domain.CronTaskConfigurationDto;
 
 /**
  * @author Przemyslaw Fusik
@@ -23,7 +24,7 @@ public class PerRepositoryDuplicationCheckStrategy
 
     private PerRepositoryDuplicationCheckStrategy()
     {
-        this(Properties.STORAGE_ID, Properties.REPOSITORY_ID);
+        this(STORAGE_ID, REPOSITORY_ID);
     }
 
     public PerRepositoryDuplicationCheckStrategy(final String propertyStorageId,

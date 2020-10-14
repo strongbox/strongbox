@@ -1,15 +1,15 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+
+import javax.validation.groups.Default;
+
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm.ProxyConfigurationFormChecks;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.validation.RequestBodyValidationException;
-
-import javax.validation.groups.Default;
-
-import io.swagger.annotations.*;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,18 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * @author Pablo Tirado
@@ -56,9 +67,9 @@ public class ProxyConfigurationController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity setProxyConfiguration(@ApiParam(value = "The storageId")
-                                                @RequestParam(value = Properties.STORAGE_ID, required = false) String storageId,
+                                                @RequestParam(value = STORAGE_ID, required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
-                                                @RequestParam(value = Properties.REPOSITORY_ID, required = false)
+                                                @RequestParam(value = REPOSITORY_ID, required = false)
                                                         String repositoryId,
                                                 @ApiParam(value = "The proxy configuration for this proxy repository", required = true)
                                                 @RequestBody @Validated({ Default.class,
@@ -95,9 +106,9 @@ public class ProxyConfigurationController
     @GetMapping(value = "",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getProxyConfiguration(@ApiParam(value = "The storageId")
-                                                @RequestParam(value = Properties.STORAGE_ID, required = false) String storageId,
+                                                @RequestParam(value = STORAGE_ID, required = false) String storageId,
                                                 @ApiParam(value = "The repositoryId")
-                                                @RequestParam(value = Properties.REPOSITORY_ID, required = false)
+                                                @RequestParam(value = REPOSITORY_ID, required = false)
                                                         String repositoryId,
                                                 @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {

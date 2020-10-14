@@ -2,13 +2,14 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+
 import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.ArtifactTagEntity;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
@@ -31,9 +32,9 @@ public class ArtifactTagAdapter implements VertexEntityTraversalAdapter<Artifact
     @Override
     public EntityTraversal<Vertex, ArtifactTag> fold()
     {
-        return __.<Vertex, Object>project("id", Properties.UUID)
+        return __.<Vertex, Object>project("id", UUID)
                  .by(__.id())
-                 .by(__.enrichPropertyValue(Properties.UUID))
+                 .by(__.enrichPropertyValue(UUID))
                  .map(this::map);
     }
 
@@ -41,7 +42,7 @@ public class ArtifactTagAdapter implements VertexEntityTraversalAdapter<Artifact
     {
         ArtifactTagEntity result = new ArtifactTagEntity();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get(Properties.UUID)));
+        result.setUuid(extractObject(String.class, t.get().get(UUID)));
 
         return result;
     }
