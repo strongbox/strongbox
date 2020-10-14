@@ -6,8 +6,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import java.util.Collections;
 import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import jersey.repackaged.com.google.common.collect.ImmutableList;
 
 /**
  * @author Przemyslaw Fusik
