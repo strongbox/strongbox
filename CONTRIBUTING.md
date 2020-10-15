@@ -150,4 +150,5 @@ To accept, please:
 | Bartosz Czyzowski            |                                              | Jozefow, Poland                         | 2019-11-17 |
 | Ankit Tomar                  |                                              | Gurgaon, India                          | 2019-11-10 |
 | Valentin Bojinov             |                                              | Sofia, Bulgaria                         | 2020-04-01 |
+| Georg Leber                  | CGH IT-Solutions                             | Aachen, Germany                         | 2020-10-15 |
 
