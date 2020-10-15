@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import javax.inject.Inject;
 import javax.servlet.MultipartConfigElement;
 
+@Configuration
 @EnableConfigurationProperties(MultipartProperties.class)
 public class StorageMultipartConfig
 {
