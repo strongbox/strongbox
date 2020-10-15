@@ -151,4 +151,4 @@ To accept, please:
 | Ankit Tomar                  |                                              | Gurgaon, India                          | 2019-11-10 |
 | Valentin Bojinov             |                                              | Sofia, Bulgaria                         | 2020-04-01 |
 | Georg Leber                  | CGH IT-Solutions                             | Aachen, Germany                         | 2020-10-15 |
-
+| Luan Cestari                 |                                              | São Paulo, Brazil                       | 2020-04-01 |
