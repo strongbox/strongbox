@@ -18,7 +18,13 @@ public class UpdatableMultipartConfigElement extends MultipartConfigElement
     @Override
     public long getMaxFileSize()
     {
-        return maxFileSize == -1 ? super.getMaxFileSize() : maxFileSize;
+        return maxFileSize;
+    }
+
+    @Override
+    public long getMaxRequestSize()
+    {
+        return maxFileSize;
     }
 
     public void setMaxFileSize(long maxFileSize)
