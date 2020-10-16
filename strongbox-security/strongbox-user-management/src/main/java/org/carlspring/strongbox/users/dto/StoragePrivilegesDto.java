@@ -5,10 +5,10 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
-import org.carlspring.strongbox.db.schema.Properties;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 
 /**
  * @author Alex Oreshkevich
@@ -20,7 +20,7 @@ public class StoragePrivilegesDto
 
     private Set<RepositoryPrivilegesDto> repositoryPrivileges = new LinkedHashSet<>();
 
-    @JsonProperty(value = Properties.STORAGE_ID)
+    @JsonProperty(value = STORAGE_ID)
     private String storageId;
 
     public StoragePrivilegesDto()
@@ -28,7 +28,7 @@ public class StoragePrivilegesDto
     }
 
     @JsonCreator
-    public StoragePrivilegesDto(@JsonProperty(value = Properties.STORAGE_ID, required = true) String storageId)
+    public StoragePrivilegesDto(@JsonProperty(value = STORAGE_ID, required = true) String storageId)
     {
         this.storageId = storageId;
     }

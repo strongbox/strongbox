@@ -16,7 +16,6 @@ import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutDescription;
 import org.carlspring.strongbox.artifact.coordinates.ArtifactLayoutLocator;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.db.schema.Edges;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
@@ -29,6 +28,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 @Repository
 @Transactional
@@ -72,7 +73,7 @@ public class ArtifactIdGroupRepository extends GremlinVertexRepository<ArtifactI
         ArtifactIdGroup artifactIdGroup = new ArtifactIdGroupEntity(storageId, repositoryId, artifactId);
         EntityTraversal<Vertex, ArtifactIdGroup> t = g().V()
                                                         .hasLabel(Vertices.ARTIFACT_ID_GROUP)
-                                                        .has(Properties.UUID, artifactIdGroup.getUuid())
+                                                        .has(UUID, artifactIdGroup.getUuid())
                                                         .map(adapter.fold(Optional.ofNullable(repository)
                                                                                   .map(org.carlspring.strongbox.storage.repository.Repository::getLayout)
                                                                                   .map(ArtifactLayoutLocator.getLayoutByNameEntityMap()::get)

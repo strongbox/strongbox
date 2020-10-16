@@ -4,7 +4,6 @@ import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.artifact.generator.NpmArtifactGenerator;
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.layout.NpmLayoutProvider;
@@ -32,6 +31,9 @@ import org.springframework.http.MediaType;
 
 import static org.carlspring.strongbox.artifact.generator.ArtifactGenerator.DEFAULT_BYTES_SIZE;
 import static org.hamcrest.CoreMatchers.equalTo;
+
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
 
 /**
  * @author Pablo Tirado
@@ -170,8 +172,8 @@ public class NpmArtifactControllerTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        NpmUser strongboxUser1 = new NpmUser("admin", Properties.PASSWORD);
-        NpmUser strongboxUser2 = new NpmUser("deployer", Properties.PASSWORD);
+        NpmUser strongboxUser1 = new NpmUser("admin", PASSWORD);
+        NpmUser strongboxUser2 = new NpmUser("deployer", PASSWORD);
         NpmUser nonStrongboxUser = new NpmUser("notARealUser", "notARealPassword");
 
         //can login with strongbox user
@@ -290,7 +292,7 @@ public class NpmArtifactControllerTest
                .peek()
                .then()
                .assertThat()
-               .body(Properties.NAME, equalTo(packageId))
+               .body(NAME, equalTo(packageId))
                .and()
                .assertThat()
                .body("versions." + "'" + packageVersion + "'" + ".version", equalTo(packageVersion))

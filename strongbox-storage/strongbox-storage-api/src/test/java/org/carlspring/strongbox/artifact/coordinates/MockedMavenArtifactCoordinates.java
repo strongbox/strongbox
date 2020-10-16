@@ -12,7 +12,6 @@ import org.apache.maven.artifact.handler.DefaultArtifactHandler;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.apache.maven.index.artifact.Gav;
 import org.apache.maven.index.artifact.M2GavCalculator;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
 
 /**
@@ -135,7 +134,7 @@ public class MockedMavenArtifactCoordinates
     }
 
     @Override
-    @XmlAttribute(name = Properties.VERSION)
+    @XmlAttribute(name = "version")
     public String getVersion()
     {
         return version;

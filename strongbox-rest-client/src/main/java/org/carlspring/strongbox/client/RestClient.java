@@ -5,19 +5,6 @@ import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
 import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Set;
-
-import javax.ws.rs.ServerErrorException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.forms.configuration.RepositoryForm;
@@ -28,11 +15,24 @@ import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.yaml.CustomYAMLMapperFactory;
 import org.carlspring.strongbox.yaml.ObjectMapperSubtypes;
 import org.carlspring.strongbox.yaml.YAMLMapperFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.ServerErrorException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static org.carlspring.strongbox.net.MediaType.APPLICATION_YAML_VALUE;
 
 /**
  * @author mtodorov

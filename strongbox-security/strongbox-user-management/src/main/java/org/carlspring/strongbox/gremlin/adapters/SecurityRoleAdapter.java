@@ -2,7 +2,6 @@ package org.carlspring.strongbox.gremlin.adapters;
 
 import static org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils.extractObject;
 
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.domain.SecurityRoleEntity;
@@ -15,6 +14,8 @@ import org.apache.tinkerpop.gremlin.process.traversal.Traverser;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.stereotype.Component;
+
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 /**
  * @author ankit.tomar
@@ -32,9 +33,9 @@ public class SecurityRoleAdapter implements VertexEntityTraversalAdapter<Securit
     @Override
     public EntityTraversal<Vertex, SecurityRole> fold()
     {
-        return __.<Vertex, Object>project("id", Properties.UUID)
+        return __.<Vertex, Object>project("id", UUID)
                  .by(__.id())
-                 .by(__.enrichPropertyValue(Properties.UUID))
+                 .by(__.enrichPropertyValue(UUID))
                  .map(this::map);
     }
 
@@ -42,7 +43,7 @@ public class SecurityRoleAdapter implements VertexEntityTraversalAdapter<Securit
     {
         SecurityRoleEntity result = new SecurityRoleEntity();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get(Properties.UUID)));
+        result.setUuid(extractObject(String.class, t.get().get(UUID)));
 
         return result;
     }

@@ -15,7 +15,6 @@ import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.coordinates.GenericArtifactCoordinates;
 import org.carlspring.strongbox.db.schema.Edges;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.db.schema.Vertices;
 import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactIdGroup;
@@ -24,6 +23,12 @@ import org.carlspring.strongbox.gremlin.dsl.EntityTraversal;
 import org.carlspring.strongbox.gremlin.dsl.EntityTraversalUtils;
 import org.carlspring.strongbox.gremlin.dsl.__;
 import org.springframework.stereotype.Component;
+
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.TAG_NAME;
 
 /**
  * @author sbespalov
@@ -46,17 +51,17 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
     {
         EntityTraversal<Vertex, Vertex> artifactsTraversal = optionalTag.map(ArtifactTag::getName)
                                                                         .map(tagName -> __.outE(Edges.ARTIFACT_GROUP_HAS_TAGGED_ARTIFACTS)
-                                                                                          .has(Properties.TAG_NAME, tagName)
+                                                                                          .has(TAG_NAME, tagName)
                                                                                           .inV())
                                                                         .orElse(__.outE(Edges.ARTIFACT_GROUP_HAS_ARTIFACTS)
                                                                                   .inV());
 
-        return __.<Vertex, Object>project("id", Properties.UUID, Properties.STORAGE_ID, Properties.REPOSITORY_ID, Properties.NAME, "artifacts")
+        return __.<Vertex, Object>project("id", UUID, STORAGE_ID, REPOSITORY_ID, NAME, "artifacts")
                  .by(__.id())
-                 .by(__.enrichPropertyValue(Properties.UUID))
-                 .by(__.enrichPropertyValue(Properties.STORAGE_ID))
-                 .by(__.enrichPropertyValue(Properties.REPOSITORY_ID))
-                 .by(__.enrichPropertyValue(Properties.NAME))
+                 .by(__.enrichPropertyValue(UUID))
+                 .by(__.enrichPropertyValue(STORAGE_ID))
+                 .by(__.enrichPropertyValue(REPOSITORY_ID))
+                 .by(__.enrichPropertyValue(NAME))
                  .by(artifactsTraversal.dedup()
                                        .map(artifactAdapter.fold(layoutArtifactCoordinatesClass))
                                        .map(EntityTraversalUtils::castToObject)
@@ -72,10 +77,10 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
 
     private ArtifactIdGroup map(Traverser<Map<String, Object>> t)
     {
-        ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get(Properties.STORAGE_ID)),
-                extractObject(String.class, t.get().get(Properties.REPOSITORY_ID)), extractObject(String.class, t.get().get(Properties.NAME)));
+        ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get(STORAGE_ID)),
+                extractObject(String.class, t.get().get(REPOSITORY_ID)), extractObject(String.class, t.get().get(NAME)));
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get(Properties.UUID)));
+        result.setUuid(extractObject(String.class, t.get().get(UUID)));
         Collection<Artifact> artifacts = (Collection<Artifact>) t.get().get("artifacts");
         artifacts.stream().forEach(result::addArtifact);
 
@@ -85,7 +90,7 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(ArtifactIdGroup entity)
     {
-        String storedArtifactIdGroup = Vertices.ARTIFACT_ID_GROUP + ":" + UUID.randomUUID();
+        String storedArtifactIdGroup = Vertices.ARTIFACT_ID_GROUP + ":" + java.util.UUID.randomUUID();
         EntityTraversal<Vertex, Vertex> connectArtifacstTraversal = __.identity();
         for (Artifact artifact : entity.getArtifacts())
         {
@@ -104,7 +109,7 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
             {
                 connectArtifacstTraversal = connectArtifacstTraversal.addE(Edges.ARTIFACT_GROUP_HAS_TAGGED_ARTIFACTS)
                                                                      .from(__.<Vertex, Vertex>select(storedArtifactIdGroup).unfold())
-                                                                     .property(Properties.TAG_NAME, artifactTag.getName())
+                                                                     .property(TAG_NAME, artifactTag.getName())
                                                                      .inV();
 
             }
@@ -131,15 +136,15 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
 
         if (entity.getStorageId() != null)
         {
-            t = t.property(single, Properties.STORAGE_ID, entity.getStorageId());
+            t = t.property(single, STORAGE_ID, entity.getStorageId());
         }
         if (entity.getRepositoryId() != null)
         {
-            t = t.property(single, Properties.REPOSITORY_ID, entity.getRepositoryId());
+            t = t.property(single, REPOSITORY_ID, entity.getRepositoryId());
         }
         if (entity.getName() != null)
         {
-            t = t.property(single, Properties.NAME, entity.getName());
+            t = t.property(single, NAME, entity.getName());
         }
 
         return t;

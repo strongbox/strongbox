@@ -18,7 +18,6 @@ import javax.ws.rs.core.MediaType;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.controllers.BaseArtifactController;
 import org.carlspring.strongbox.data.criteria.Paginator;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.providers.ProviderImplementationException;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.repository.RepositoryProvider;
@@ -49,6 +48,9 @@ import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
 
 /**
  * Rest End Points for Pypi Artifacts requests.
@@ -88,11 +90,11 @@ public class PypiArtifactController extends BaseArtifactController
                                                 @RequestPart(name = "home_page", required = false) String homePage,
                                                 @RequestPart(name = "download_url", required = false) String downloadUrl,
                                                 @RequestPart(name = "platform", required = false) String platform,
-                                                @RequestPart(name = Properties.VERSION, required = false) String version,
+                                                @RequestPart(name = VERSION, required = false) String version,
                                                 @RequestPart(name = "description", required = false) String description,
                                                 @RequestPart(name = "md5_digest", required = false) String md5Digest,
                                                 @RequestPart(name = ":action", required = true) String action,
-                                                @RequestPart(name = Properties.NAME, required = true) String name,
+                                                @RequestPart(name = NAME, required = true) String name,
                                                 @RequestPart(name = "license", required = false) String license,
                                                 @RequestPart(name = "pyversion", required = false) String pyversion,
                                                 @RequestPart(name = "summary", required = false) String summary,

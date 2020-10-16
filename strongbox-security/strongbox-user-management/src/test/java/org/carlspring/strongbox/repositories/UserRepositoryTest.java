@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.carlspring.strongbox.config.DataServiceConfig;
 import org.carlspring.strongbox.config.UsersConfig;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.domain.User;
 import org.carlspring.strongbox.domain.UserEntity;
 import org.carlspring.strongbox.domain.SecurityRole;
@@ -28,6 +27,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
 import com.google.common.collect.Sets;
+
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
 
 /**
  * @author ankit.tomar
@@ -86,7 +87,7 @@ public class UserRepositoryTest
                                    Set<String> roles)
     {
         UserEntity user = new UserEntity(username);
-        user.setPassword(Properties.PASSWORD);
+        user.setPassword(PASSWORD);
         user.setSecurityTokenKey("security-token");
         Set<SecurityRole> userRoles = roles.stream()
                                        .map(SecurityRoleEntity::new)

@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.controllers.forms;
 
 import org.carlspring.strongbox.controllers.BaseController;
-import org.carlspring.strongbox.db.schema.Properties;
 import org.carlspring.strongbox.forms.configuration.MavenRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.NugetRepositoryConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.RawRepositoryConfigurationForm;
@@ -34,6 +33,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 
 /**
  * @author Przemyslaw Fusik
@@ -118,7 +119,7 @@ public class FormDataController
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/repositoryNames", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRepositoryNames(@ApiParam(value = "Search for repository names in a specific storageId")
-                                             @RequestParam(value = Properties.STORAGE_ID, required = false)
+                                             @RequestParam(value = STORAGE_ID, required = false)
                                                      String storageId,
                                              @ApiParam(value = "Search for repository names")
                                              @RequestParam(value = SEARCH_PARAM_NAME, required = false)
@@ -178,7 +179,7 @@ public class FormDataController
     @GetMapping(value = "/repositoryNamesInGroupRepositories", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRepositoryNamesInGroup(
             @ApiParam(value = "Search for repository names in a specific storageId")
-            @RequestParam(value = Properties.STORAGE_ID, required = false)
+            @RequestParam(value = STORAGE_ID, required = false)
                     String storageId,
             @ApiParam(value = "Search for repository names in a specific groupRepositoryId")
             @RequestParam(value = "groupRepositoryId", required = false)
