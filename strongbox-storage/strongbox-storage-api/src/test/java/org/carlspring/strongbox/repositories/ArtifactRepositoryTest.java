@@ -2,6 +2,7 @@ package org.carlspring.strongbox.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Index.atIndex;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -88,23 +89,23 @@ public class ArtifactRepositoryTest
         assertThat(g.E()
                     .hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
                     .bothV()
-                    .properties("uuid")
+                    .properties(UUID)
                     .map(p -> p.get().value())
                     .toList()).contains(artifactEntity.getUuid(), path).hasSize(2);
-        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
-        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
         assertThat(g.E()
                     .hasLabel(Edges.EXTENDS)
                     .bothV()
-                    .properties("uuid")
+                    .properties(UUID)
                     .map(p -> p.get().value())
                     .toList()).contains(path, atIndex(0)).contains(path, atIndex(0)).hasSize(2);
 
         artifactRepository.delete(artifactEntity);
         assertThat(artifactRepository.findById(artifactEntity.getUuid())).isEmpty();
 
-        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
-        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has("uuid", path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.RAW_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
+        assertThat(g.V().hasLabel(Vertices.GENERIC_ARTIFACT_COORDINATES).has(UUID, path).hasNext()).isTrue();
         assertThat(g.E().hasLabel(Edges.EXTENDS).hasNext()).isTrue();
         assertThat(g.E().hasLabel(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).hasNext()).isFalse();
     }

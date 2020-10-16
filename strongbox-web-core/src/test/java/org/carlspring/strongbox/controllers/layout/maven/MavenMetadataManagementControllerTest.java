@@ -33,6 +33,8 @@ import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+
 /**
  * @author Pablo Tirado
  */
@@ -267,7 +269,7 @@ public class MavenMetadataManagementControllerTest
     @MavenRepository(policy = RepositoryPolicyEnum.SNAPSHOT)
     private @interface MavenSnapshotRepository
     {
-        @AliasFor(annotation = MavenRepository.class, attribute = "repositoryId")
+        @AliasFor(annotation = MavenRepository.class, attribute = REPOSITORY_ID)
         String value();
     }
 }

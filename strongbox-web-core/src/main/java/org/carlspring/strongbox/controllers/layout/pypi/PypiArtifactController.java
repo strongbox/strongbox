@@ -49,6 +49,9 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
+
 /**
  * Rest End Points for Pypi Artifacts requests.
  * This controller will be Entry point for various pip commands.
@@ -87,11 +90,11 @@ public class PypiArtifactController extends BaseArtifactController
                                                 @RequestPart(name = "home_page", required = false) String homePage,
                                                 @RequestPart(name = "download_url", required = false) String downloadUrl,
                                                 @RequestPart(name = "platform", required = false) String platform,
-                                                @RequestPart(name = "version", required = false) String version,
+                                                @RequestPart(name = VERSION, required = false) String version,
                                                 @RequestPart(name = "description", required = false) String description,
                                                 @RequestPart(name = "md5_digest", required = false) String md5Digest,
                                                 @RequestPart(name = ":action", required = true) String action,
-                                                @RequestPart(name = "name", required = true) String name,
+                                                @RequestPart(name = NAME, required = true) String name,
                                                 @RequestPart(name = "license", required = false) String license,
                                                 @RequestPart(name = "pyversion", required = false) String pyversion,
                                                 @RequestPart(name = "summary", required = false) String summary,

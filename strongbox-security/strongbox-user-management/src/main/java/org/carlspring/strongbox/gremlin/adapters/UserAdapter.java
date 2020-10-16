@@ -26,6 +26,13 @@ import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.stereotype.Component;
 
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
+import static org.carlspring.strongbox.db.schema.Properties.ENABLED;
+import static org.carlspring.strongbox.db.schema.Properties.SECURITY_TOKEN_KEY;
+import static org.carlspring.strongbox.db.schema.Properties.LAST_UPDATED;
+import static org.carlspring.strongbox.db.schema.Properties.SOURCE_ID;
+
 /**
  * @author sbespalov
  */
@@ -46,40 +53,40 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
     public EntityTraversal<Vertex, User> fold()
     {
         return __.<Vertex, Object>project("id",
-                                          "uuid",
-                                          "password",
-                                          "enabled",
+        								  UUID,
+        								  PASSWORD,
+        								  ENABLED,
                                           "roles",
-                                          "securityTokenKey",
-                                          "lastUpdated",
-                                          "sourceId")
+                                          SECURITY_TOKEN_KEY,
+                                          LAST_UPDATED,
+                                          SOURCE_ID)
                  .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
-                 .by(__.enrichPropertyValue("password"))
-                 .by(__.enrichPropertyValue("enabled"))
+                 .by(__.enrichPropertyValue(UUID))
+                 .by(__.enrichPropertyValue(PASSWORD))
+                 .by(__.enrichPropertyValue(ENABLED))
                  .by(__.outE(Edges.USER_HAS_SECURITY_ROLES)
                        .inV()
                        .map(securityRoleAdapter.fold())
                        .map(EntityTraversalUtils::castToObject)
                        .fold())
-                 .by(__.enrichPropertyValue("securityTokenKey"))
-                 .by(__.enrichPropertyValue("lastUpdated"))
-                 .by(__.enrichPropertyValue("sourceId"))
+                 .by(__.enrichPropertyValue(SECURITY_TOKEN_KEY))
+                 .by(__.enrichPropertyValue(LAST_UPDATED))
+                 .by(__.enrichPropertyValue(SOURCE_ID))
                  .map(this::map);
     }
 
     private User map(Traverser<Map<String, Object>> t)
     {
-        UserEntity result = new UserEntity(extractObject(String.class, t.get().get("uuid")));
+        UserEntity result = new UserEntity(extractObject(String.class, t.get().get(UUID)));
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
 
-        result.setPassword(extractObject(String.class, t.get().get("password")));
-        result.setEnabled(extractObject(Boolean.class, t.get().get("enabled")));
+        result.setPassword(extractObject(String.class, t.get().get(PASSWORD)));
+        result.setEnabled(extractObject(Boolean.class, t.get().get(ENABLED)));
         List<SecurityRole> userRoles = (List<SecurityRole>) t.get().get("roles");
         result.setRoles(new HashSet<>(userRoles));
-        result.setSecurityTokenKey(extractObject(String.class, t.get().get("securityTokenKey")));
-        result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get("lastUpdated"))));
-        result.setSourceId(extractObject(String.class, t.get().get("sourceId")));
+        result.setSecurityTokenKey(extractObject(String.class, t.get().get(SECURITY_TOKEN_KEY)));
+        result.setLastUpdated(toLocalDateTime(extractObject(Long.class, t.get().get(LAST_UPDATED))));
+        result.setSourceId(extractObject(String.class, t.get().get(SOURCE_ID)));
 
         return result;
     }
@@ -87,7 +94,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
     @Override
     public UnfoldEntityTraversal<Vertex, Vertex> unfold(User entity)
     {
-        String storedUserId = Vertices.USER + ":" + UUID.randomUUID().toString();
+        String storedUserId = Vertices.USER + ":" + java.util.UUID.randomUUID().toString();
 
         EntityTraversal<Vertex, Vertex> userRoleTraversal = __.identity();
         EntityTraversal<Vertex, Vertex> unfoldTraversal = __.identity();
@@ -121,22 +128,22 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
         if (entity.getPassword() != null)
         {
-            t = t.property(single, "password", entity.getPassword());
+            t = t.property(single, PASSWORD, entity.getPassword());
         }
         if (entity.getSecurityTokenKey() != null)
         {
-            t = t.property(single, "securityTokenKey", entity.getSecurityTokenKey());
+            t = t.property(single, SECURITY_TOKEN_KEY, entity.getSecurityTokenKey());
         }
         if (entity.getSourceId() != null)
         {
-            t = t.property(single, "sourceId", entity.getSourceId());
+            t = t.property(single, SOURCE_ID, entity.getSourceId());
         }
         if (entity.getLastUpdated() != null)
         {
-            t = t.property(single, "lastUpdated", toLong(entity.getLastUpdated()));
+            t = t.property(single, LAST_UPDATED, toLong(entity.getLastUpdated()));
         }
 
-        t = t.property(single, "enabled", entity.isEnabled());
+        t = t.property(single, ENABLED, entity.isEnabled());
 
         return t;
     }

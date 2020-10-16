@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.controllers.support;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -11,11 +13,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ExampleEntityBody
 {
 
-    @JsonProperty("name")
+    @JsonProperty(NAME)
     private String name;
 
     @JsonCreator
-    public ExampleEntityBody(@JsonProperty("name") String name)
+    public ExampleEntityBody(@JsonProperty(NAME) String name)
     {
         this.name = name;
     }

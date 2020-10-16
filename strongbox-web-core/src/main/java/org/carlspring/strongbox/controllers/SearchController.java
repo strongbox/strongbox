@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.controllers;
 
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+
 import org.carlspring.strongbox.providers.search.SearchException;
 import org.carlspring.strongbox.services.ArtifactSearchService;
 import org.carlspring.strongbox.storage.search.SearchRequest;
@@ -52,9 +55,9 @@ public class SearchController
                 produces = { MediaType.APPLICATION_JSON_VALUE,
                              MediaType.TEXT_PLAIN_VALUE })
     public ResponseEntity search(@ApiParam(value = "The storageId", required = false)
-                                 @RequestParam(name = "storageId", required = false) final String storageId,
+                                 @RequestParam(name = STORAGE_ID, required = false) final String storageId,
                                  @ApiParam(value = "The repositoryId", required = false)
-                                 @RequestParam(name = "repositoryId", required = false) final String repositoryId,
+                                 @RequestParam(name = REPOSITORY_ID, required = false) final String repositoryId,
                                  @ApiParam(value = "The search query", required = true)
                                  @RequestParam(name = "q") final String query,
                                  HttpServletRequest request)

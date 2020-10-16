@@ -17,6 +17,8 @@
 
 package org.carlspring.strongbox.storage.metadata.nuget;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,7 +35,7 @@ import org.carlspring.strongbox.storage.metadata.nuget.rss.PackageFeed;
 public class Author
 {
 
-    @XmlElement(name = "name", namespace = PackageFeed.ATOM_XML_NAMESPACE)
+    @XmlElement(name = NAME, namespace = PackageFeed.ATOM_XML_NAMESPACE)
     private String name;
 
     public String getName()

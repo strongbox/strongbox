@@ -1,5 +1,8 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -73,8 +76,8 @@ public class BaseCronJobWithNugetIndexingTestCase
             throws Exception
     {
         Map<String, String> properties = new LinkedHashMap<>();
-        properties.put("storageId", storageId);
-        properties.put("repositoryId", repositoryId);
+        properties.put(STORAGE_ID, storageId);
+        properties.put(REPOSITORY_ID, repositoryId);
         if (additionalProperties != null)
         {
             additionalProperties.accept(properties);

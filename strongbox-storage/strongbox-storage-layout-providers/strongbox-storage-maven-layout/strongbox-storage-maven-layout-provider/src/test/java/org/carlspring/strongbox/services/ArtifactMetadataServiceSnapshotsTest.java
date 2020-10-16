@@ -42,6 +42,8 @@ import org.springframework.test.context.ContextConfiguration;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+
 /**
  * @author stodorov
  * @author Pablo Tirado
@@ -371,7 +373,7 @@ public class ArtifactMetadataServiceSnapshotsTest
     @MavenRepository(policy = RepositoryPolicyEnum.SNAPSHOT)
     private @interface MavenSnapshotRepository
     {
-        @AliasFor(annotation = MavenRepository.class, attribute = "repositoryId")
+        @AliasFor(annotation = MavenRepository.class, attribute = REPOSITORY_ID)
         String value();
     }
 

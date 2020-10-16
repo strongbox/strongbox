@@ -32,6 +32,9 @@ import org.springframework.http.MediaType;
 import static org.carlspring.strongbox.artifact.generator.ArtifactGenerator.DEFAULT_BYTES_SIZE;
 import static org.hamcrest.CoreMatchers.equalTo;
 
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
+
 /**
  * @author Pablo Tirado
  */
@@ -169,8 +172,8 @@ public class NpmArtifactControllerTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
-        NpmUser strongboxUser1 = new NpmUser("admin", "password");
-        NpmUser strongboxUser2 = new NpmUser("deployer", "password");
+        NpmUser strongboxUser1 = new NpmUser("admin", PASSWORD);
+        NpmUser strongboxUser2 = new NpmUser("deployer", PASSWORD);
         NpmUser nonStrongboxUser = new NpmUser("notARealUser", "notARealPassword");
 
         //can login with strongbox user
@@ -289,7 +292,7 @@ public class NpmArtifactControllerTest
                .peek()
                .then()
                .assertThat()
-               .body("name", equalTo(packageId))
+               .body(NAME, equalTo(packageId))
                .and()
                .assertThat()
                .body("versions." + "'" + packageVersion + "'" + ".version", equalTo(packageVersion))

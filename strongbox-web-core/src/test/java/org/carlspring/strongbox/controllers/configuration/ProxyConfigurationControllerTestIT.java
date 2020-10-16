@@ -1,24 +1,26 @@
 package org.carlspring.strongbox.controllers.configuration;
 
-import com.google.common.collect.Lists;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE;
+import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.FAILED_UPDATE_FORM_ERROR;
+import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.SUCCESSFUL_UPDATE;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.hamcrest.Matchers.containsString;
+
+import java.util.List;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.MutableProxyConfiguration;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.List;
-
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.controllers.configuration.ProxyConfigurationController.*;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import com.google.common.collect.Lists;
 
 /**
  * @author Pablo Tirado
@@ -120,8 +122,8 @@ public class ProxyConfigurationControllerTestIT
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(acceptHeader)
                .body(proxyConfiguration)
-               .param("storageId", storageId)
-               .param("repositoryId", repositoryId)
+               .param(STORAGE_ID, storageId)
+               .param(REPOSITORY_ID, repositoryId)
                .when()
                .put(url)
                .then()

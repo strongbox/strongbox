@@ -15,6 +15,8 @@ import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.stereotype.Component;
 
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+
 /**
  * @author ankit.tomar
  */
@@ -31,9 +33,9 @@ public class SecurityRoleAdapter implements VertexEntityTraversalAdapter<Securit
     @Override
     public EntityTraversal<Vertex, SecurityRole> fold()
     {
-        return __.<Vertex, Object>project("id", "uuid")
+        return __.<Vertex, Object>project("id", UUID)
                  .by(__.id())
-                 .by(__.enrichPropertyValue("uuid"))
+                 .by(__.enrichPropertyValue(UUID))
                  .map(this::map);
     }
 
@@ -41,7 +43,7 @@ public class SecurityRoleAdapter implements VertexEntityTraversalAdapter<Securit
     {
         SecurityRoleEntity result = new SecurityRoleEntity();
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
-        result.setUuid(extractObject(String.class, t.get().get("uuid")));
+        result.setUuid(extractObject(String.class, t.get().get(UUID)));
 
         return result;
     }

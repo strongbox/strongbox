@@ -2,6 +2,7 @@ package org.carlspring.strongbox.services.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
 
 import java.text.ParseException;
 import java.time.LocalDateTime;
@@ -234,7 +235,7 @@ public class ArtifactEntityTest
         updateArtifactAttributes(groupId);
 
         List<Artifact> entries = artifactEntityRepository.findMatching(5, null,
-                                                                       PageRequest.of(0, Integer.MAX_VALUE, Sort.by("'uuid'")))
+                                                                       PageRequest.of(0, Integer.MAX_VALUE, Sort.by("'"+UUID+"'")))
                                                          .stream()
                                                          .filter(e -> e.getArtifactCoordinates()
                                                                        .getId()

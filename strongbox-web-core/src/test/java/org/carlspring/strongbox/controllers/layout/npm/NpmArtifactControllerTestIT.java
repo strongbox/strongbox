@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.controllers.layout.npm;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.carlspring.strongbox.db.schema.Properties.NAME;
 import static org.carlspring.strongbox.utils.ArtifactControllerHelper.MULTIPART_BOUNDARY;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
@@ -121,7 +122,7 @@ public class NpmArtifactControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .and()
-               .body("name", equalTo("react"))
+               .body(NAME, equalTo("react"))
                .body("versions.size()", greaterThan(0));
 
         Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,

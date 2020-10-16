@@ -5,6 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.configuration.MutableConfiguration;
 import org.carlspring.strongbox.exception.RepositoryNotFoundException;
@@ -99,8 +102,8 @@ public class RepositoryMethodArgumentResolverTest
     {
 
         Map<String, String> uriTemplateVars = new HashMap<>();
-        uriTemplateVars.put("storageId", "storage-pypi");
-        uriTemplateVars.put("repositoryId", "pypi-releases");
+        uriTemplateVars.put(STORAGE_ID, "storage-pypi");
+        uriTemplateVars.put(REPOSITORY_ID, "pypi-releases");
         nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
                                       RequestAttributes.SCOPE_REQUEST);
 
@@ -137,8 +140,8 @@ public class RepositoryMethodArgumentResolverTest
         throws MissingPathVariableException
     {
         Map<String, String> uriTemplateVars = new HashMap<>();
-        uriTemplateVars.put("storageId", "storage-pypi");
-        uriTemplateVars.put("repositoryId", "pypi-releases");
+        uriTemplateVars.put(STORAGE_ID, "storage-pypi");
+        uriTemplateVars.put(REPOSITORY_ID, "pypi-releases");
         nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
                                       RequestAttributes.SCOPE_REQUEST);
 
@@ -153,7 +156,7 @@ public class RepositoryMethodArgumentResolverTest
                                                                                                                                                  nativeWebRequest,
                                                                                                                                                  webDataBinderFactory));
         assertEquals(String.format(RepositoryMethodArgumentResolver.NOT_IN_SERVICE_REPOSITORY_MESSAGE,
-                                   uriTemplateVars.get("storageId"), uriTemplateVars.get("repositoryId")),
+                                   uriTemplateVars.get(STORAGE_ID), uriTemplateVars.get(REPOSITORY_ID)),
                      serviceUnavailableException.getMessage());
 
     }
@@ -163,8 +166,8 @@ public class RepositoryMethodArgumentResolverTest
         throws MissingPathVariableException
     {
         Map<String, String> uriTemplateVars = new HashMap<>();
-        uriTemplateVars.put("storageId", "storage-nuget");
-        uriTemplateVars.put("repositoryId", "pypi-releases");
+        uriTemplateVars.put(STORAGE_ID, "storage-nuget");
+        uriTemplateVars.put(REPOSITORY_ID, "pypi-releases");
         nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
                                       RequestAttributes.SCOPE_REQUEST);
 
@@ -198,8 +201,8 @@ public class RepositoryMethodArgumentResolverTest
         throws MissingPathVariableException
     {
         Map<String, String> uriTemplateVars = new HashMap<>();
-        uriTemplateVars.put("storageId", "storage-pypi");
-        uriTemplateVars.put("repositoryId", "maven-releases");
+        uriTemplateVars.put(STORAGE_ID, "storage-pypi");
+        uriTemplateVars.put(REPOSITORY_ID, "maven-releases");
         nativeWebRequest.setAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE, uriTemplateVars,
                                       RequestAttributes.SCOPE_REQUEST);
 
@@ -214,7 +217,7 @@ public class RepositoryMethodArgumentResolverTest
                                                                                                                                                  nativeWebRequest,
                                                                                                                                                  webDataBinderFactory));
         assertEquals(String.format(RepositoryMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE,
-                                   uriTemplateVars.get("storageId"), uriTemplateVars.get("repositoryId")),
+                                   uriTemplateVars.get(STORAGE_ID), uriTemplateVars.get(REPOSITORY_ID)),
                      repositoryNotFoundException.getMessage());
 
         mockStoragesAndRepositories(RepositoryStatusEnum.OUT_OF_SERVICE);
@@ -224,7 +227,7 @@ public class RepositoryMethodArgumentResolverTest
                                                                                                                      nativeWebRequest,
                                                                                                                      webDataBinderFactory));
         assertEquals(String.format(RepositoryMethodArgumentResolver.NOT_FOUND_REPOSITORY_MESSAGE,
-                                   uriTemplateVars.get("storageId"), uriTemplateVars.get("repositoryId")),
+                                   uriTemplateVars.get("storageId"), uriTemplateVars.get(REPOSITORY_ID)),
                      repositoryNotFoundException.getMessage());
     }
 

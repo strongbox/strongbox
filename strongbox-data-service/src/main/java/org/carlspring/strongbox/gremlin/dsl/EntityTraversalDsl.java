@@ -19,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+import static org.carlspring.strongbox.db.schema.Properties.CREATED;
+
 /**
  * The application specific Gremlin DSL extension. Provides shortcut methods for the traversals that commonly used.
  *
@@ -59,10 +62,10 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     default GraphTraversal<S, Vertex> findById(Object uuid,
                                                String... labels)
     {
-        GraphTraversal<S, Vertex> result = (GraphTraversal<S, Vertex>) has(labels[0], "uuid", uuid);
+        GraphTraversal<S, Vertex> result = (GraphTraversal<S, Vertex>) has(labels[0], UUID, uuid);
         for (String label : Arrays.copyOfRange(labels, 1, labels.length))
         {
-            result = result.fold().choose(Collection::isEmpty, __.V().has(label, "uuid", uuid), __.unfold());
+            result = result.fold().choose(Collection::isEmpty, __.V().has(label, UUID, uuid), __.unfold());
         }
 
         return result;
@@ -149,7 +152,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
         DomainObject entity = unfoldTraversal.getEntity();
         String label = unfoldTraversal.getEntityLabel();
 
-        return hasLabel(label).has("uuid", uuid)
+        return hasLabel(label).has(UUID, uuid)
                               .fold()
                               .choose(Collection::isEmpty,
                                       __.addV(uuid, unfoldTraversal),
@@ -173,11 +176,11 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
         String label = unfoldTraversal.getEntityLabel();
         DomainObject entity = unfoldTraversal.getEntity();
 
-        return addV(label).property("uuid",
+        return addV(label).property(UUID,
                                     Optional.of(uuid)
                                             .filter(x -> !NULL.equals(x))
-                                            .orElse(UUID.randomUUID().toString()))
-                          .property("created", System.currentTimeMillis())
+                                            .orElse(java.util.UUID.randomUUID().toString()))
+                          .property(CREATED, System.currentTimeMillis())
                           .sideEffect(entity::applyUnfold)
                           .sideEffect(EntityTraversalUtils::created);
     }

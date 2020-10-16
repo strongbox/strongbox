@@ -1,5 +1,7 @@
 package org.carlspring.strongbox.gremlin.repositories;
 
+import static org.carlspring.strongbox.db.schema.Properties.UUID;
+
 import java.util.function.Supplier;
 
 import javax.transaction.Transactional;
@@ -36,7 +38,7 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
                                               .next();
         session.clear();
 
-        return resultVertex.<String>property("uuid").value();
+        return resultVertex.<String>property(UUID).value();
     }
 
     @Override

@@ -1,21 +1,19 @@
 package org.carlspring.strongbox.nuget.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
 import org.carlspring.strongbox.config.NugetLayoutProviderTestConfig;
 import org.carlspring.strongbox.data.criteria.Expression.ExpOperator;
-import org.carlspring.strongbox.data.criteria.QueryParserException;
 import org.carlspring.strongbox.data.criteria.OQueryTemplate;
 import org.carlspring.strongbox.data.criteria.Predicate;
 import org.carlspring.strongbox.data.criteria.QueryTemplate;
@@ -86,8 +84,8 @@ public class NugetFilterODataParserTest
         Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
-                .and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
-                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
+                .and(Predicate.of(ExpOperator.EQ.of(STORAGE_ID, repository.getStorage().getId())))
+                .and(Predicate.of(ExpOperator.EQ.of(REPOSITORY_ID, repository.getId())));
 
         selector.select("COUNT(*)");
 
@@ -95,7 +93,7 @@ public class NugetFilterODataParserTest
         
         assertThat(((OQueryTemplate<Long, ArtifactEntity>) queryTemplate).calculateQueryString(selector)).isEqualTo("SELECT COUNT(*) FROM ArtifactEntry WHERE " +
                                                                                                                    "artifactCoordinates.coordinates.id.toLowerCase() = :id_0 AND tagSet CONTAINS (name = :name_1) AND " +
-                                                                                                                   "artifactCoordinates.coordinates.version = :version_1 AND storageId = :storageId_1 AND repositoryId = :repositoryId_2 LIMIT 1000");
+                                                                                                                   "artifactCoordinates.coordinates.version = :version_1 AND " + STORAGE_ID + " = :storageId_1 AND " + REPOSITORY_ID + " = :repositoryId_2 LIMIT 1000");
         
         Map<String, Object> parameterMap = ((OQueryTemplate<Long, ArtifactEntity>) queryTemplate).exposeParameterMap(selector.getPredicate());
 
@@ -129,8 +127,8 @@ public class NugetFilterODataParserTest
         Predicate predicate = t.parseQuery().getPredicate();
 
         selector.where(predicate)
-                .and(Predicate.of(ExpOperator.EQ.of("storageId", repository.getStorage().getId())))
-                .and(Predicate.of(ExpOperator.EQ.of("repositoryId", repository.getId())));
+                .and(Predicate.of(ExpOperator.EQ.of(STORAGE_ID, repository.getStorage().getId())))
+                .and(Predicate.of(ExpOperator.EQ.of(REPOSITORY_ID, repository.getId())));
 
         selector.select("artifactCoordinates.coordinates.id");
 

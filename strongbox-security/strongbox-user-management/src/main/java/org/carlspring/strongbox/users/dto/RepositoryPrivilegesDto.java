@@ -10,6 +10,8 @@ import org.carlspring.strongbox.users.domain.Privileges;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
@@ -18,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class RepositoryPrivilegesDto
         implements Serializable, RepositoryPrivileges
 {
-    @JsonProperty("repositoryId")
+    @JsonProperty(REPOSITORY_ID)
     private String repositoryId;
 
     private Set<Privileges> repositoryPrivileges = new LinkedHashSet<>();
@@ -30,7 +32,7 @@ public class RepositoryPrivilegesDto
     }
 
     @JsonCreator
-    public RepositoryPrivilegesDto(@JsonProperty(value = "repositoryId", required = true) String repositoryId)
+    public RepositoryPrivilegesDto(@JsonProperty(value = REPOSITORY_ID, required = true) String repositoryId)
     {
         this.repositoryId = repositoryId;
     }

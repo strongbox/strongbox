@@ -1,5 +1,16 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
+import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
+import static org.carlspring.strongbox.db.schema.Properties.USERNAME;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isEmptyOrNullString;
+
+import java.util.Arrays;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.InstanceNameEntityBody;
@@ -9,9 +20,6 @@ import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
 import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
-
-import java.util.Arrays;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -19,13 +27,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
-
-import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
-import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 
 /**
  * @author Pablo Tirado
@@ -175,15 +176,15 @@ public class ServerConfigurationControllerTestIT
         );
 
         SmtpConfigurationForm smtpConfigurationForm = new SmtpConfigurationForm(
-                "localhost", 25, "tls", "username", "password"
+                "localhost", 25, "tls", USERNAME, PASSWORD
         );
 
         ProxyConfigurationForm proxyConfigurationForm = new ProxyConfigurationForm(
                 "localhost",
                 3218,
                 "direct",
-                "username",
-                "password",
+                USERNAME,
+                PASSWORD,
                 Arrays.asList("http://example.com", "https://github.com/strongbox")
         );
 

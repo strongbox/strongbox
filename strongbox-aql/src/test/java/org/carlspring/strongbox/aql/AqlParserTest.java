@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+
 @Disabled
 public class AqlParserTest
 {
@@ -171,7 +173,7 @@ public class AqlParserTest
                            "ArtifactEntry " +
                            "WHERE " +
                            "artifactCoordinates IS NOT NULL  " +
-                           "AND ((storageId = :storageId_0) " +
+                           "AND (("+ STORAGE_ID +" = :storageId_0) " +
                            "AND repositoryId = :repositoryId_1 " +
                            "OR (artifactCoordinates.coordinates.groupId = :groupId_1) " +
                            "AND ( NOT ((artifactCoordinates.coordinates.artifactId = :artifactId_1)) OR " +

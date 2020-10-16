@@ -8,6 +8,8 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+
 /**
  * @author Alex Oreshkevich
  * @author Pablo Tirado
@@ -18,7 +20,7 @@ public class StoragePrivilegesDto
 
     private Set<RepositoryPrivilegesDto> repositoryPrivileges = new LinkedHashSet<>();
 
-    @JsonProperty(value = "storageId")
+    @JsonProperty(value = STORAGE_ID)
     private String storageId;
 
     public StoragePrivilegesDto()
@@ -26,7 +28,7 @@ public class StoragePrivilegesDto
     }
 
     @JsonCreator
-    public StoragePrivilegesDto(@JsonProperty(value = "storageId", required = true) String storageId)
+    public StoragePrivilegesDto(@JsonProperty(value = STORAGE_ID, required = true) String storageId)
     {
         this.storageId = storageId;
     }

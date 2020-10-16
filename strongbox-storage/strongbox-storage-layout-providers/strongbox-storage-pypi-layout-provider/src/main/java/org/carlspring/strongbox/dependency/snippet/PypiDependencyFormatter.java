@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.dependency.snippet;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
-import org.carlspring.strongbox.providers.layout.AbstractLayoutProvider;
-import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
+import static org.carlspring.strongbox.db.schema.Properties.VERSION;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.providers.layout.AbstractLayoutProvider;
+import org.carlspring.strongbox.providers.layout.PypiLayoutProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -56,7 +57,7 @@ public class PypiDependencyFormatter
         PypiArtifactCoordinates coordinates = (PypiArtifactCoordinates) inputCoordinates;
         String sb = coordinates.getId(); 
 
-        if (!"version".equals(coordinates.getVersion()))
+        if (!VERSION.equals(coordinates.getVersion()))
         {
             sb += " == " + coordinates.getVersion();
         }

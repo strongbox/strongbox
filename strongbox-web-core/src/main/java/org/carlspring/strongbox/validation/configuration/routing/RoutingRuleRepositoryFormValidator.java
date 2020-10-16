@@ -1,13 +1,15 @@
 package org.carlspring.strongbox.validation.configuration.routing;
 
-import org.carlspring.strongbox.forms.storage.routing.RoutingRuleRepositoryForm;
-import org.carlspring.strongbox.services.ConfigurationManagementService;
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
 
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang3.StringUtils;
+import org.carlspring.strongbox.forms.storage.routing.RoutingRuleRepositoryForm;
+import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +45,10 @@ public class RoutingRuleRepositoryFormValidator
             {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message)
-                       .addPropertyNode("storageId")
+                       .addPropertyNode(STORAGE_ID)
                        .addConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message)
-                       .addPropertyNode("repositoryId")
+                       .addPropertyNode(REPOSITORY_ID)
                        .addConstraintViolation();
             }
             else

@@ -1,5 +1,16 @@
 package org.carlspring.strongbox.controllers;
 
+import static org.carlspring.strongbox.db.schema.Properties.STORAGE_ID;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang.StringUtils;
 import org.carlspring.strongbox.domain.DirectoryListing;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
@@ -7,21 +18,6 @@ import org.carlspring.strongbox.services.DirectoryListingService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.web.RepositoryMapping;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.util.Map;
-import java.util.Optional;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,8 +27,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * REST API for browsing storage/repository/filesystem structures.
@@ -100,7 +105,7 @@ public class BrowseController
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE})
-    public Object repositories(@ApiParam(value = "The storageId", required = true) @PathVariable("storageId") String storageId,
+    public Object repositories(@ApiParam(value = "The storageId", required = true) @PathVariable(STORAGE_ID) String storageId,
                                HttpServletRequest request,
                                ModelMap model,
                                @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String acceptHeader)

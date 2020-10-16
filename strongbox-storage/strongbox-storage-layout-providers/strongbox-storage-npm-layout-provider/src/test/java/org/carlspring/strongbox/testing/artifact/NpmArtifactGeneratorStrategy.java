@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 
+import static org.carlspring.strongbox.db.schema.Properties.REPOSITORY_ID;
+
 /**
  * @author Yuri Zaytsev
  *
@@ -28,7 +30,7 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
                                                                         version,
                                                                         (String) attributesMap.get("extension"));
         Path packagePath = artifactGenerator.generateArtifact(coordinates, bytesSize);
-        if (!Optional.ofNullable(attributesMap.get("repositoryId"))
+        if (!Optional.ofNullable(attributesMap.get(REPOSITORY_ID))
                      .filter(repositoryId -> ((String) repositoryId).trim().length() > 0)
                      .isPresent())
         {

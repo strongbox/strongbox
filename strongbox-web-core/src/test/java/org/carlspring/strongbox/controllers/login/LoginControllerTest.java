@@ -1,5 +1,13 @@
 package org.carlspring.strongbox.controllers.login;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
+
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
+
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.configuration.ConfigurationManager;
 import org.carlspring.strongbox.forms.users.UserForm;
@@ -7,14 +15,8 @@ import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
-import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
 import org.carlspring.strongbox.users.service.impl.DatabaseUserService.Database;
-
-import javax.inject.Inject;
-import java.util.regex.Pattern;
-
-import com.google.common.collect.ImmutableSet;
-import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
+import org.carlspring.strongbox.users.service.impl.EncodedPasswordUser;
 import org.hamcrest.CoreMatchers;
 import org.jose4j.jwt.JwtClaims;
 import org.jose4j.jwt.NumericDate;
@@ -26,8 +28,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+
+import com.google.common.collect.ImmutableSet;
+
+import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 
 /**
  * @author Przemyslaw Fusik
@@ -92,7 +96,7 @@ public class LoginControllerTest
     {
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("admin");
-        loginInput.setPassword("password");
+        loginInput.setPassword(PASSWORD);
 
         // Check if login returns proper response.
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -114,7 +118,7 @@ public class LoginControllerTest
     {
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("admin");
-        loginInput.setPassword("password");
+        loginInput.setPassword(PASSWORD);
 
         // Get a token
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -152,7 +156,7 @@ public class LoginControllerTest
     {
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("przemyslaw_fusik");
-        loginInput.setPassword("password");
+        loginInput.setPassword(PASSWORD);
 
         mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                .accept(MediaType.APPLICATION_JSON_VALUE)
@@ -196,7 +200,7 @@ public class LoginControllerTest
     {
         UserDto cacheEvictionTestUser = new UserDto();
         cacheEvictionTestUser.setUsername("admin-cache-eviction-test");
-        cacheEvictionTestUser.setPassword("password");
+        cacheEvictionTestUser.setPassword(PASSWORD);
         cacheEvictionTestUser.setRoles(ImmutableSet.of("ADMIN"));
         cacheEvictionTestUser.setEnabled(true);
         cacheEvictionTestUser.setSecurityTokenKey("admin-cache-eviction-test-secret");
@@ -204,7 +208,7 @@ public class LoginControllerTest
 
         LoginInput loginInput = new LoginInput();
         loginInput.setUsername("admin-cache-eviction-test");
-        loginInput.setPassword("password");
+        loginInput.setPassword(PASSWORD);
 
         LoginOutput loginOutput = mockMvc.contentType(MediaType.APPLICATION_JSON_VALUE)
                                          .accept(MediaType.APPLICATION_JSON_VALUE)

@@ -28,6 +28,8 @@ import org.springframework.test.context.ContextConfiguration;
 
 import com.google.common.collect.Sets;
 
+import static org.carlspring.strongbox.db.schema.Properties.PASSWORD;
+
 /**
  * @author ankit.tomar
  */
@@ -85,7 +87,7 @@ public class UserRepositoryTest
                                    Set<String> roles)
     {
         UserEntity user = new UserEntity(username);
-        user.setPassword("password");
+        user.setPassword(PASSWORD);
         user.setSecurityTokenKey("security-token");
         Set<SecurityRole> userRoles = roles.stream()
                                        .map(SecurityRoleEntity::new)
