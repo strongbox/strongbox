@@ -21,7 +21,6 @@ import org.springframework.context.annotation.Import;
           NpmLayoutProviderConfig.class,
           MockedRemoteRepositoriesHeartbeatConfig.class,
           ClientConfig.class,
-          StorageMultipartConfig.class
 })
 public class NpmLayoutProviderTestConfig
 {

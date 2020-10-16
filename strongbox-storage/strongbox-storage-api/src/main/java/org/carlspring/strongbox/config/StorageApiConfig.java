@@ -8,10 +8,7 @@ import javax.inject.Inject;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.*;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
@@ -26,6 +23,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
                  "org.carlspring.strongbox.domain",
                  "org.carlspring.strongbox.booters"
 })
+@Import({StorageMultipartConfig.class})
 @EnableAsync
 public class StorageApiConfig
 {
