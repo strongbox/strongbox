@@ -18,8 +18,7 @@ public class NpmPackageJsonTestCase
     {
         ObjectMapper mapper = NpmJacksonMapperFactory.createObjectMapper();
 
-        PackageVersion packageDef = mapper.readValue(getClass().getResourceAsStream("/json/types/node/package.json"),
-            PackageVersion.class);
+        PackageVersion packageDef = mapper.readValue(getClass().getResourceAsStream("/json/types/node/package.json"), PackageVersion.class);
 
         assertThat(packageDef.getName()).isEqualTo("definitely-typed");
     }
@@ -30,9 +29,9 @@ public class NpmPackageJsonTestCase
     {
         ObjectMapper mapper = NpmJacksonMapperFactory.createObjectMapper();
 
-        PackageFeed feedDef = mapper.readValue(getClass().getResourceAsStream("/json/antlr4-autosuggest/feed.json"),
-            PackageFeed.class);
+        PackageFeed feedDef = mapper.readValue(getClass().getResourceAsStream("/json/antlr4-autosuggest/feed.json"), PackageFeed.class);
 
         assertThat(feedDef.getName()).isEqualTo("antlr4-autosuggest");
     }
+    
 }
