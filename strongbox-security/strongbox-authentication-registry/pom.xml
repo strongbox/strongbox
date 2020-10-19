@@ -67,7 +67,7 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-user-management</artifactId>
             <version>${project.version}</version>
-        </dependency>        
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -81,14 +81,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-protocol-ldap</artifactId>
-            <scope>test</scope>
+            <groupId>com.unboundid</groupId>
+            <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>

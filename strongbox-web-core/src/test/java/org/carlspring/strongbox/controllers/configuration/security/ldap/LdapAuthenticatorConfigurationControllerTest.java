@@ -13,7 +13,6 @@ import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurat
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import javax.inject.Inject;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +21,7 @@ import java.util.stream.Stream;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -102,10 +102,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void shouldUpdateFullLdapConfiguration()
-        throws IOException
+    public void shouldUpdateFullLdapConfiguration()      
     {
-
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
 
         configuration.getUserSearch().setUserSearchBase("ou=People");
@@ -222,8 +220,8 @@ public class LdapAuthenticatorConfigurationControllerTest
                .put(getContextBaseUrl() + "/test")
                .peek()
                .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("message", equalTo("LDAP configuration test failed"));
+               .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+               .body("message", equalTo("Failed to test LDAP configuration."));
     }
 
     @WithMockUser(authorities = "ADMIN")
@@ -447,7 +445,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
         @Primary
         @Bean
-        public HazelcastInstanceId hazelcastInstanceIdLacct() {
+        public HazelcastInstanceId hazelcastInstanceIdLacct()
+        {
             return new HazelcastInstanceId("LdapAuthenticatorConfigurationControllerTest-hazelcast-instance");
         }
 

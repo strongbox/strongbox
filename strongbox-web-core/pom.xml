@@ -460,12 +460,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.directory.server</groupId>
-            <artifactId>apacheds-protocol-ldap</artifactId>
+            <groupId>com.unboundid</groupId>
+            <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
 
         <dependency>
