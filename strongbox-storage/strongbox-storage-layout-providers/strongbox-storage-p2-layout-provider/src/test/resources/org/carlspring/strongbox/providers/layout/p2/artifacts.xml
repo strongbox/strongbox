@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?artifactRepository version='1.1.0'?>
+<repository name='Simple Repository Test' type='org.eclipse.equinox.p2.artifact.repository.simpleRepository' version='1'>
+  <properties size='2'>
+    <property name='p2.timestamp' value='1472837913505'/>
+    <property name='p2.compressed' value='false'/>
+  </properties>
+  <mappings size='5'>
+    <rule filter='(&amp; (classifier=osgi.bundle) (format=packed))'
+          output='${repoUrl}/plugins/${id}_${version}.jar.pack.gz'/>
+    <rule filter='(&amp; (classifier=osgi.bundle))' output='${repoUrl}/plugins/${id}_${version}.jar'/>
+    <rule filter='(&amp; (classifier=binary))' output='${repoUrl}/binary/${id}_${version}'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature) (format=packed))'
+          output='${repoUrl}/features/${id}_${version}.jar.pack.gz'/>
+    <rule filter='(&amp; (classifier=org.eclipse.update.feature))' output='${repoUrl}/features/${id}_${version}.jar'/>
+  </mappings>
+  <artifacts size='3'>
+    <artifact classifier='osgi.bundle' id='com.carlspring.bundle' version='1.0.1'>
+      <properties size='1'>
+        <property name='download.size' value='1'/>
+      </properties>
+    </artifact>
+    <artifact classifier='org.eclipse.update.feature' id='com.carlspring.feature' version='1.0.1'>
+      <properties size='1'>
+        <property name='download.size' value='1'/>
+      </properties>
+    </artifact>
+    <artifact classifier='binary' id='com.carlspring.binary' version='1.0.1'>
+      <properties size='1'>
+        <property name='download.size' value='1'/>
+      </properties>
+    </artifact>
+  </artifacts>
+</repository>

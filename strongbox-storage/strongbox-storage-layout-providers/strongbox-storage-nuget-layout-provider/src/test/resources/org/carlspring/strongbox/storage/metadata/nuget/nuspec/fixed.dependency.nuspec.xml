@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Id</id>
+        <version>0.0.2.828</version>
+        <authors>AUTHOR</authors>
+        <owners>AUTHOR</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Descr</description>
+        <copyright>Copyright 2011</copyright>
+        <tags>Descr</tags>
+        <dependencies>
+            <dependency id="Ref.Id" version="[0.0.2.814]" />
+        </dependencies>
+    </metadata>
+</package>

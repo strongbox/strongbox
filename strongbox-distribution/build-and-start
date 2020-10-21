@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mvn clean install -Plog-file-debug
+
+cd target/
+tar -zxf *gz
+cd strongbox-distribution-*/strongbox-*/
+./bin/strongbox start
+tail -n 500 -F logs/* ../strongbox-vault/logs/* 

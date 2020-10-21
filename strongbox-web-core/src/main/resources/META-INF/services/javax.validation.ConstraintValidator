@@ -1,0 +1,13 @@
+org.carlspring.strongbox.validation.configuration.StorageProviderValidator
+org.carlspring.strongbox.validation.configuration.DescribableEnumValueValidator
+org.carlspring.strongbox.validation.configuration.LayoutProviderValueValidator
+org.carlspring.strongbox.validation.configuration.UniqueStorageValidator
+org.carlspring.strongbox.validation.configuration.ShouldNotContainValidator
+org.carlspring.strongbox.validation.configuration.routing.RoutingRuleRepositoryFormValidator
+
+org.carlspring.strongbox.validation.users.PasswordValidator
+org.carlspring.strongbox.validation.users.UniqueUsernameValidator
+
+org.carlspring.strongbox.validation.UniqueRoleNameValidator
+
+org.carlspring.strongbox.validation.cron.CronTaskConfigurationFormValidator
