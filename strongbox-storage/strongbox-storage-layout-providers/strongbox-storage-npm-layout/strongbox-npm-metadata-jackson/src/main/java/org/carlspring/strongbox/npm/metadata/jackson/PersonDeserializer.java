@@ -22,10 +22,9 @@ public class PersonDeserializer extends JsonDeserializer<Person>
     @Override
     public Person deserialize(JsonParser jp,
                               DeserializationContext c)
-        throws IOException,
-        JsonProcessingException
+            throws IOException,
+                   JsonProcessingException
     {
-
         ObjectCodec codec = jp.getCodec();
         JsonNode node = codec.readTree(jp);
 
@@ -63,9 +62,8 @@ public class PersonDeserializer extends JsonDeserializer<Person>
     }
 
     public static void main(String args[])
-        throws Exception
+            throws Exception
     {
-
         String person = "Barney Rubble <b@rubble.com> (http://barnyrubble.tumblr.com/)";
 
         String email = "";

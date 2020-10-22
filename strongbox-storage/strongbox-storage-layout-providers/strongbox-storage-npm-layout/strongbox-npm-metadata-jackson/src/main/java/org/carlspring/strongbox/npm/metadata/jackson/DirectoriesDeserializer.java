@@ -17,10 +17,9 @@ public class DirectoriesDeserializer extends JsonDeserializer<Directories>
     @Override
     public Directories deserialize(JsonParser jp,
                                    DeserializationContext c)
-        throws IOException,
-        JsonProcessingException
+            throws IOException,
+                   JsonProcessingException
     {
-
         ObjectCodec codec = jp.getCodec();
         JsonNode node = codec.readTree(jp);
 

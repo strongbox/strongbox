@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -31,9 +31,9 @@
     </developers>
 
     <scm>
-        <connection>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</connection>
-        <url>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</url>
-        <developerConnection>scm:git:git@github.com:strongbox/strongbox-npm-metadata.git</developerConnection>
+        <connection>scm:git:git@github.com:strongbox/strongbox.git</connection>
+        <url>scm:git:git@github.com:strongbox/strongbox.git</url>
+        <developerConnection>scm:git:git@github.com:strongbox/strongbox.git</developerConnection>
     </scm>
 
     <build>

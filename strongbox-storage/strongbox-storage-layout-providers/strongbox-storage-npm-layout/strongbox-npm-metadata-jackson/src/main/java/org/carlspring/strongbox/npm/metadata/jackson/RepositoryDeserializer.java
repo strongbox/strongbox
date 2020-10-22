@@ -31,8 +31,8 @@ public class RepositoryDeserializer extends JsonDeserializer<Repository>
     @Override
     public Repository deserialize(JsonParser jp,
                                   DeserializationContext c)
-        throws IOException,
-        JsonProcessingException
+            throws IOException,
+                   JsonProcessingException
     {
 
         ObjectCodec codec = jp.getCodec();

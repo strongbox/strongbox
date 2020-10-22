@@ -17,10 +17,9 @@ public class ScriptsDeserializer extends JsonDeserializer<Scripts>
     @Override
     public Scripts deserialize(JsonParser jp,
                                DeserializationContext c)
-        throws IOException,
-        JsonProcessingException
+            throws IOException,
+                   JsonProcessingException
     {
-
         ObjectCodec codec = jp.getCodec();
         JsonNode node = codec.readTree(jp);
 

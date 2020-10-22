@@ -17,10 +17,9 @@ public class LicenseDeserializer extends JsonDeserializer<License>
     @Override
     public License deserialize(JsonParser jp,
                                DeserializationContext c)
-        throws IOException,
-        JsonProcessingException
+            throws IOException,
+                   JsonProcessingException
     {
-
         ObjectCodec codec = jp.getCodec();
         JsonNode node = codec.readTree(jp);
 
@@ -30,6 +29,7 @@ public class LicenseDeserializer extends JsonDeserializer<License>
         {
             return codec.treeToValue(node, License.class);
         }
+        
         License license = new License();
         license.setType(value);
 

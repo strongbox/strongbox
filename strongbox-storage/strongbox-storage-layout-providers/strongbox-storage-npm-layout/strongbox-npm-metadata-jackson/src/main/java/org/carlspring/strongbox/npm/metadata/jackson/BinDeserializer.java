@@ -17,10 +17,9 @@ public class BinDeserializer extends JsonDeserializer<Bin>
     @Override
     public Bin deserialize(JsonParser jp,
                            DeserializationContext c)
-        throws IOException,
-        JsonProcessingException
+            throws IOException,
+                   JsonProcessingException
     {
-
         ObjectCodec codec = jp.getCodec();
         JsonNode node = codec.readTree(jp);
 
@@ -34,7 +33,6 @@ public class BinDeserializer extends JsonDeserializer<Bin>
         Bin bin = new Bin();
         //TODO: we should replace this {packageName} placeholer with package name.
         bin.setAdditionalProperty("{packageName}", value);
-
 
         return bin;
     }
