@@ -34,7 +34,6 @@ public class RepositoryDeserializer extends JsonDeserializer<Repository>
             throws IOException,
                    JsonProcessingException
     {
-
         ObjectCodec codec = jp.getCodec();
         JsonNode node = codec.readTree(jp);
 
