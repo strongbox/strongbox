@@ -43,11 +43,11 @@
     <modules>
         <module>strongbox-storage-nuget-layout-provider</module>
         <module>strongbox-storage-p2-layout-provider</module>
-        <module>strongbox-storage-npm-layout-provider</module>
         <module>strongbox-storage-pypi-layout-provider</module>
         <module>strongbox-storage-raw-layout-provider</module>
         <module>strongbox-storage-rpm-layout-provider</module>
         <module>strongbox-storage-maven-layout</module>
+        <module>strongbox-storage-npm-layout</module>
     </modules>
 
 </project>
