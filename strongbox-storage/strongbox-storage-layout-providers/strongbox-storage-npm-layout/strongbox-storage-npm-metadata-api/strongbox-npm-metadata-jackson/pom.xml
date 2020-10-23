@@ -11,7 +11,8 @@
     </parent>
 
     <artifactId>strongbox-npm-metadata-jackson</artifactId>
-
+    <name>Strongbox: NPM Metadata [Jackson]</name>
+    
     <inceptionYear>2019</inceptionYear>
     <url>https://github.com/strongbox/strongbox-npm-metadata</url>
     
