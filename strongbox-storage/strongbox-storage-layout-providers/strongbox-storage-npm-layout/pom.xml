@@ -10,7 +10,7 @@
         <relativePath/>
     </parent>
 
-    <artifactId>strongbox-npm-metadata</artifactId>
+    <artifactId>strongbox-storage-npm-layout</artifactId>
     <packaging>pom</packaging>
     <inceptionYear>2020</inceptionYear>
 
@@ -38,7 +38,6 @@
 
     <modules>
         <module>strongbox-storage-npm-layout-provider</module>
-        <module>strongbox-npm-metadata-schema</module>
-        <module>strongbox-npm-metadata-jackson</module>
+        <module>strongbox-storage-npm-metadata-api</module>
     </modules>
 </project>
