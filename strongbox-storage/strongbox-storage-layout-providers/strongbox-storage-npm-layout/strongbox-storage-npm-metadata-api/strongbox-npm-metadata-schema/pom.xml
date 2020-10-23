@@ -11,7 +11,8 @@
     </parent>
 
     <artifactId>strongbox-npm-metadata-schema</artifactId>
-
+    <name>Strongbox: NPM Metadata [Schema]</name>
+    
     <inceptionYear>2020</inceptionYear>
     <url>https://github.com/sbespalov/strongbox-npm-metadata</url>
     <licenses>

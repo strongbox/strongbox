@@ -25,7 +25,7 @@ public class NpmPackageJsonTestCase
 
     @Test
     public void testParseAutosuggestFeed()
-            throws IOException
+            throws Exception
     {
         ObjectMapper mapper = NpmJacksonMapperFactory.createObjectMapper();
 
