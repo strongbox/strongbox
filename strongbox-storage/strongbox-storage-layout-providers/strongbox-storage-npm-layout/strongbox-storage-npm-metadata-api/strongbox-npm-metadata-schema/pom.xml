@@ -24,6 +24,7 @@
             <comments>A business-friendly OSS license</comments>
         </license>
     </licenses>
+    
     <developers>
         <developer>
             <name>Sergey Bespalov</name>
