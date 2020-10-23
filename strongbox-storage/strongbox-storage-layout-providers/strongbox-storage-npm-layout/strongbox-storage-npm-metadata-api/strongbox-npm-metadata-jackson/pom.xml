@@ -14,6 +14,7 @@
 
     <inceptionYear>2019</inceptionYear>
     <url>https://github.com/strongbox/strongbox-npm-metadata</url>
+    
     <licenses>
         <license>
             <name>Apache 2.0</name>
