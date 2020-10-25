@@ -148,8 +148,7 @@ public class MavenArtifactDeployer
         try (InputStream is = new FileInputStream(metadataFile);
              MultipleDigestInputStream mdis = new MultipleDigestInputStream(is))
         {
-            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/"
-                         + metadataPath;
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
 
             logger.debug("Deploying {}...", url);
 
