@@ -48,10 +48,7 @@ public class ArtifactSizeFilter implements Filter
     private boolean isSizeWithinBoundaries(String lengthHeader)
     {
         long contentSize = Long.parseLong(lengthHeader);
-        boolean sizeWithinBoundaries = true;
-        if(lengthHeader != null) {
-            sizeWithinBoundaries = contentSize <= multipartConfigElement.getMaxFileSize();
-        }
+        boolean sizeWithinBoundaries = contentSize <= multipartConfigElement.getMaxFileSize();
         boolean boundariesNotSet = multipartConfigElement.getMaxFileSize() == -1;
         return boundariesNotSet || sizeWithinBoundaries;
     }
