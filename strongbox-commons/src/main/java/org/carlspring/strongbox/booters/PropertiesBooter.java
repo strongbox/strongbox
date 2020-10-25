@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PropertiesBooter
 {
+    // private access modifier ensuress these variables are not used (directly) outside PropertiesBooter class.
     @Value("${strongbox.home}")
     private String homeDirectory;
 
