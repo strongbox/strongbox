@@ -12,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Component
-@Order(1)
 public class ArtifactSizeFilter implements Filter
 {
 
@@ -49,8 +48,11 @@ public class ArtifactSizeFilter implements Filter
     private boolean isSizeWithinBoundaries(String lengthHeader)
     {
         long contentSize = Long.parseLong(lengthHeader);
-        boolean sizeWithinBoundaries = contentSize <= multipartConfigElement.getMaxFileSize();
-        boolean boundariesNotSet = multipartConfigElement.getFileSizeThreshold() == -1;
+        boolean sizeWithinBoundaries = true;
+        if(lengthHeader != null) {
+            sizeWithinBoundaries = contentSize <= multipartConfigElement.getMaxFileSize();
+        }
+        boolean boundariesNotSet = multipartConfigElement.getMaxFileSize() == -1;
         return boundariesNotSet || sizeWithinBoundaries;
     }
 }
