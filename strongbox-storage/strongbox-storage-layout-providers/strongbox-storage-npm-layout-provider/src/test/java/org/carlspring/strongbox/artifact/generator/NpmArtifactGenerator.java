@@ -93,16 +93,12 @@ public class NpmArtifactGenerator
 
         Files.createDirectories(packagePath.getParent());
 
-        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(packagePath, StandardOpenOption.CREATE)))
+        try (OutputStream out = new BufferedOutputStream(Files.newOutputStream(packagePath, StandardOpenOption.CREATE));
+             GzipCompressorOutputStream gzipOut = new GzipCompressorOutputStream(out);
+             TarArchiveOutputStream tarOut = new TarArchiveOutputStream(gzipOut))
         {
-            GzipCompressorOutputStream gzipOut = new GzipCompressorOutputStream(out);
-            TarArchiveOutputStream tarOut = new TarArchiveOutputStream(gzipOut);
-
             writeContent(tarOut, bytesSize);
             writePackageJson(tarOut);
-
-            tarOut.close();
-            gzipOut.close();
         }
 
         calculateChecksum();

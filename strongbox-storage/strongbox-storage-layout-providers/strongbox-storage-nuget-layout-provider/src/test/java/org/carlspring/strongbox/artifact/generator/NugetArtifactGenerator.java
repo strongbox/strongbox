@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.artifact.coordinates.NugetArtifactCoordinates;
 import org.carlspring.strongbox.artifact.coordinates.versioning.SemanticVersion;
 import org.carlspring.strongbox.io.LayoutOutputStream;
@@ -181,29 +180,26 @@ public class NugetArtifactGenerator
 
         try (OutputStream fileOutputStream = Files.newOutputStream(packagePath))
         {
-            LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream);
-            layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
-            layoutOutputStream.setDigestStringifier(this::toBase64);
-
-            try (ZipOutputStream zos = new ZipOutputStream(layoutOutputStream))
+            try (LayoutOutputStream layoutOutputStream = new LayoutOutputStream(fileOutputStream))
             {
-                addNugetNuspecFile(nuspec, zos);
-                TestFileUtils.generateFile(zos, bytesSize, "file-with-given-size");
+                layoutOutputStream.addAlgorithm(MessageDigestAlgorithms.SHA_512);
+                layoutOutputStream.setDigestStringifier(this::toBase64);
 
-                String id = nuspec.getId();
+                try (ZipOutputStream zos = new ZipOutputStream(layoutOutputStream))
+                {
+                    addNugetNuspecFile(nuspec, zos);
+                    TestFileUtils.generateFile(zos, bytesSize, "file-with-given-size");
 
-                SemanticVersion version = nuspec.getVersion();
-                createMetadata(id, version.toString(), zos);
+                    String id = nuspec.getId();
 
-                createContentType(zos);
-                createRels(id, zos);
+                    SemanticVersion version = nuspec.getVersion();
+                    createMetadata(id, version.toString(), zos);
+
+                    createContentType(zos);
+                    createRels(id, zos);
+                }
+                generateChecksum(packagePath, layoutOutputStream);
             }
-            finally
-            {
-                layoutOutputStream.close();
-            }
-
-            generateChecksum(packagePath, layoutOutputStream);
         }
     }
 
@@ -232,17 +228,16 @@ public class NugetArtifactGenerator
         ZipEntry ze = new ZipEntry("[Content_Types].xml");
         zos.putNextEntry(ze);
 
-        InputStream is = getClass().getResourceAsStream("[Content_Types].xml");
-        byte[] buffer = new byte[4096];
-        int len;
-        while ((len = is.read(buffer)) > 0)
+        try (InputStream is = getClass().getResourceAsStream("[Content_Types].xml"))
         {
-            zos.write(buffer, 0, len);
+            byte[] buffer = new byte[4096];
+            int len;
+            while ((len = is.read(buffer)) > 0)
+            {
+                zos.write(buffer, 0, len);
+            }
         }
-
-        is.close();
         zos.closeEntry();
-
     }
 
     private void createMetadata(String id,

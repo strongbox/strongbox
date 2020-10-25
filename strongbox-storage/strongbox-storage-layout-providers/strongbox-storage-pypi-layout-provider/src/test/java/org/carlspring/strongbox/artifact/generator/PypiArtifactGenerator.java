@@ -115,9 +115,9 @@ public class PypiArtifactGenerator
 
         Path fullPathParent = fullPath.getParent();
         Files.createDirectories(fullPathParent);
-        OutputStream outputStream = Files.newOutputStream(fullPath, CREATE);
 
-        try(ZipOutputStream zos = new ZipOutputStream(outputStream))
+        try (OutputStream outputStream = Files.newOutputStream(fullPath, CREATE);
+             ZipOutputStream zos = new ZipOutputStream(outputStream))
         {
             if (coordinates.isSourcePackage())
             {
@@ -224,7 +224,6 @@ public class PypiArtifactGenerator
                                "Generator: bdist_wheel (0.33.4)\n" +
                                "Root-Is-Purelib: true\n" +
                                "Tag: py2-none-any").getBytes();
-
         createZipEntry(zos, wheelPath, wheelContent);
 
         //create top_level.txt zip entry
@@ -258,7 +257,6 @@ public class PypiArtifactGenerator
                                                                     topLevelContent.length))
                                               .append(recordPath)
                                               .append(",,");
-
         createZipEntry(zos, recordPath, recordContent.toString().getBytes());
 
         String randomPath = dirPath + "/RANDOM";

@@ -840,14 +840,21 @@ public class MavenArtifactControllerTest
 
         MavenArtifactDeployer artifactDeployer = buildArtifactDeployer(Paths.get(System.getProperty("java.io.tmpdir")));
 
-        // When
-        artifactDeployer.generateAndDeployArtifact(pluginArtifact1, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(pluginArtifact2, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(pluginArtifact3, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(pluginArtifact4, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact5, storageId, repositoryId);
-        artifactDeployer.generateAndDeployArtifact(artifact6, storageId, repositoryId);
-
+        try
+        {
+            // When
+            artifactDeployer.generateAndDeployArtifact(pluginArtifact1, storageId, repositoryId);
+            artifactDeployer.generateAndDeployArtifact(pluginArtifact2, storageId, repositoryId);
+            artifactDeployer.generateAndDeployArtifact(pluginArtifact3, storageId, repositoryId);
+            artifactDeployer.generateAndDeployArtifact(pluginArtifact4, storageId, repositoryId);
+            artifactDeployer.generateAndDeployArtifact(artifact5, storageId, repositoryId);
+            artifactDeployer.generateAndDeployArtifact(artifact6, storageId, repositoryId);
+        }
+        catch (Exception e)
+        {
+            logger.error("Error while generate And deploy artifacts", e);
+            throw new RuntimeException(e);
+        }
         // Then
         // Group level metadata
         String metadataPath = "/storages/" + storageId + "/" + repositoryId + "/" + getGroupLevelMetadataPath(artifact1);
