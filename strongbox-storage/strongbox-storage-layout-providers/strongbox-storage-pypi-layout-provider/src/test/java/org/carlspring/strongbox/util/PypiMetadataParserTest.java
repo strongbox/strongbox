@@ -72,8 +72,7 @@ public class PypiMetadataParserTest
     public void testParseFileWithInvalidMetadataVersion()
             throws IOException
     {
-        try (InputStream fis = Files.newInputStream(
-                Paths.get("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version")))
+        try (InputStream fis = Files.newInputStream(Paths.get("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version")))
         {
             assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> pypiMetadataParser.parseMetadataFile(fis));
         }
@@ -83,8 +82,7 @@ public class PypiMetadataParserTest
     public void testParseFileWithInvalidName()
             throws IOException
     {
-        try (InputStream fis = Files.newInputStream(
-                Paths.get("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name")))
+        try (InputStream fis = Files.newInputStream(Paths.get("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name")))
         {
             assertThatExceptionOfType(ConstraintViolationException.class).isThrownBy(() -> pypiMetadataParser.parseMetadataFile(fis));
         }

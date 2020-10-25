@@ -393,16 +393,14 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
             String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
 
-            Path checksumPath = artifactPath.resolveSibling(
-                    artifactPath.getFileName() + EncryptionAlgorithmsEnum.MD5.getExtension());
+            Path checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.MD5.getExtension());
             try (OutputStream os = Files.newOutputStream(checksumPath))
             {
                 IOUtils.write(md5, os, StandardCharsets.UTF_8);
                 os.flush();
             }
 
-            checksumPath = artifactPath.resolveSibling(
-                    artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA1.getExtension());
+            checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA1.getExtension());
             try (OutputStream os = Files.newOutputStream(checksumPath))
             {
                 IOUtils.write(sha1, os, StandardCharsets.UTF_8);

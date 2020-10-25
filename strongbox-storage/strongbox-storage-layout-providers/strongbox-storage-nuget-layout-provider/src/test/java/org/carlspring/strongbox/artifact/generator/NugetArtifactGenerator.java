@@ -171,7 +171,9 @@ public class NugetArtifactGenerator
     public void createArchive(Nuspec nuspec,
                               Path packagePath,
                               long bytesSize)
-            throws IOException, JAXBException, NoSuchAlgorithmException
+            throws IOException,
+                   JAXBException,
+                   NoSuchAlgorithmException
     {
         // Make sure the artifact's parent directory exists before writing the model.
         Files.createDirectories(packagePath.getParent());
