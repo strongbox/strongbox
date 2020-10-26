@@ -91,20 +91,24 @@
                         <configuration>
                             <scripts>
                                 <script><![CDATA[
-                                        new File( "$project.basedir/target/META-INF").mkdirs();
+                                    import java.nio.file.Paths;
 
-                                        def replaceRef(schemaFileName){
-                                            new File( "$project.basedir/target/META-INF/$schemaFileName" ).withWriter { w ->
-                                              new File( "$project.basedir/target/generated-resources/META-INF/$schemaFileName" ).eachLine { line ->
-                                                w << line.replaceAll( "http://strongbox.carlspring.org/npm/metadata/common", "file://$project.basedir/target/generated-resources/META-INF/common.schema.json" ) + System.getProperty("line.separator")
-                                              }
+                                    Paths.get("$project.basedir/target/META-INF").toFile().mkdirs();
+
+                                    def replaceRef(schemaFileName){
+                                        String commonSchemaPath = "$project.basedir/target/generated-resources/META-INF/common.schema.json";
+                                        String commonSchemaURI = Paths.get(commonSchemaPath).toFile().toURL();
+                                        Paths.get("$project.basedir/target/META-INF/$schemaFileName").toFile().withWriter { w ->
+                                            Paths.get("$project.basedir/target/generated-resources/META-INF/$schemaFileName").toFile().eachLine { line ->
+                                                w << line.replace( "http://strongbox.carlspring.org/npm/metadata/common", commonSchemaURI) + System.getProperty("line.separator")
                                             }
                                         }
+                                    }
 
-                                        replaceRef("package-version.schema.json");
-                                        replaceRef("package-feed.schema.json");
-                                        replaceRef("changes-feed.schema.json");
-                                        replaceRef("search-result.schema.json");
+                                    replaceRef("package-version.schema.json");
+                                    replaceRef("package-feed.schema.json");
+                                    replaceRef("changes-feed.schema.json");
+                                    replaceRef("search-result.schema.json");
 
                                 ]]></script>
                             </scripts>
