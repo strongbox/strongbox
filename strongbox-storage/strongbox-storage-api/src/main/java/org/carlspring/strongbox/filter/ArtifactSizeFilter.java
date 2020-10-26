@@ -32,10 +32,12 @@ public class ArtifactSizeFilter implements Filter
     {
         HttpServletRequest req = (HttpServletRequest) request;
         String lengthHeader = req.getHeader("Content-Length");
+        
         if(lengthHeader != null && !isSizeWithinBoundaries(lengthHeader))
         {
             throw new MaxUploadSizeExceededException(multipartConfigElement.getMaxFileSize());
         }
+        
         chain.doFilter(request, response);
     }
 
