@@ -1,6 +1,5 @@
 package org.carlspring.strongbox.util;
 
-
 import org.carlspring.strongbox.config.PypiLayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.PypiPackageInfo;
 
@@ -16,6 +15,9 @@ import org.springframework.test.context.ContextConfiguration;
 import javax.validation.ConstraintViolationException;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -57,26 +59,33 @@ public class PypiMetadataParserTest
 
     @Test
     public void testParseFileWithEmptyValuesToPypiMetadataDto()
+            throws IOException
     {
-        assertThatExceptionOfType(ConstraintViolationException.class)
-                .isThrownBy(() -> pypiMetadataParser.parseMetadataFile(
-                        new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-empty-values")));
+        try (InputStream fis = Files.newInputStream(
+                Paths.get("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-empty-values")))
+        {
+            assertThatExceptionOfType(ConstraintViolationException.class).isThrownBy(() -> pypiMetadataParser.parseMetadataFile(fis));
+        }
     }
 
     @Test
     public void testParseFileWithInvalidMetadataVersion()
+            throws IOException
     {
-        assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> pypiMetadataParser.parseMetadataFile(new FileInputStream(
-                        "src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version")));
+        try (InputStream fis = Files.newInputStream(Paths.get("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-metadata-version")))
+        {
+            assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> pypiMetadataParser.parseMetadataFile(fis));
+        }
     }
 
     @Test
     public void testParseFileWithInvalidName()
+            throws IOException
     {
-        assertThatExceptionOfType(ConstraintViolationException.class)
-                .isThrownBy(() -> pypiMetadataParser.parseMetadataFile(
-                        new FileInputStream("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name")));
+        try (InputStream fis = Files.newInputStream(Paths.get("src/test/resources/org.carlspring.strongbox.util/PKG-INFO-invalid-name")))
+        {
+            assertThatExceptionOfType(ConstraintViolationException.class).isThrownBy(() -> pypiMetadataParser.parseMetadataFile(fis));
+        }
     }
 
     @ParameterizedTest

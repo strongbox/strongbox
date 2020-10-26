@@ -145,19 +145,20 @@ public class MavenArtifactDeployer
     {
         File metadataFile = new File(getBasedir(), metadataPath);
 
-        InputStream is = new FileInputStream(metadataFile);
-        MultipleDigestInputStream mdis = new MultipleDigestInputStream(is);
+        try (InputStream is = new FileInputStream(metadataFile);
+             MultipleDigestInputStream mdis = new MultipleDigestInputStream(is))
+        {
+            String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
 
-        String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + metadataPath;
+            logger.debug("Deploying {}...", url);
 
-        logger.debug("Deploying {}...", url);
+            client.deployMetadata(is, url, metadataPath.substring(metadataPath.lastIndexOf("/")));
 
-        client.deployMetadata(is, url, metadataPath.substring(metadataPath.lastIndexOf("/")));
-
-        deployChecksum(mdis,
-                       storageId,
-                       repositoryId,
-                       metadataPath.substring(0, metadataPath.lastIndexOf('/') + 1), "maven-metadata.xml");
+            deployChecksum(mdis,
+                           storageId,
+                           repositoryId,
+                           metadataPath.substring(0, metadataPath.lastIndexOf('/') + 1), "maven-metadata.xml");
+        }
     }
 
     private void deployChecksum(MultipleDigestInputStream mdis,
@@ -196,10 +197,12 @@ public class MavenArtifactDeployer
     {
         if (client.pathExists(path))
         {
-            InputStream is = client.getResource(path);
-            MetadataXpp3Reader reader = new MetadataXpp3Reader();
+            try (InputStream is = client.getResource(path))
+            {
+                MetadataXpp3Reader reader = new MetadataXpp3Reader();
 
-            return reader.read(is);
+                return reader.read(is);
+            }
         }
 
         return null;
@@ -215,7 +218,6 @@ public class MavenArtifactDeployer
         try (InputStream is = new FileInputStream(artifactFile);
                 MultipleDigestInputStream ais = new MultipleDigestInputStream(is))
         {
-
             String url = client.getContextBaseUrl() + "/storages/" + storageId + "/" + repositoryId + "/" + artifactToPath;
 
             logger.debug("Deploying {}...", url);

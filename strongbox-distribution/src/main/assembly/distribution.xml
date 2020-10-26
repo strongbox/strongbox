@@ -5,7 +5,12 @@
         <format>tar.gz</format>
         <format>zip</format>
     </formats>
-
+    <files>
+        <file>
+            <source>src/main/resources/META-INF/LICENSE</source>
+            <outputDirectory>strongbox-${project.version}</outputDirectory>
+        </file>
+    </files>
     <fileSets>
         <fileSet>
             <directory>target/assembly/strongbox-${project.version}/etc</directory>

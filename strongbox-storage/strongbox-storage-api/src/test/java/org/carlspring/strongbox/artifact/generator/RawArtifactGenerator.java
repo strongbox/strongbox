@@ -10,7 +10,6 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
-import org.carlspring.commons.io.RandomInputStream;
 import org.carlspring.strongbox.io.LayoutOutputStream;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.util.TestFileUtils;
