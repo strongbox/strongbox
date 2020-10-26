@@ -42,8 +42,7 @@ public class StorageMultipartConfig
     @Bean
     public FilterRegistrationBean storageFilterRegistration()
     {
-        FilterRegistrationBean registrationBean
-                = new FilterRegistrationBean<>();
+        FilterRegistrationBean registrationBean = new FilterRegistrationBean<>();
 
         registrationBean.setFilter(this.artifactSizeFilter());
         registrationBean.addUrlPatterns("/*");
