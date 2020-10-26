@@ -20,8 +20,6 @@ public class StorageMultipartConfig
     @Inject
     private MultipartProperties multipartProperties;
 
-    @Inject
-
     @Bean
     @Qualifier("multipartConfigElement")
     public MultipartConfigElement multipartConfigElement()

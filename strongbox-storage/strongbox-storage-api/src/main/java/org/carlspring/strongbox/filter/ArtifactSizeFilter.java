@@ -1,5 +1,6 @@
 package org.carlspring.strongbox.filter;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -10,6 +11,8 @@ import javax.inject.Inject;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+
+import static org.springframework.http.HttpHeaders.CONTENT_LENGTH;
 
 @Component
 public class ArtifactSizeFilter implements Filter
@@ -31,11 +34,11 @@ public class ArtifactSizeFilter implements Filter
                          final FilterChain chain) throws IOException, ServletException
     {
         HttpServletRequest req = (HttpServletRequest) request;
-        String lengthHeader = req.getHeader("Content-Length");
+        String lengthHeader = req.getHeader(CONTENT_LENGTH);
         
-        if(lengthHeader != null && !isSizeWithinBoundaries(lengthHeader))
+        if(StringUtils.isNotEmpty(lengthHeader))
         {
-            throw new MaxUploadSizeExceededException(multipartConfigElement.getMaxFileSize());
+            checkIfSizeInBoundaries(lengthHeader);
         }
         
         chain.doFilter(request, response);
@@ -47,13 +50,16 @@ public class ArtifactSizeFilter implements Filter
         // do nothing
     }
 
-    private boolean isSizeWithinBoundaries(String lengthHeader)
+    private void checkIfSizeInBoundaries(String lengthHeader) throws MaxUploadSizeExceededException
     {
         long contentSize = Long.parseLong(lengthHeader);
         
         boolean sizeWithinBoundaries = contentSize <= multipartConfigElement.getMaxFileSize();
-        boolean boundariesNotSet = multipartConfigElement.getMaxFileSize() == -1;
+        boolean boundariesSet = multipartConfigElement.getMaxFileSize() != -1;
         
-        return boundariesNotSet || sizeWithinBoundaries;
+        if(boundariesSet && !sizeWithinBoundaries)
+        {
+            throw new MaxUploadSizeExceededException(multipartConfigElement.getMaxFileSize());
+        }
     }
 }
