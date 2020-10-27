@@ -210,7 +210,7 @@
 
                 <configuration>
                     <preWrapperConf>${project.basedir}/src/main/resources/setenv.conf</preWrapperConf>
-                    
+
                     <configurationDirectory>etc</configurationDirectory>
 
                     <repositoryLayout>flat</repositoryLayout>
@@ -292,7 +292,6 @@
                                 <systemProperties>
                                     <systemProperty>appserver.home=.</systemProperty>
                                     <systemProperty>appserver.base=%STRONGBOX_HOME%</systemProperty>
-                                    <systemProperty>ehcache.disk.store.dir=../strongbox-vault/cache</systemProperty>
                                     <systemProperty>strongbox.home=%STRONGBOX_HOME%</systemProperty>
                                     <systemProperty>strongbox.vault=%STRONGBOX_VAULT%</systemProperty>
                                     <systemProperty>strongbox.storage.booter.basedir=%STRONGBOX_VAULT%/storages</systemProperty>
@@ -378,7 +377,7 @@
                     <tarLongFileMode>gnu</tarLongFileMode>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
@@ -393,7 +392,7 @@
                             <controlDir>${basedir}/src/main/resources/deb</controlDir>
                             <skipPOMs>false</skipPOMs>
                             <dataSet>
-                            
+
                                 <data>
                                     <src>${basedir}/target/assembly/strongbox-${project.version}/bin</src>
                                     <type>directory</type>
@@ -472,7 +471,7 @@
                                         <dirmode>775</dirmode>
                                     </mapper>
                                 </data>
-                                
+
                                 <data>
                                     <linkName>/etc/systemd/system/strongbox.service</linkName>
                                         <linkTarget>/opt/strongbox/strongbox.service</linkTarget>
@@ -484,7 +483,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
         </plugins>
     </build>
 
@@ -512,7 +511,7 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            
+
             <properties>
                 <strongbox.log.file>logback-spring.xml</strongbox.log.file>
             </properties>
@@ -522,7 +521,7 @@
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
-            
+
             <properties>
                 <strongbox.log.file>logback-spring-debug.xml</strongbox.log.file>
             </properties>
