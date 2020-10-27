@@ -26,17 +26,10 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
 # What's in the works
 
-* Working on migrating to JanusGraph ([#1649](https://github.com/strongbox/strongbox/issues/1649))
-
-# Hacktoberfests
-
-We would like to welcome everybody who would like to participate in [Hacktoberfest](https://hacktoberfest.digitalocean.com/) ([#Hacktoberfest](https://hacktoberfest.digitalocean.com/)) to join our project and try to contribute.
-
-We'd like to invite you to:
-* Check out the Developer's Guide section of our [wiki](https://strongbox.github.io/developer-guide/getting-started.html)
-* [Get the project to build](https://strongbox.github.io/developer-guide/building-the-code.html)
-* Have a look at our pre-selected issues for [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
-* Join our [chat channel](https://chat.carlspring.org/]) to discuss things and get help started
+* Working on migrating from OrientDB to JanusGraph ([#1649](https://github.com/strongbox/strongbox/issues/1649)).
+* Adding support for JDK11 ([#1111](https://github.com/strongbox/strongbox/issues/1111), [#1775](https://github.com/strongbox/strongbox/issues/1649)).
+  We only support JDK8 in the `master`. The work for this is based off the `issues/1649` branch.
+* Thorough Maven dependency and plugin upgrade (against the `master`). 
 
 # Documentation
 
@@ -80,6 +73,18 @@ started with our project:
 [![GitHub issues by-label][good-first-issue-badge]][good-first-issue-link]
 [![GitHub issues by-label][help-wanted-badge]][help-wanted-link]
 [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link]
+
+# Hackfests
+
+We would like to welcome everybody interested in participating in hackathons and hackfests to join our project and
+try to contribute.
+
+We'd like to invite you to:
+* Check out the Developer's Guide section of our [wiki](https://strongbox.github.io/developer-guide/getting-started.html).
+* Check out our [Hackfests](https://strongbox.github.io/hackfests/index.html) pages.
+* [Get the project to build](https://strongbox.github.io/developer-guide/building-the-code.html).
+* Have a look at our pre-selected issues for [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link].
+* Join our [chat channel](https://chat.carlspring.org/]) to discuss things and get help started.
 
 # Sponsors
 
