@@ -28,6 +28,7 @@ Strongbox has a search engine and an [Artifact Query Language][docs-aql].
 
 * Working on migrating from OrientDB to JanusGraph ([#1649](https://github.com/strongbox/strongbox/issues/1649)).
 * Adding support for JDK11 ([#1111](https://github.com/strongbox/strongbox/issues/1111), [#1775](https://github.com/strongbox/strongbox/issues/1649)).
+  We only support JDK8 in the `master`. The work for this is based off the `issues/1649` branch.
 * Thorough Maven dependency and plugin upgrade (against the `master`). 
 
 # Documentation
