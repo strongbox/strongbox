@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -20,28 +20,23 @@ import org.springframework.util.Assert;
  */
 @Component
 @Order(4)
-class BasicAuthenticationSupplier implements AuthenticationSupplier
+class BasicAuthenticationStrategy implements AuthenticationStrategy
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(BasicAuthenticationSupplier.class);
+    private static final Logger logger = LoggerFactory.getLogger(BasicAuthenticationStrategy.class);
 
     private String credentialsCharset = "UTF-8";
 
     @Override
-    public boolean supports(HttpServletRequest request)
+    public boolean supports(@Nonnull HttpServletRequest request)
     {
         final String header = getAuthenticationHeaderValue(request);
-        if (header == null || !header.startsWith("Basic "))
-        {
-            return false;
-        }
-
-        return true;
+        return header != null && header.startsWith("Basic ");
     }
 
     @CheckForNull
     @Override
-    public Authentication supply(@Nonnull HttpServletRequest request)
+    public Authentication convert(@Nonnull HttpServletRequest request)
     {
         String header = getAuthenticationHeaderValue(request);
 

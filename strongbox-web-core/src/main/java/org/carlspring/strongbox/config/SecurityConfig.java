@@ -4,8 +4,8 @@ import org.carlspring.strongbox.authentication.AuthenticationConfig;
 import org.carlspring.strongbox.security.CustomAccessDeniedHandler;
 import org.carlspring.strongbox.security.authentication.Http401AuthenticationEntryPoint;
 import org.carlspring.strongbox.security.authentication.StrongboxAuthenticationFilter;
-import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSupplier;
-import org.carlspring.strongbox.security.authentication.suppliers.AuthenticationSuppliers;
+import org.carlspring.strongbox.security.authentication.strategy.AuthenticationStrategy;
+import org.carlspring.strongbox.security.authentication.strategy.DelegatingAuthenticationConverter;
 import org.carlspring.strongbox.security.vote.MethodAccessDecisionManager;
 import org.carlspring.strongbox.services.ConfigurationManagementService;
 import org.carlspring.strongbox.users.domain.SystemRole;
@@ -62,7 +62,7 @@ public class SecurityConfig
     private AuthenticationManager authenticationManager;
 
     @Inject
-    private List<AuthenticationSupplier> suppliers;
+    private List<AuthenticationStrategy> strategies;
 
 
     @Override
@@ -159,7 +159,7 @@ public class SecurityConfig
     @Bean
     StrongboxAuthenticationFilter strongboxAuthenticationFilter()
     {
-        return new StrongboxAuthenticationFilter(new AuthenticationSuppliers(suppliers), authenticationManager);
+        return new StrongboxAuthenticationFilter(new DelegatingAuthenticationConverter(strategies), authenticationManager);
     }
 
     @Bean

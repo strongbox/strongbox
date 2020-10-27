@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -9,41 +9,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 
 /**
  * @author Przemyslaw Fusik
  */
-public class AuthenticationSuppliers
-        implements AuthenticationSupplier
+public class DelegatingAuthenticationConverter
+        implements AuthenticationConverter
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationSuppliers.class);
+    private static final Logger logger = LoggerFactory.getLogger(DelegatingAuthenticationConverter.class);
 
-    private final List<AuthenticationSupplier> suppliers;
+    private final List<AuthenticationStrategy> strategies;
 
-    public AuthenticationSuppliers(List<AuthenticationSupplier> suppliers)
+    public DelegatingAuthenticationConverter(List<AuthenticationStrategy> strategies)
     {
-        this.suppliers = suppliers;
+        this.strategies = strategies;
     }
 
     @CheckForNull
     @Override
-    public Authentication supply(@Nonnull HttpServletRequest request)
+    public Authentication convert(@Nonnull HttpServletRequest request)
     {
-        if (suppliers == null || suppliers.isEmpty())
+        if (strategies == null || strategies.isEmpty())
         {
-            logger.debug("There was no [{}] provided.", AuthenticationSupplier.class);
-            
+            logger.debug("There was no [{}] provided.", AuthenticationStrategy.class);
+
             return null;
         }
 
         AuthenticationException lastException = null;
-        for (final AuthenticationSupplier supplier : suppliers)
+        for (final AuthenticationStrategy strategy : strategies)
         {
-            final String supplierName = supplier.getClass()
+            final String supplierName = strategy.getClass()
                                                 .getName();
 
-            if (!supplier.supports(request))
+            if (!strategy.supports(request))
             {
                 logger.debug("Supplier {} does not support this request [method: {}] [URI: {}] [ContentType {}]",
                              supplierName, request.getMethod(), request.getRequestURI(), request.getContentType());
@@ -54,7 +55,7 @@ public class AuthenticationSuppliers
             Authentication authentication;
             try
             {
-                authentication = supplier.supply(request);
+                authentication = strategy.convert(request);
             }
             catch (AuthenticationException e)
             {
@@ -76,5 +77,4 @@ public class AuthenticationSuppliers
         
         return null;
     }
-    
 }

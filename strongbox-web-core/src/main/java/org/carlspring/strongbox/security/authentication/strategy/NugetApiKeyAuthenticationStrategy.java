@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import java.util.Enumeration;
 
@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
  * @author Sergey Bespalov
  */
 @Component
-public class NugetApiKeyAuthenticationSupplier
-        extends LayoutAuthenticationSupplier
+public class NugetApiKeyAuthenticationStrategy
+        extends LayoutAuthenticationStrategy
 {
 
     public static final String HEADER_NUGET_APIKEY = "x-nuget-apikey";
@@ -29,13 +29,13 @@ public class NugetApiKeyAuthenticationSupplier
     @Inject
     private SecurityTokenProvider securityTokenProvider;
 
-    public NugetApiKeyAuthenticationSupplier()
+    public NugetApiKeyAuthenticationStrategy()
     {
         super(NugetLayoutProvider.ALIAS);
     }
 
     @Override
-    public Authentication supply(@Nonnull HttpServletRequest request)
+    public Authentication convert(@Nonnull HttpServletRequest request)
     {
         final String nugetApiKey = request.getHeader(HEADER_NUGET_APIKEY);
         if (nugetApiKey == null)
@@ -67,7 +67,7 @@ public class NugetApiKeyAuthenticationSupplier
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements())
         {
-            String headerName = (String) headerNames.nextElement();
+            String headerName = headerNames.nextElement();
             if (!HEADER_NUGET_APIKEY.equalsIgnoreCase(headerName))
             {
                 continue;

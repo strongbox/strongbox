@@ -1,4 +1,4 @@
-package org.carlspring.strongbox.security.authentication.suppliers;
+package org.carlspring.strongbox.security.authentication.strategy;
 
 import org.carlspring.strongbox.authentication.api.password.PasswordAuthentication;
 import org.carlspring.strongbox.controllers.login.LoginController;
@@ -25,16 +25,16 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Order(1)
-public class JsonFormLoginSupplier implements AuthenticationSupplier
+public class JsonFormLoginStrategy implements AuthenticationStrategy
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(JsonFormLoginSupplier.class);
+    private static final Logger logger = LoggerFactory.getLogger(JsonFormLoginStrategy.class);
 
     @Inject
     private ObjectMapper objectMapper;
 
     @Override
-    public Authentication supply(@Nonnull HttpServletRequest request)
+    public Authentication convert(@Nonnull HttpServletRequest request)
     {
         LoginInput loginInput = null;
         try
