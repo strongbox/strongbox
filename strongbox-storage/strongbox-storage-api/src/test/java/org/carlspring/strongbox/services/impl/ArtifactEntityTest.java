@@ -21,6 +21,8 @@ import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.repositories.ArtifactCoordinatesRepository;
 import org.carlspring.strongbox.repositories.ArtifactRepository;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,6 +69,7 @@ public class ArtifactEntityTest
 
     @Inject
     private ArtifactCoordinatesRepository artifactCoordinatesRepository;
+
 
     @BeforeEach
     public void setup(TestInfo testInfo)
@@ -466,17 +469,19 @@ public class ArtifactEntityTest
         List<Artifact> artifactEntries = findAll(groupId);
         for (int i = 0; i < artifactEntries.size(); i++)
         {
+            LocalDateTime now = LocalDateTimeInstance.now();
+
             final Artifact artifactEntry = artifactEntries.get(i);
             if (i == 0)
             {
-                artifactEntry.setLastUsed(LocalDateTime.now());
-                artifactEntry.setLastUpdated(LocalDateTime.now());
+                artifactEntry.setLastUsed(now);
+                artifactEntry.setLastUpdated(now);
                 artifactEntry.setSizeInBytes(1L);
             }
             else
             {
-                artifactEntry.setLastUsed(LocalDateTime.now().minusDays(10));
-                artifactEntry.setLastUpdated(LocalDateTime.now().minusDays(10));
+                artifactEntry.setLastUsed(now.minusDays(10));
+                artifactEntry.setLastUpdated(now.minusDays(10));
                 artifactEntry.setSizeInBytes(100000L);
             }
 

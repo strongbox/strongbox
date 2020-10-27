@@ -92,14 +92,6 @@
 
     <if condition="${debug:-false}">
     <then>
-        <!-- ApacheDS: Used for testing -->
-        <logger name="org.apache.directory" level="ERROR"/>
-        <logger name="org.apache.mina" level="ERROR"/>
-        <logger name="JdbmTable" level="ERROR"/>
-        <logger name="JdbmIndex" level="ERROR"/>
-        <logger name="LOG_CHANGES" level="ERROR"/>
-        <!-- ApacheDS -->
-
         <logger name="org.neo4j.ogm" level="INFO"/>
         <logger name="org.janusgraph" level="INFO" />
         <logger name="springfox" level="INFO" />
@@ -114,7 +106,7 @@
         <logger name="org.carlspring.strongbox.data.server" level="DEBUG"/>
         <!-- Strongbox packages -->
 
-        <!-- Third-party packages -->
+        <!-- Third-party packages -->       
         <logger name="ch.qos.logback" level="ERROR"/>
 
         <logger name="org.apache.commons.beanutils" level="ERROR"/>
