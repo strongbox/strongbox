@@ -5,7 +5,7 @@
     <parent>
         <artifactId>strongbox-parent</artifactId>
         <groupId>org.carlspring.strongbox</groupId>
-        <version>1.0-PR-62-issue-1847-SNAPSHOT</version>
+        <version>1.0-PR-62-issues-1847-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
