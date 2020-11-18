@@ -37,3 +37,4 @@ strongbox:
         groupRoleAttribute: cn
         rolePrefix: ''
         searchSubtree: true
+      base64EncodedPassword: false

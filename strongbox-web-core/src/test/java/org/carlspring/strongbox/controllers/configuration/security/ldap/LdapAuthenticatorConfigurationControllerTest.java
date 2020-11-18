@@ -97,6 +97,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("authorities.groupRoleAttribute", equalTo("cn"))
                .body("authorities.rolePrefix", equalTo(""))
                .body("authorities.convertToUpperCase", equalTo(false))
+               .body("base64EncodedPassword", equalTo(false))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -150,6 +151,7 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("roleMappingList[4].strongboxRole", equalTo("LOGS_MANAGER"))
                .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
                .body("userDnPatternList[1]", equalTo("uid={0},ou=AllUsers"))
+               .body("base64EncodedPassword", equalTo(false))
                .statusCode(HttpStatus.OK.value());
     }
 

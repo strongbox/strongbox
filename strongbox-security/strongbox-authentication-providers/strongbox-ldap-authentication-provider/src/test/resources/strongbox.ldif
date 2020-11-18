@@ -24,6 +24,32 @@ mail: mtodorov@carlspring.com
 givenName: Martin
 userPassword: {bcrypt}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
 
+# Create users with base64 encoded password after algorithm(passwords: password)
+dn: uid=base64encoded-issue-1840,ou=Users,dc=carlspring,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: base64encoded-issue-1840
+cn: base64encoded-issue-1840
+sn: base64encoded
+mail: mtodorov@carlspring.com
+givenName: Martin
+userPassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==
+
+# Create users with base64 encoded password including algorithm(passwords: password)
+dn: uid=base64withalgorithm-issue-1840,ou=Users,dc=carlspring,dc=com
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+uid: base64withalgorithm-issue-1840
+cn: base64withalgorithm-issue-1840
+sn: base64withalgorithm
+mail: mtodorov@carlspring.com
+givenName: Martin
+userPassword: e2JjcnlwdH0kMmEkMTAkbHB3bHh5anZYS3pOMWNjQ3J3MlBCdVp4LmVWZXNXYmZtVGJzckNib01VLmdzTldWY1pXTWk=
+
 dn: uid=stodorov,ou=Users,dc=carlspring,dc=com
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
@@ -82,6 +108,8 @@ objectClass: groupOfUniqueNames
 uniqueMember: uid=mtodorov,ou=Users,dc=carlspring,dc=com
 uniqueMember: uid=stodorov,ou=Users,dc=carlspring,dc=com
 uniqueMember: uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com
+uniqueMember: uid=base64encoded-issue-1840,ou=Users,dc=carlspring,dc=com
+uniqueMember: uid=base64withalgorithm-issue-1840,ou=Users,dc=carlspring,dc=com
 
 # Employees -> Contributors
 dn: ou=Contributors, ou=Employees, ou=Groups, dc=carlspring, dc=com
@@ -90,6 +118,8 @@ cn: Contributors
 description: All contributors
 objectClass: groupOfUniqueNames
 uniqueMember: uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com
+uniqueMember: uid=base64encoded-issue-1840,ou=Users,dc=carlspring,dc=com
+uniqueMember: uid=base64withalgorithm-issue-1840,ou=Users,dc=carlspring,dc=com
 
 # Employees -> Managers
 dn: ou=Managers, ou=Employees, ou=Groups, dc=carlspring, dc=com

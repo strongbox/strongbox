@@ -58,6 +58,11 @@
             </bean>
         </constructor-arg>
         <constructor-arg ref="ldapAuthoritiesPopulator"/>
+        <property name="userDetailsMapper" ref="customUserDetailsMapper"/>
+    </bean>
+    
+    <bean id="customUserDetailsMapper" class="org.carlspring.strongbox.authentication.api.ldap.CustomLdapUserDetailsMapper">
+        <property name="base64EncodedPassword" value="${strongbox.authentication.ldap.base64EncodedPassword}"/>
     </bean>
 
 </beans>
