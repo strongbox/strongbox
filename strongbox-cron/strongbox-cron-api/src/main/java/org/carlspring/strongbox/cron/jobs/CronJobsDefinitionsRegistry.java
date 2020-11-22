@@ -4,6 +4,7 @@ import org.carlspring.strongbox.util.ThrowingFunction;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableSet;
 import org.apache.commons.lang3.StringUtils;
@@ -18,13 +19,15 @@ public class CronJobsDefinitionsRegistry
 
     private final Set<CronJobDefinition> cronJobDefinitions;
 
+
     CronJobsDefinitionsRegistry(final CronJobsRegistry cronJobsRegistry)
     {
         cronJobDefinitions = cronJobsRegistry.get()
                                              .stream()
                                              .map(ThrowingFunction.unchecked(clazz -> clazz.newInstance()
                                                                                            .getCronJobDefinition()))
-                                             .collect(ImmutableSet.toImmutableSet());
+                                             .collect(Collectors.collectingAndThen(Collectors.toSet(),
+                                                                                   ImmutableSet::copyOf));
     }
 
     public Set<CronJobDefinition> getCronJobDefinitions()
@@ -38,4 +41,5 @@ public class CronJobsDefinitionsRegistry
                                  .filter(d -> StringUtils.equals(d.getJobClass(), id))
                                  .findFirst();
     }
+
 }

@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>strongbox-storage-maven-layout-provider</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-issue-1808-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Storage [Maven Layout Provider]</name>

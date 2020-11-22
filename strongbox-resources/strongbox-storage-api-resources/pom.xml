@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>strongbox-storage-api-resources</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-issue-1808-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Resources [Storage API]</name>

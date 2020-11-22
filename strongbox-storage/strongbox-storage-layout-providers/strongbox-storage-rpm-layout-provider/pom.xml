@@ -13,7 +13,7 @@
 
     <groupId>org.carlspring.strongbox</groupId>
     <artifactId>strongbox-storage-rpm-layout-provider</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-issue-1808-SNAPSHOT</version>
 
     <dependencies>
         <dependency>

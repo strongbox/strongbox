@@ -1,11 +1,10 @@
 package org.carlspring.strongbox.providers.storage;
 
+import javax.annotation.PostConstruct;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.List;
-
-import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +58,18 @@ public class FileSystemStorageProvider
         }
 
         return null;
+    }
+
+    @Override
+    public boolean isCloudBased()
+    {
+        return false;
+    }
+
+    @Override
+    public boolean supportsMove()
+    {
+        return true;
     }
 
 }

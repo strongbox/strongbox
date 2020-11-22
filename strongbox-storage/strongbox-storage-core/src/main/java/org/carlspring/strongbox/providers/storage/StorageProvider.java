@@ -17,4 +17,13 @@ public interface StorageProvider
     
     FileSystemProvider getFileSystemProvider();
 
+    boolean isCloudBased();
+
+    /**
+     * Some cloud providers don't support moving natively. These require a copy and delete operation.
+     *
+     * @return
+     */
+    boolean supportsMove();
+
 }

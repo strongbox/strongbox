@@ -13,7 +13,7 @@
     </parent>
 
     <artifactId>strongbox-authentication-support</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-issue-1808-SNAPSHOT</version>
 
     <name>Strongbox: Authentication Support</name>
 
