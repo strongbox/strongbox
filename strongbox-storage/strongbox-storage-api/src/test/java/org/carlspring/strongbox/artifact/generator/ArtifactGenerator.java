@@ -44,12 +44,15 @@ public interface ArtifactGenerator
                           long size)
         throws IOException;
 
-    default void copyLicenseFile(String licenseFileSourcePath, OutputStream os)
+    default void copyLicenseFile(String licenseFileSourcePath,
+                                 OutputStream os)
             throws IOException
     {
         ClassPathResource resource = new ClassPathResource(licenseFileSourcePath, this.getClass().getClassLoader());
 
         IOUtils.copy(resource.getInputStream(), os);
     }
+
+    void setLicenses(LicenseConfiguration[] licenses);
 
 }

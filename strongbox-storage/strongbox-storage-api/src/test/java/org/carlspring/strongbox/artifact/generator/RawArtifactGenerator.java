@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.carlspring.strongbox.io.LayoutOutputStream;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.util.TestFileUtils;
 
@@ -83,6 +84,12 @@ public class RawArtifactGenerator implements ArtifactGenerator
     {
         String md5 = layoutOutputStream.getDigestMap().get(MessageDigestAlgorithms.MD5);
         MessageDigestUtils.writeChecksum(artifactPath, ".md5", md5);
+    }
+
+    @Override
+    public void setLicenses(LicenseConfiguration[] licenses)
+    {
+        
     }
 
 }

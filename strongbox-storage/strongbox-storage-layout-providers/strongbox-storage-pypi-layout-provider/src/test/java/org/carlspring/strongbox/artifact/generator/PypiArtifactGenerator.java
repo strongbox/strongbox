@@ -3,6 +3,7 @@ package org.carlspring.strongbox.artifact.generator;
 import com.google.common.hash.Hashing;
 import org.apache.commons.io.FilenameUtils;
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.IOException;
@@ -20,7 +21,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 public class PypiArtifactGenerator
         implements ArtifactGenerator
 {
-
+    
     private static final String METADATA_CONTENT = "Metadata-Version: 2.1\n" +
                                                    "Name: %s\n" +
                                                    "Version: %s\n" +
@@ -68,7 +69,10 @@ public class PypiArtifactGenerator
                                                   "%s\n" +
                                                   "%s\n" +
                                                   "%s";
+
     private Path basedir;
+
+    private LicenseConfiguration[] licenses;
     
     public PypiArtifactGenerator(Path basedir)
     {
@@ -78,6 +82,12 @@ public class PypiArtifactGenerator
     public PypiArtifactGenerator(String basedir)
     {
         this.basedir = Paths.get(basedir);
+    }
+
+    @Override
+    public void setLicenses(LicenseConfiguration[] licenses)
+    {
+        this.licenses = licenses;
     }
 
     @Override
@@ -190,9 +200,20 @@ public class PypiArtifactGenerator
                                               dependencyLinksPath,
                                               topLevelPath).getBytes();
         createZipEntry(zos, sourcesPath, sourcesContent);
+        
+        copyLicenseFiles(zos);
 
         String randomPath = eggDirectory + "/RANDOM.txt";
         TestFileUtils.generateFile(zos, byteSize, randomPath);
+    }
+
+    private void copyLicenseFiles(ZipOutputStream zos)
+    {
+
+        if (licenses != null && licenses.length > 0)
+        {
+            
+        }
     }
 
     private void createWheelPackageFiles(ZipOutputStream zos,
