@@ -1,26 +1,32 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.contentOf;
+import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
+import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
 import org.carlspring.strongbox.config.PypiLayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
+import org.carlspring.strongbox.testing.artifact.LicenseType;
 import org.carlspring.strongbox.testing.artifact.PypiTestArtifact;
 import org.carlspring.strongbox.testing.repository.PypiTestRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import org.apache.commons.codec.digest.MessageDigestAlgorithms;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
-import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 @SpringBootTest
 @ActiveProfiles(profiles = "test")
@@ -61,7 +67,9 @@ public class PypiArtifactGeneratorTest
                             Repository repository,
                             @PypiTestArtifact(repositoryId = "repositoryId",
                                               resource = "strongbox-testing-1.0.tar.gz",
-                                              bytesSize = 4096)
+                                              bytesSize = 4096,
+                                              licenses = { @LicenseConfiguration(license = LicenseType.APACHE_2_0,
+                                                                                 destinationPath = "LICENSE-Apache-2.0.md") })
                             Path artifactPath)
             throws Exception
     {
@@ -77,6 +85,20 @@ public class PypiArtifactGeneratorTest
         assertThat(result).isEqualTo(expectedSha1);
 
         assertThat(Files.size(artifactPath)).isGreaterThan(4096);
+        
+        try (ZipFile zipFile = new ZipFile(artifactPath.toFile());)
+        {
+            assertThat(zipFile.getEntry("LICENSE-Apache-2.0.md"))
+                    .as("Did not find a license file LICENSE-Apache-2.0.md that was expected at the default location in the TAR source package!")
+                    .isNotNull();
+            
+            ZipEntry metadataFile = zipFile.getEntry("PKG-INFO");
+            assertThat(metadataFile)
+                    .as("Metadata File PKG-INFO not present in TAR source package!")
+                    .isNotNull();
+            
+            contentOf(artifactPath.toFile()).contains("License: LICENSE-Apache-2.0.md");
+        }
     }
 
 }

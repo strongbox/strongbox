@@ -1,7 +1,7 @@
 package org.carlspring.strongbox.artifact.generator;
 
-import com.google.common.hash.Hashing;
-import org.apache.commons.io.FilenameUtils;
+import static java.nio.file.StandardOpenOption.CREATE;
+
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.util.TestFileUtils;
@@ -16,7 +16,10 @@ import java.util.Base64;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static java.nio.file.StandardOpenOption.CREATE;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.google.common.hash.Hashing;
 
 public class PypiArtifactGenerator
         implements ArtifactGenerator
@@ -29,7 +32,7 @@ public class PypiArtifactGenerator
                                                    "Home-page: https://strongbox.github.io\n" +
                                                    "Author: Strongbox\n" +
                                                    "Author-email: strongbox@carlspring.com\n" +
-                                                   "License: Test license\n" +
+                                                   "License: %s\n" +
                                                    "Platform: Test platform\n" +
                                                    "Classifier: Programming Language :: Python :: 3\n" +
                                                    "Classifier: License :: OSI Approved :: MIT License\n" +
@@ -44,8 +47,9 @@ public class PypiArtifactGenerator
                                                    "    long_description = fh.read()\n" +
                                                    "\n" +
                                                    "setuptools.setup(\n" +
-                                                   "     name='%s',  \n" +
+                                                   "     name='%s',\n" +
                                                    "     version='%s',\n" +
+                                                   "     license='%s',\n" +
                                                    "     scripts=['%s'] ,\n" +
                                                    "     author=\"Strongbox\",\n" +
                                                    "     author_email=\"strongbox@carlspring.com\",\n" +
@@ -147,9 +151,11 @@ public class PypiArtifactGenerator
                                           long byteSize)
             throws IOException
     {
+        String licenseFileName = getLicenseName();
+        
         //create PKG-INFO zip entry
         String pkgInfoPath = "PKG-INFO";
-        byte[] pkgInfoContent = String.format(METADATA_CONTENT, name, version).getBytes();
+        byte[] pkgInfoContent = String.format(METADATA_CONTENT, name, version, licenseFileName).getBytes();
         createZipEntry(zos, pkgInfoPath, pkgInfoContent);
 
         //create README.md zip entry
@@ -166,7 +172,7 @@ public class PypiArtifactGenerator
 
         //create setup.py zip entry
         String setupPyPath = "setup.py";
-        byte[] setupPyContent = String.format(SETUP_PY_CONTENT, name, version, name).getBytes();
+        byte[] setupPyContent = String.format(SETUP_PY_CONTENT, name, version, licenseFileName, name).getBytes();
         createZipEntry(zos, setupPyPath, setupPyContent);
 
         //create script zip entry
@@ -200,19 +206,44 @@ public class PypiArtifactGenerator
                                               dependencyLinksPath,
                                               topLevelPath).getBytes();
         createZipEntry(zos, sourcesPath, sourcesContent);
-        
+
         copyLicenseFiles(zos);
 
         String randomPath = eggDirectory + "/RANDOM.txt";
         TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 
-    private void copyLicenseFiles(ZipOutputStream zos)
+    private String getLicenseName() 
+            throws IOException
     {
-
-        if (licenses != null && licenses.length > 0)
+        if (!ArrayUtils.isEmpty(licenses))
         {
+            if (licenses.length > 1)
+            {
+                throw new IOException("Pypi packages doesn't support multiple licence");
+            }
+
+            return licenses[0].license().name();
+        }
+
+        return "LICENCE";
+    }
+
+    private void copyLicenseFiles(ZipOutputStream zos)
+            throws IOException
+    {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            if (licenses.length > 1)
+            {
+                throw new IOException("Pypi packages doesn't support multiple licence"); // TODO :: Check exception is suitable to be thrown.
+            }
             
+            LicenseConfiguration license = licenses[0];
+            ZipEntry zipEntry = new ZipEntry(license.destinationPath());
+            zos.putNextEntry(zipEntry);
+
+            copyLicenseFile(license.license().getLicenseFileSourcePath(), zos);
         }
     }
 
