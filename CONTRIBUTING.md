@@ -152,3 +152,6 @@ To accept, please:
 | Valentin Bojinov             |                                              | Sofia, Bulgaria                         | 2020-04-01 |
 | Georg Leber                  | CGH IT-Solutions                             | Aachen, Germany                         | 2020-10-15 |
 | Luan Cestari                 |                                              | São Paulo, Brazil                       | 2020-04-01 |
+| Solange Gasengayire Umuhire  |                                              | London, United Kingdom                  | 2020-10-27 |
+| Björn Heinrichs              |                                              | Duisburg, Germany                       | 2020-10-29 |
+

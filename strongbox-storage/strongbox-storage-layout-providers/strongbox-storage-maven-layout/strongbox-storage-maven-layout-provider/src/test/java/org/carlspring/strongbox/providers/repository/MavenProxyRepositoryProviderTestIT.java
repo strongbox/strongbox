@@ -46,7 +46,8 @@ public class MavenProxyRepositoryProviderTestIT
 
     private static final String REPOSITORY_ID = "spring-libs-release-it";
 
-    private static final String REMOTE_URL = "https://repo.spring.io/libs-release/";
+    // using jcenter as repositories at https://repo.spring.io now expect you to be logged in to access artifacts
+    private static final String REMOTE_URL = "https://jcenter.bintray.com/";
 
     private static final String CENTRAL_REPOSITORY_ID = "central-release-it";
 

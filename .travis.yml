@@ -41,13 +41,19 @@ install: true
 before_script:
   - while sleep 120; do printf "[ %ss ] maven is still running...\n" `date +%H:%M:%S`; done &
 
-script: $HOME/mvn -V clean install -Dintegration.tests -T 2 -Daether.connector.resumeDownloads=false --log-file=build.log
+# Use openjdk8 for this build (version should be >= u222)
+script:
+  - wget https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u275-b01/OpenJDK8U-jdk_x64_mac_hotspot_8u275b01.tar.gz
+  - tar -xf OpenJDK8U-jdk_x64_mac_hotspot_8u275b01.tar.gz
+  - export JAVA_HOME="$PWD/jdk8u275-b01/Contents/Home"
+  - java -version
+  - $HOME/mvn -V clean install -Dintegration.tests -T 2 -Daether.connector.resumeDownloads=false --log-file=build.log
 
 after_failure:
   # Killing sleep loop
   - kill %1 2>&1
   - echo "Build has failed!"
-  - cat build.log
+  - tail -n 1000 build.log
 
 after_success:
   # Killing sleep loop
