@@ -223,7 +223,7 @@ public class PypiArtifactGenerator
                 throw new IOException("Pypi packages doesn't support multiple licence");
             }
 
-            return licenses[0].license().name();
+            return licenses[0].license().getName();
         }
 
         return "LICENCE";

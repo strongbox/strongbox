@@ -18,6 +18,8 @@ public class DefaultArtifactGeneratorStrategy
                                  Map<String, Object> attributesMap)
             throws IOException
     {
+        setLicenses(artifactGenerator, attributesMap);
+
         return artifactGenerator.generateArtifact(id, version, size);
     }
 

@@ -1,7 +1,6 @@
 package org.carlspring.strongbox.artifact.generator;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.contentOf;
 import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum;
 import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
@@ -15,8 +14,11 @@ import org.carlspring.strongbox.testing.artifact.PypiTestArtifact;
 import org.carlspring.strongbox.testing.repository.PypiTestRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -85,19 +87,26 @@ public class PypiArtifactGeneratorTest
         assertThat(result).isEqualTo(expectedSha1);
 
         assertThat(Files.size(artifactPath)).isGreaterThan(4096);
-        
-        try (ZipFile zipFile = new ZipFile(artifactPath.toFile());)
+
+        try (ZipFile zipFile = new ZipFile(artifactPath.toFile()))
         {
-            assertThat(zipFile.getEntry("LICENSE-Apache-2.0.md"))
-                    .as("Did not find a license file LICENSE-Apache-2.0.md that was expected at the default location in the TAR source package!")
-                    .isNotNull();
-            
+            ZipEntry licenseFile = zipFile.getEntry("LICENSE-Apache-2.0.md");
             ZipEntry metadataFile = zipFile.getEntry("PKG-INFO");
+
             assertThat(metadataFile)
                     .as("Metadata File PKG-INFO not present in TAR source package!")
                     .isNotNull();
             
-            contentOf(artifactPath.toFile()).contains("License: LICENSE-Apache-2.0.md");
+            assertThat(licenseFile)
+                    .as("Did not find a license file LICENSE-Apache-2.0.md that was expected at the default location in the TAR source package!")
+                    .isNotNull();
+            
+            try (InputStreamReader streamReader = new InputStreamReader(zipFile.getInputStream(metadataFile));
+                    BufferedReader bufferedReader = new BufferedReader(streamReader);)
+            {
+                String metadataContent = bufferedReader.lines().collect(Collectors.joining("\n"));
+                assertThat(metadataContent).contains("License: Apache 2.0");
+            }
         }
     }
 
