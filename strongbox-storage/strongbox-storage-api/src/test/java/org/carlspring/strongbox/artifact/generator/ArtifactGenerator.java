@@ -43,6 +43,8 @@ public interface ArtifactGenerator
     Path generateArtifact(URI uri,
                           long size)
         throws IOException;
+    
+    void setLicenses(LicenseConfiguration[] licenses);
 
     default void copyLicenseFile(String licenseFileSourcePath,
                                  OutputStream os)
@@ -53,6 +55,12 @@ public interface ArtifactGenerator
         IOUtils.copy(resource.getInputStream(), os);
     }
 
-    void setLicenses(LicenseConfiguration[] licenses);
+    default byte[] getLicenseFileContent(String licenseFileSourcePath) 
+            throws IOException
+    {
+        ClassPathResource resource = new ClassPathResource(licenseFileSourcePath, this.getClass().getClassLoader());
+
+        return IOUtils.toByteArray(resource.getInputStream());
+    }
 
 }

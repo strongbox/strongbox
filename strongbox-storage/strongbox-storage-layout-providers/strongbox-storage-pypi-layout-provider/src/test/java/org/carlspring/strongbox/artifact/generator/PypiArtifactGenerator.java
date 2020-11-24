@@ -4,6 +4,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 
 import org.carlspring.strongbox.artifact.coordinates.PypiArtifactCoordinates;
 import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
+import org.carlspring.strongbox.testing.artifact.LicenseType;
 import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.IOException;
@@ -226,7 +227,39 @@ public class PypiArtifactGenerator
             return licenses[0].license().getName();
         }
 
-        return "LICENCE";
+        return LicenseType.UNLICENSE.getName();
+    }
+    
+    private String getLicensePath()
+            throws IOException
+    {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            if (licenses.length > 1)
+            {
+                throw new IOException("Pypi packages doesn't support multiple licence");
+            }
+
+            return licenses[0].destinationPath();
+        }
+
+        return "LICENSE";
+    }
+    
+    private String getLicenseFileSourcePath()
+            throws IOException
+    {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            if (licenses.length > 1)
+            {
+                throw new IOException("Pypi packages doesn't support multiple licence");
+            }
+
+            return licenses[0].license().getLicenseFileSourcePath();
+        }
+
+        return LicenseType.UNLICENSE.getLicenseFileSourcePath();
     }
 
     private void copyLicenseFiles(ZipOutputStream zos)
@@ -236,9 +269,9 @@ public class PypiArtifactGenerator
         {
             if (licenses.length > 1)
             {
-                throw new IOException("Pypi packages doesn't support multiple licence"); // TODO :: Check exception is suitable to be thrown.
+                throw new IOException("Pypi packages doesn't support multiple licence");
             }
-            
+
             LicenseConfiguration license = licenses[0];
             ZipEntry zipEntry = new ZipEntry(license.destinationPath());
             zos.putNextEntry(zipEntry);
@@ -261,13 +294,14 @@ public class PypiArtifactGenerator
         String dirPath = String.format("%s-%s.%s", name, version, "dist-info");
 
         //create METADATA zip entry
+        String licenseFileName = getLicenseName();
         String metadataPath = dirPath + "/" + "METADATA";
-        byte[] metadataContent = String.format(METADATA_CONTENT, name, version).getBytes();
+        byte[] metadataContent = String.format(METADATA_CONTENT, name, version, licenseFileName).getBytes();
         createZipEntry(zos, metadataPath, metadataContent);
 
         //create LICENSE zip entry
-        String licensePath = dirPath + "/" + "LICENSE";
-        byte[] licenseContent = "Copyright (c) 2018 The Python Packaging Authority".getBytes();
+        String licensePath = dirPath + "/" + getLicensePath();
+        byte[] licenseContent = getLicenseFileContent(getLicenseFileSourcePath());
         createZipEntry(zos, licensePath, licenseContent);
 
         //create WHEEL zip entry
