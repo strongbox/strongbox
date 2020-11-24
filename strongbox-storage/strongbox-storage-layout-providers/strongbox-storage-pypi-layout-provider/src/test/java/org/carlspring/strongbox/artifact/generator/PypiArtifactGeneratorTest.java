@@ -5,8 +5,6 @@ import static org.carlspring.strongbox.util.MessageDigestUtils.calculateChecksum
 import static org.carlspring.strongbox.util.MessageDigestUtils.readChecksumFile;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import org.carlspring.strongbox.config.PypiLayoutProviderTestConfig;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
@@ -17,10 +15,11 @@ import org.carlspring.strongbox.testing.repository.PypiTestRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Enumeration;
+import java.security.NoSuchAlgorithmException;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -80,7 +79,7 @@ public class PypiArtifactGeneratorTest
                     .isNotNull();
 
             try (InputStreamReader streamReader = new InputStreamReader(zipFile.getInputStream(metadataFile));
-                    BufferedReader bufferedReader = new BufferedReader(streamReader);)
+                 BufferedReader bufferedReader = new BufferedReader(streamReader);)
             {
                 String metadataContent = bufferedReader.lines().collect(Collectors.joining("\n"));
                 assertThat(metadataContent).contains("License: MIT License");
@@ -117,7 +116,7 @@ public class PypiArtifactGeneratorTest
                     .isNotNull();
             
             try (InputStreamReader streamReader = new InputStreamReader(zipFile.getInputStream(metadataFile));
-                    BufferedReader bufferedReader = new BufferedReader(streamReader);)
+                 BufferedReader bufferedReader = new BufferedReader(streamReader);)
             {
                 String metadataContent = bufferedReader.lines().collect(Collectors.joining("\n"));
                 assertThat(metadataContent).contains("License: Apache 2.0");
@@ -127,14 +126,14 @@ public class PypiArtifactGeneratorTest
 
     
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
-        ArtifactManagementTestExecutionListener.class })
+                  ArtifactManagementTestExecutionListener.class })
     @Test
     public void testArtifactWithoutLicense(@PypiTestRepository(repositoryId = "repositoryId")
-                      Repository repository,
-                      @PypiTestArtifact(repositoryId = "repositoryId",
-                                        resource = "strongbox-testing-without-license-1.0.tar.gz",
-                                        bytesSize = 4096)
-                      Path artifactPath)
+                                           Repository repository,
+                                           @PypiTestArtifact(repositoryId = "repositoryId",
+                                                             resource = "strongbox-testing-without-license-1.0.tar.gz",
+                                                             bytesSize = 4096)
+                                           Path artifactPath)
             throws Exception
     {
         assertArtifactAndHash(artifactPath);
@@ -153,7 +152,7 @@ public class PypiArtifactGeneratorTest
                     .isNull();
             
             try (InputStreamReader streamReader = new InputStreamReader(zipFile.getInputStream(metadataFile));
-                    BufferedReader bufferedReader = new BufferedReader(streamReader);)
+                 BufferedReader bufferedReader = new BufferedReader(streamReader);)
             {
                 String metadataContent = bufferedReader.lines().collect(Collectors.joining("\n"));
                 assertThat(metadataContent).contains("License: Unlicense");

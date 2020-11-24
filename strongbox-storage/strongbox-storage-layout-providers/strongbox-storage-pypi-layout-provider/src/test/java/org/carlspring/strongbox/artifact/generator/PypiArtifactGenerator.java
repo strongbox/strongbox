@@ -221,7 +221,7 @@ public class PypiArtifactGenerator
         {
             if (licenses.length > 1)
             {
-                throw new IOException("Pypi packages doesn't support multiple licence");
+                throw new IOException("PyPi doesn't support multiple licenses!");
             }
 
             return licenses[0].license().getName();
@@ -237,7 +237,7 @@ public class PypiArtifactGenerator
         {
             if (licenses.length > 1)
             {
-                throw new IOException("Pypi packages doesn't support multiple licence");
+                throw new IOException("PyPi doesn't support multiple licenses!");
             }
 
             return licenses[0].destinationPath();
@@ -253,7 +253,7 @@ public class PypiArtifactGenerator
         {
             if (licenses.length > 1)
             {
-                throw new IOException("Pypi packages doesn't support multiple licence");
+                throw new IOException("PyPi doesn't support multiple licenses!");
             }
 
             return licenses[0].license().getLicenseFileSourcePath();
