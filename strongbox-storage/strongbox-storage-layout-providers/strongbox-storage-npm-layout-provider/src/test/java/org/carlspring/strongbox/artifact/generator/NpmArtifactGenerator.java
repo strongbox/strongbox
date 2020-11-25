@@ -2,6 +2,7 @@ package org.carlspring.strongbox.artifact.generator;
 
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.npm.metadata.Dist;
+import org.carlspring.strongbox.npm.metadata.License;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
 import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.util.TestFileUtils;
@@ -16,7 +17,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -25,7 +29,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.MediaType;
+import org.springframework.util.CollectionUtils;
 
 public class NpmArtifactGenerator
         implements ArtifactGenerator
@@ -40,6 +46,8 @@ public class NpmArtifactGenerator
     private Path packagePath;
 
     private ObjectMapper mapper = new ObjectMapper();
+
+    private LicenseConfiguration[] licenses;
 
     public NpmArtifactGenerator(String basedir)
     {
@@ -100,11 +108,31 @@ public class NpmArtifactGenerator
         {
             writeContent(tarOut, bytesSize);
             writePackageJson(tarOut);
+            copyLicenseFiles(tarOut);
         }
 
         calculateChecksum();
 
         return packagePath;
+    }
+
+    private void copyLicenseFiles(TarArchiveOutputStream tarOut)
+            throws IOException
+    {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            for (LicenseConfiguration licenseConfiguration : licenses)
+            {
+
+                TarArchiveEntry entry = new TarArchiveEntry(licenseConfiguration.destinationPath());
+                entry.setSize(getLicenseFileSize(licenseConfiguration));
+                tarOut.putArchiveEntry(entry);
+
+                copyLicenseFile(licenseConfiguration.license().getLicenseFileSourcePath(), tarOut);
+                tarOut.closeArchiveEntry();
+            }
+
+        }
     }
 
     private void calculateChecksum()
@@ -132,9 +160,15 @@ public class NpmArtifactGenerator
             throws IOException
     {
         Path packageJsonPath = packagePath.getParent().resolve("package.json");
-        try (OutputStream out = new BufferedOutputStream(
-                Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE)))
+        
+        try (OutputStream outputStream = Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE);
+             BufferedOutputStream out = new BufferedOutputStream(outputStream))
         {
+            List<License> licenses = getNpmLicenses();
+            if (!CollectionUtils.isEmpty(licenses))
+            {
+                packageJson.setLicenses(licenses);
+            }
             out.write(mapper.writeValueAsBytes(packageJson));
         }
 
@@ -144,6 +178,24 @@ public class NpmArtifactGenerator
         Files.copy(packageJsonPath, tarOut);
 
         tarOut.closeArchiveEntry();
+    }
+
+    private List<License> getNpmLicenses()
+    {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            return Arrays.asList(licenses)
+                         .stream()
+                         .map(licenseConfig -> {
+
+                             License npmLicense = new License();
+                             npmLicense.setType(licenseConfig.license().getName());
+                             npmLicense.setUrl(licenseConfig.license().getUrl());
+                             return npmLicense;
+                         })
+                         .collect(Collectors.toList());
+        }
+        return null;
     }
 
     private void writeContent(TarArchiveOutputStream tarOut,
@@ -257,8 +309,7 @@ public class NpmArtifactGenerator
     @Override
     public void setLicenses(LicenseConfiguration[] licenses)
     {
-        // set NPM licenses
-
+        this.licenses = licenses;
     }
 
 }
