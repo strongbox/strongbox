@@ -24,7 +24,6 @@ public interface ArtifactGeneratorStrategy<T extends ArtifactGenerator>
     default void setLicenses(ArtifactGenerator artifactGenerator,
                              Map<String, Object> attributesMap)
     {
-
         Object licenses = attributesMap.get("licenses");
         if (licenses instanceof LicenseConfiguration[])
         {

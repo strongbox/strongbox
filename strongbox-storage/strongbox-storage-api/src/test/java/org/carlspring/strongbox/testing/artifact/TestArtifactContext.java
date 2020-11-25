@@ -169,7 +169,6 @@ public class TestArtifactContext implements AutoCloseable
     private Path generateArtifact(String resource, long size)
             throws IOException
     {
-        
         Object licenses = attributesMap.get("licenses");
         if (licenses instanceof LicenseConfiguration[])
         {
