@@ -1,31 +1,58 @@
 package org.carlspring.strongbox.controllers.configuration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.config.ObjectMapperConfig;
+import io.restassured.http.ContentType;
+import io.restassured.http.Header;
+import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
+import io.restassured.module.mockmvc.internal.MockMvcFactory;
+import io.restassured.module.mockmvc.internal.MockMvcRequestSpecificationImpl;
 import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.InstanceNameEntityBody;
+import org.carlspring.strongbox.controllers.support.MaxUploadSizeEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
 import org.carlspring.strongbox.forms.configuration.CorsConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
 import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm;
+import org.carlspring.strongbox.rest.client.MockMvcRequestSpecificationProxyTarget;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
+import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collection;
 
+import org.carlspring.strongbox.testing.artifact.PypiTestArtifact;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.*;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import javax.servlet.Filter;
+
+import static org.apache.commons.fileupload.FileUploadBase.CONTENT_LENGTH;
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.FAILED_SAVE_SERVER_SETTINGS;
 import static org.carlspring.strongbox.controllers.configuration.ServerConfigurationController.SUCCESSFUL_SAVE_SERVER_SETTINGS;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isEmptyOrNullString;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author Pablo Tirado
@@ -156,6 +183,164 @@ public class ServerConfigurationControllerTestIT
                .then()
                .statusCode(HttpStatus.OK.value())
                .body("baseUrl", equalTo(newBaseUrl));
+    }
+
+    @Test
+    @WithMockUser(authorities = { "CONFIGURATION_SET_MAX_UPLOAD_SIZE",
+            "CONFIGURATION_VIEW_MAX_UPLOAD_SIZE" })
+    public void testSetAndGetMaxUploadSize()
+    {
+        String newSize = "10MB";
+
+        String url = getContextBaseUrl() + "/maxUploadSize/" + newSize;
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body("message", equalTo("The max upload size was updated."));
+
+        url = getContextBaseUrl() + "/maxUploadSize";
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get(url)
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body("maxUploadSize", equalTo(newSize));
+    }
+
+    @Test
+    @WithMockUser(authorities = { "CONFIGURATION_SET_MAX_UPLOAD_SIZE",
+            "CONFIGURATION_VIEW_MAX_UPLOAD_SIZE" })
+    public void testSetAndGetMaxUploadSizeWithBody()
+    {
+        String newSize = "10MB";
+        MaxUploadSizeEntityBody maxUploadEntity = new MaxUploadSizeEntityBody(newSize);
+
+        String url = getContextBaseUrl() + "/maxUploadSize";
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(maxUploadEntity)
+                .when()
+                .put(url)
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body("message", equalTo("The max upload size was updated."));
+
+        mockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .get(url)
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body("maxUploadSize", equalTo(newSize));
+    }
+
+    @Test
+    @WithMockUser(authorities = { "CONFIGURATION_SET_MAX_UPLOAD_SIZE",
+            "CONFIGURATION_VIEW_MAX_UPLOAD_SIZE", "ARTIFACTS_DEPLOY" })
+    public void testMaxUploadSizeExceeded(WebApplicationContext applicationContext) throws Exception
+    {
+        String smallSize = "7KB";
+        String largeSize = "15KB";
+        int largeLength = 1024*10;
+        int smallLength = 1024*5;
+
+        String setupUrl = getContextBaseUrl() + "/maxUploadSize/"+smallSize;
+
+        int rootEnd = getContextBaseUrl().indexOf("/",9);
+        String rootUrl = getContextBaseUrl().substring(0,rootEnd);
+        String uploadUrl = rootUrl+"/storages/storage-pypi/pypi-releases";
+
+        // set max upload size to smaller size
+        filteredMockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .put(setupUrl)
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body("message", equalTo("The max upload size was updated."));
+
+        //  pypi package with too  invalid size upload
+        try
+        {
+            filteredMockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                    .header(CONTENT_LENGTH, Integer.toString(largeLength))
+                    .multiPart("filetype", "sdist")
+                    .multiPart(":action", "file_upload")
+                    .multiPart("name", "large-file-size-upload-test")
+                    .multiPart("metadata_version", "1.0")
+                    .multiPart("content", "large-file-size-upload-test.whl", new byte[largeLength])
+                    .when()
+                    .post(uploadUrl)
+                    .then()
+                    .log()
+                    .all()
+                    .statusCode(HttpStatus.OK.value())
+                    .body(Matchers.containsString("The artifact was deployed successfully."));
+            fail("Size violation exception not thrown");
+        }
+        catch (MaxUploadSizeExceededException e)
+        {
+            // Filter worked correctly
+        }
+
+        try
+        {
+            //  pypi package with accurate size upload
+            filteredMockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                    .header(CONTENT_LENGTH, Integer.toString(smallLength))
+                    .multiPart("filetype", "sdist")
+                    .multiPart(":action", "file_upload")
+                    .multiPart("name", "small-file-size-upload-test")
+                    .multiPart("metadata_version", "1.0")
+                    .multiPart("content", "small-file-size-upload-test.whl", new byte[smallLength])
+                    .when()
+                    .post(uploadUrl)
+                    .then()
+                    .log()
+                    .all()
+                    .statusCode(HttpStatus.OK.value())
+                    .body(Matchers.containsString("The artifact was deployed successfully."));
+        }
+        catch (MaxUploadSizeExceededException e)
+        {
+            fail("Size violation exception was thrown byt the file size is valid");
+        }
+
+        setupUrl = getContextBaseUrl() + "/maxUploadSize/"+largeSize;
+        // set max upload size to larger size
+        filteredMockMvc.accept(MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .put(setupUrl)
+                .then()
+                .statusCode(HttpStatus.OK.value()) // check http status code
+                .body("message", equalTo("The max upload size was updated."));
+
+        try
+        {
+            //  pypi package with accurate size upload
+            filteredMockMvc.contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                    .header(CONTENT_LENGTH, Integer.toString(largeLength))
+                    .multiPart("filetype", "sdist")
+                    .multiPart(":action", "file_upload")
+                    .multiPart("name", "large-file-size-upload-test")
+                    .multiPart("metadata_version", "1.0")
+                    .multiPart("content", "large-file-size-upload-test.whl", new byte[largeLength])
+                    .when()
+                    .post(uploadUrl)
+                    .then()
+                    .log()
+                    .all()
+                    .statusCode(HttpStatus.OK.value())
+                    .body(Matchers.containsString("The artifact was deployed successfully."));
+        }
+        catch (MaxUploadSizeExceededException e)
+        {
+            fail("Size violation exception was thrown, but the file size is valid");
+        }
+
     }
 
     @ParameterizedTest

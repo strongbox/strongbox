@@ -15,6 +15,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collection;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,10 +38,13 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.DefaultMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import javax.servlet.Filter;
 
 
 /**
@@ -119,6 +123,25 @@ public @interface IntegrationTest
             return new MockMvcRequestSpecificationProxyTarget(
                     new MockMvcRequestSpecificationImpl(new MockMvcFactory(builder), config, null, null,
                                                         null, null, null, null));
+        }
+
+        @Bean(name = "FilteredMockMvc")
+        @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS, value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+        public MockMvcRequestSpecification filteredMockMvc(ApplicationContext applicationContext)
+        {
+            Collection<Filter> filterCollection = applicationContext.getBeansOfType(Filter.class).values();
+            Filter[] filters = filterCollection.toArray(new Filter[filterCollection.size()]);
+            DefaultMockMvcBuilder builder = MockMvcBuilders.webAppContextSetup(
+                    (WebApplicationContext) applicationContext).addFilters(filters);
+
+            ObjectMapper objectMapper = applicationContext.getBean(ObjectMapper.class);
+            ObjectMapperConfig objectMapperFactory = new ObjectMapperConfig().jackson2ObjectMapperFactory((aClass,
+                                                                                                           s) -> objectMapper);
+            RestAssuredMockMvcConfig config = RestAssuredMockMvcConfig.config().objectMapperConfig(objectMapperFactory);
+
+            return new MockMvcRequestSpecificationProxyTarget(
+                    new MockMvcRequestSpecificationImpl(new MockMvcFactory(builder), config, null, null,
+                            null, null, null, null));
         }
 
         @Bean

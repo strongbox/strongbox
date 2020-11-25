@@ -4,6 +4,7 @@ import org.carlspring.strongbox.configuration.Configuration;
 import org.carlspring.strongbox.controllers.support.BaseUrlEntityBody;
 import org.carlspring.strongbox.controllers.support.InstanceNameEntityBody;
 import org.carlspring.strongbox.controllers.support.PortEntityBody;
+import org.carlspring.strongbox.controllers.support.MaxUploadSizeEntityBody;
 import org.carlspring.strongbox.forms.configuration.CorsConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ProxyConfigurationForm;
 import org.carlspring.strongbox.forms.configuration.ServerSettingsForm;
@@ -220,6 +221,61 @@ public class ServerConfigurationController
                 getPortEntityBody(configurationManagementService.getConfiguration().getPort(), accept));
     }
 
+    @ApiOperation(value = "Sets the max upload size of the service.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The max upload size was updated."),
+            @ApiResponse(code = 400, message = "Could not update the strongbox max upload size.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_MAX_UPLOAD_SIZE', 'GLOBAL_CONFIGURATION_MANAGE')")
+    @PutMapping(value = "/maxUploadSize/{maxUploadSize}",
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                    MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity setUploadSize(@ApiParam(value = "The max upload size of the service", required = true)
+                                  @PathVariable String maxUploadSize,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
+    {
+        try
+        {
+            configurationManagementService.setMaxUploadFileSize(maxUploadSize);
+
+            logger.info("Set max upload size to {}.", maxUploadSize);
+
+            return ResponseEntity.ok(getResponseEntityBody("The max upload size was updated.", accept));
+        }
+        catch (ConfigurationException e)
+        {
+            String message = "Could not update the strongbox  max upload size.";
+            logger.error(message, e);
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(getResponseEntityBody(message, accept));
+        }
+    }
+
+    @ApiOperation(value = "Sets the max upload size of the service.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "The max upload size was updated."),
+            @ApiResponse(code = 400, message = "Could not update the strongbox max upload size.") })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_SET_MAX_UPLOAD_SIZE', 'GLOBAL_CONFIGURATION_MANAGE')")
+    @PutMapping(value = "/maxUploadSize",
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                    MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity setUploadSize(@ApiParam(value = "The max upload size of the service", required = true)
+                                  @RequestBody MaxUploadSizeEntityBody maxUploadSizeEntity,
+                                  @RequestHeader(HttpHeaders.ACCEPT) String accept) throws IOException
+    {
+        return setUploadSize(maxUploadSizeEntity.getMaxUploadSize(), accept);
+    }
+
+    @ApiOperation(value = "Returns the max upload size of the service.")
+    @ApiResponses(value = { @ApiResponse(code = 200, message = "", response = String.class) })
+    @PreAuthorize("hasAnyAuthority('CONFIGURATION_VIEW_MAX_UPLOAD_SIZE', 'GLOBAL_CONFIGURATION_MANAGE')")
+    @GetMapping(value = "/maxUploadSize",
+            produces = { MediaType.TEXT_PLAIN_VALUE,
+                    MediaType.APPLICATION_JSON_VALUE })
+    public ResponseEntity getMaxUploadSize(@RequestHeader(HttpHeaders.ACCEPT) String accept)
+    {
+        return ResponseEntity.ok(
+                getMaxUploadSizeEntityBody(configurationManagementService.getConfiguration().getMaxFileUploadSize(), accept));
+    }
+
     @ApiOperation(value = "Set global server settings.")
     @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_SERVER_SETTINGS),
                             @ApiResponse(code = 400, message = FAILED_SAVE_SERVER_SETTINGS) })
@@ -392,6 +448,19 @@ public class ServerConfigurationController
         else
         {
             return String.valueOf(port);
+        }
+    }
+
+    private Object getMaxUploadSizeEntityBody(String maxUploadSize,
+                                     String accept)
+    {
+        if (MediaType.APPLICATION_JSON_VALUE.equals(accept))
+        {
+            return new MaxUploadSizeEntityBody(maxUploadSize);
+        }
+        else
+        {
+            return String.valueOf(maxUploadSize);
         }
     }
 }

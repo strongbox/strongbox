@@ -11,9 +11,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
@@ -53,6 +55,10 @@ public abstract class RestAssuredBaseTest
 
     @Inject
     protected MockMvcRequestSpecification mockMvc;
+
+    @Inject
+    @Qualifier("FilteredMockMvc")
+    protected MockMvcRequestSpecification filteredMockMvc;
 
     public void init()
             throws Exception
