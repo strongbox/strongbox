@@ -22,16 +22,16 @@ import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.http.MediaType;
-import org.springframework.util.CollectionUtils;
+
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class NpmArtifactGenerator
         implements ArtifactGenerator
@@ -91,6 +91,12 @@ public class NpmArtifactGenerator
     public void setPackagePath(Path packagePath)
     {
         this.packagePath = packagePath;
+    }
+
+    @Override
+    public void setLicenses(LicenseConfiguration[] licenses)
+    {
+        this.licenses = licenses;
     }
 
     public Path buildPackage(long bytesSize)
@@ -164,11 +170,8 @@ public class NpmArtifactGenerator
         try (OutputStream outputStream = Files.newOutputStream(packageJsonPath, StandardOpenOption.CREATE);
              BufferedOutputStream out = new BufferedOutputStream(outputStream))
         {
-            List<License> licenses = getNpmLicenses();
-            if (!CollectionUtils.isEmpty(licenses))
-            {
-                packageJson.setLicenses(licenses);
-            }
+            populateNpmLicensesinPackageJson();
+
             out.write(mapper.writeValueAsBytes(packageJson));
         }
 
@@ -180,22 +183,23 @@ public class NpmArtifactGenerator
         tarOut.closeArchiveEntry();
     }
 
-    private List<License> getNpmLicenses()
+    private void populateNpmLicensesinPackageJson()
     {
         if (!ArrayUtils.isEmpty(licenses))
         {
-            return Arrays.asList(licenses)
-                         .stream()
-                         .map(licenseConfig -> {
+            List<License> npmLicenses = Arrays.asList(licenses)
+                                              .stream()
+                                              .map(licenseConfig -> {
 
-                             License npmLicense = new License();
-                             npmLicense.setType(licenseConfig.license().getName());
-                             npmLicense.setUrl(licenseConfig.license().getUrl());
-                             return npmLicense;
-                         })
-                         .collect(Collectors.toList());
+                                                  License npmLicense = new License();
+                                                  npmLicense.setType(licenseConfig.license().getName());
+                                                  npmLicense.setUrl(licenseConfig.license().getUrl());
+                                                  return npmLicense;
+                                              })
+                                              .collect(Collectors.toList());
+
+            packageJson.setLicenses(npmLicenses);
         }
-        return null;
     }
 
     private void writeContent(TarArchiveOutputStream tarOut,
@@ -251,8 +255,8 @@ public class NpmArtifactGenerator
         }
 
         Path publishJsonPath = packagePath.resolveSibling("publish.json");
-        try (OutputStream out = new BufferedOutputStream(
-                Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE)))
+        try (OutputStream outputStream = Files.newOutputStream(publishJsonPath, StandardOpenOption.CREATE);
+             BufferedOutputStream out = new BufferedOutputStream(outputStream))
         {
             JsonFactory jFactory = new JsonFactory();
             JsonGenerator jGenerator = jFactory.createGenerator(out, JsonEncoding.UTF8);
@@ -304,12 +308,6 @@ public class NpmArtifactGenerator
         }
 
         return publishJsonPath;
-    }
-
-    @Override
-    public void setLicenses(LicenseConfiguration[] licenses)
-    {
-        this.licenses = licenses;
     }
 
 }
