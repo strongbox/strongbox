@@ -1,0 +1,81 @@
+#!/bin/sh
+
+# discover BASEDIR
+BASEDIR=`dirname "$0"`/..
+BASEDIR=`(cd "$BASEDIR"; pwd)`
+ls -l "$0" | grep -e '->' > /dev/null 2>&1
+if [ $? = 0 ]; then
+  #this is softlink
+  _PWD=`pwd`
+  _EXEDIR=`dirname "$0"`
+  cd "$_EXEDIR"
+  _BASENAME=`basename "$0"`
+  _REALFILE=`ls -l "$_BASENAME" | sed 's/.*->\ //g'`
+   BASEDIR=`dirname "$_REALFILE"`/..
+   BASEDIR=`(cd "$BASEDIR"; pwd)`
+   cd "$_PWD"
+fi
+
+STRONGBOX_HOME="${STRONGBOX_HOME:=.}"
+STRONGBOX_VAULT="${STRONGBOX_VAULT:=./../strongbox-vault}"
+STRONGBOX_JVM_XMX="${STRONGBOX_JVM_XMX:=512}"
+STRONGBOX_PORT="${STRONGBOX_PORT:=48080}"
+STRONGBOX_DB_PROFILE="${STRONGBOX_DB_PROFILE:=db_EMBEDDED}"
+STRONGBOX_GREMLIN_SERVER_ENABLED="${STRONGBOX_GREMLIN_SERVER_ENABLED:=false}"
+STRONGBOX_LOG_CONSOLE_ENABLED="${STRONGBOX_LOG_CONSOLE_ENABLED:=false}"
+STRONGBOX_LOG_FILE_ENABLED="${STRONGBOX_LOG_FILE_ENABLED:=true}"
+STRONGBOX_LOG_FILE_SIZE_SINGLE="${STRONGBOX_LOG_FILE_SIZE_SINGLE:=128MB}"
+STRONGBOX_LOG_FILE_SIZE_TOTAL="${STRONGBOX_LOG_FILE_SIZE_TOTAL:=1GB}"
+STRONGBOX_LOG_FILE_HISTORY="${STRONGBOX_LOG_FILE_HISTORY:=31}"
+STRONGBOX_DEBUG="${STRONGBOX_DEBUG:=false}"
+STRONGBOX_NPM_REMOTE_CHANGES_ENABLED="${STRONGBOX_NPM_REMOTE_CHANGES_ENABLED:=false}"
+STRONGBOX_NUGET_DOWNLOAD_FEED="${STRONGBOX_NUGET_DOWNLOAD_FEED:=false}"
+STRONGBOX_DOWNLOAD_INDEXES="${STRONGBOX_DOWNLOAD_INDEXES:=false}"
+
+JAVA_OPTS="${JAVA_OPTS} -Dappserver.home=."
+JAVA_OPTS="${JAVA_OPTS} -Dappserver.base=${STRONGBOX_HOME}"
+JAVA_OPTS="${JAVA_OPTS} -Dehcache.disk.store.dir=../strongbox-vault/cache"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.home=${STRONGBOX_HOME}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.vault=${STRONGBOX_VAULT}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.storage.booter.basedir=${STRONGBOX_VAULT}/storages"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.config=${STRONGBOX_HOME}/etc/logback-spring.xml"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.debug=${STRONGBOX_DEBUG}"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.file.enabled=${STRONGBOX_LOG_FILE_ENABLED}"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.file.size.single=${STRONGBOX_LOG_FILE_SIZE_SINGLE}"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.file.size.total=${STRONGBOX_LOG_FILE_SIZE_TOTAL}"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.file.history=${STRONGBOX_LOG_FILE_HISTORY}"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.console.enabled=${STRONGBOX_LOG_CONSOLE_ENABLED}"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.dir=${STRONGBOX_VAULT}/logs"
+JAVA_OPTS="${JAVA_OPTS} -Dlogging.file=${STRONGBOX_VAULT}/logs/strongbox.log"
+JAVA_OPTS="${JAVA_OPTS} -Djetty.logs=${STRONGBOX_HOME}/logs"
+JAVA_OPTS="${JAVA_OPTS} -Djava.io.tmpdir=${STRONGBOX_HOME}/tmp"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.port=${STRONGBOX_PORT}"
+JAVA_OPTS="${JAVA_OPTS} -Dserver.port=${STRONGBOX_PORT}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.db.profile=${STRONGBOX_DB_PROFILE}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.graph.gremlin.server=${STRONGBOX_GREMLIN_SERVER_ENABLED}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.npm.remote.changes.enabled=${STRONGBOX_NPM_REMOTE_CHANGES_ENABLED}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.nuget.download.feed=${STRONGBOX_NUGET_DOWNLOAD_FEED}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.download.indexes=${STRONGBOX_DOWNLOAD_INDEXES}"
+JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.authentication.providers.yaml=${STRONGBOX_HOME}/etc/conf/strongbox-authentication-providers.yaml"
+
+JDK_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
+if [[ $JDK_VERSION == 11* ]]; then
+   JAVA_OPTS="${JAVA_OPTS} -Dsun.misc.URLClassPath.disableJarChecking=true -Djdk.attach.allowAttachSelf=true
+                                --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
+                                --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+                                --add-exports java.base/sun.nio.ch=ALL-UNNAMED
+                                --add-exports java.management.rmi/com.sun.jmx.remote.internal.rmi=ALL-UNNAMED
+                                --add-exports java.rmi/sun.rmi.registry=ALL-UNNAMED
+                                --add-exports java.rmi/sun.rmi.server=ALL-UNNAMED
+                                --add-exports java.sql/java.sql=ALL-UNNAMED
+                                --add-opens java.base/java.lang.module=ALL-UNNAMED
+                                --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+                                --add-opens java.base/jdk.internal.ref=ALL-UNNAMED
+                                --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+                                --add-opens java.base/jdk.internal.math=ALL-UNNAMED
+                                --add-opens java.base/jdk.internal.module=ALL-UNNAMED
+                                --add-opens java.base/jdk.internal.util.jar=ALL-UNNAMED
+                                --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED"
+fi
+
+(cd $BASEDIR && exec java -jar ${JAVA_OPTS} ./lib/strongbox-web-core-1.0-PR-62-SNAPSHOT-spring-boot.jar > $BASEDIR/logs/startup.log 2>&1 & echo "PID: $!")

@@ -53,11 +53,12 @@
                 <directory>${basedir}/src/main/resources</directory>
             </resource>
             <resource>
-                <directory>target/generated-resources/appassembler/jsw/strongbox</directory>
-                <targetPath>target/assembly/strongbox-${project.version}</targetPath>
+                <directory>${basedir}/src/main/resources/bin</directory>
+                <targetPath>${project.build.directory}/assembly/strongbox-${project.version}/bin</targetPath>
                 <includes>
                     <include>**/**</include>
                 </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
 
@@ -65,6 +66,18 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -179,16 +192,6 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>org.codehaus.mojo.appassembler</groupId>
-                                    <artifactId>appassembler-booter</artifactId>
-                                    <type>jar</type>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.codehaus.mojo.appassembler</groupId>
-                                    <artifactId>appassembler-model</artifactId>
-                                    <type>jar</type>
-                                </artifactItem>
-                                <artifactItem>
                                     <groupId>${project.groupId}</groupId>
                                     <artifactId>strongbox-web-core</artifactId>
                                     <classifier>spring-boot</classifier>
@@ -203,132 +206,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>appassembler-maven-plugin</artifactId>
-
-                <configuration>
-                    <preWrapperConf>${project.basedir}/src/main/resources/setenv.conf</preWrapperConf>
-
-                    <configurationDirectory>etc</configurationDirectory>
-
-                    <repositoryLayout>flat</repositoryLayout>
-                    <assembleDirectory>target/generated-resources/appassembler/jsw/strongbox</assembleDirectory>
-
-                    <binFileExtensions>
-                        <unix>.sh</unix>
-                    </binFileExtensions>
-
-                    <!-- This otherwise causes all the direct and transitive dependencies to be copied under
-                         ${dir.strongbox.standalone}/lib, completely unaware of the fact that all the required
-                         dependencies are already included in the Spring Boot package of the strongbox-web-core. -->
-                    <generateRepository>false</generateRepository>
-
-                    <daemons>
-                        <daemon>
-                            <id>strongbox</id>
-                            <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
-
-                            <platforms>
-                                <platform>jsw</platform>
-                            </platforms>
-
-                            <generatorConfigurations>
-                                <generatorConfiguration>
-                                    <generator>jsw</generator>
-                                    <configuration>
-                                        <property>
-                                            <name>wrapper.console.loglevel</name>
-                                            <value>INFO</value>
-                                        </property>
-                                        <property>
-                                            <name>wrapper.java.additional.1.stripquotes</name>
-                                            <value>TRUE</value>
-                                        </property>
-                                        <property>
-                                            <name>wrapper.logfile</name>
-                                            <value>%STRONGBOX_HOME%/logs/wrapper-YYYYMMDD.log</value>
-                                        </property>
-                                        <property>
-                                            <name>wrapper.logfile.rollmode</name>
-                                            <value>DATE</value>
-                                        </property>
-                                        <property>
-                                            <name>app.base.envvar</name>
-                                            <value>STRONGBOX_HOME</value>
-                                        </property>
-                                        <property>
-                                            <name>wrapper.on_exit.default</name>
-                                            <value>SHUTDOWN</value>
-                                        </property>
-                                        <property>
-                                            <name>wrapper.on_exit.0</name>
-                                            <value>SHUTDOWN</value>
-                                        </property>
-                                        <property>
-                                            <name>wrapper.restart.delay</name>
-                                            <value>30</value>
-                                        </property>
-                                    </configuration>
-                                    <includes>
-                                        <include>linux-x86-32</include>
-                                        <include>linux-x86-64</include>
-                                        <include>macosx-universal-32</include>
-                                        <!-- not available -->
-                                        <include>macosx-universal-64</include>
-                                        <include>solaris-x86-32</include>
-                                        <include>solaris-sparc-32</include>
-                                        <include>solaris-sparc-64</include>
-                                        <include>windows-x86-32</include>
-                                        <include>windows-x86-64</include>
-                                    </includes>
-                                </generatorConfiguration>
-                            </generatorConfigurations>
-                            <jvmSettings>
-                                <initialMemorySize>256</initialMemorySize>
-                                <maxMemorySize>1024</maxMemorySize>
-
-                                <systemProperties>
-                                    <systemProperty>appserver.home=.</systemProperty>
-                                    <systemProperty>appserver.base=%STRONGBOX_HOME%</systemProperty>
-                                    <systemProperty>strongbox.home=%STRONGBOX_HOME%</systemProperty>
-                                    <systemProperty>strongbox.vault=%STRONGBOX_VAULT%</systemProperty>
-                                    <systemProperty>strongbox.storage.booter.basedir=%STRONGBOX_VAULT%/storages</systemProperty>
-                                    <systemProperty>logging.config=%STRONGBOX_HOME%/etc/logback-spring.xml</systemProperty>
-                                    <systemProperty>logging.debug=%STRONGBOX_DEBUG%</systemProperty>
-                                    <systemProperty>logging.file.enabled=%STRONGBOX_LOG_FILE_ENABLED%</systemProperty>
-                                    <systemProperty>logging.file.size.single=%STRONGBOX_LOG_FILE_SIZE_SINGLE%</systemProperty>
-                                    <systemProperty>logging.file.size.total=%STRONGBOX_LOG_FILE_SIZE_TOTAL%</systemProperty>
-                                    <systemProperty>logging.file.history=%STRONGBOX_LOG_FILE_HISTORY%</systemProperty>
-                                    <systemProperty>logging.console.enabled=%STRONGBOX_LOG_CONSOLE_ENABLED%</systemProperty>
-                                    <systemProperty>logging.dir=%STRONGBOX_VAULT%/logs</systemProperty>
-                                    <systemProperty>logging.file=%STRONGBOX_VAULT%/logs/strongbox.log</systemProperty>
-                                    <systemProperty>jetty.logs=%STRONGBOX_HOME%/logs</systemProperty>
-                                    <systemProperty>java.io.tmpdir=%STRONGBOX_HOME%/tmp</systemProperty>
-                                    <systemProperty>strongbox.port=%STRONGBOX_PORT%</systemProperty>
-                                    <systemProperty>server.port=%STRONGBOX_PORT%</systemProperty>
-                                    <systemProperty>strongbox.db.profile=%STRONGBOX_DB_PROFILE%</systemProperty>
-                                    <systemProperty>strongbox.graph.gremlin.server=%STRONGBOX_GREMLIN_SERVER_ENABLED%</systemProperty>
-                                    <systemProperty>strongbox.npm.remote.changes.enabled=%STRONGBOX_NPM_REMOTE_CHANGES_ENABLED%</systemProperty>
-                                    <systemProperty>strongbox.nuget.download.feed=%STRONGBOX_NUGET_DOWNLOAD_FEED%</systemProperty>
-                                    <systemProperty>strongbox.download.indexes=%STRONGBOX_DOWNLOAD_INDEXES%</systemProperty>
-                                    <systemProperty>strongbox.authentication.providers.yaml=%STRONGBOX_HOME%/etc/conf/strongbox-authentication-providers.yaml</systemProperty>
-                                </systemProperties>
-                            </jvmSettings>
-                        </daemon>
-                    </daemons>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate-daemons</goal>
-                            <!--<goal>assemble</goal>-->
-                        </goals>
-                        <phase>prepare-package</phase>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -338,9 +215,6 @@
                         <phase>prepare-package</phase>
                         <configuration>
                             <tasks>
-                                <copy todir="${dir.strongbox.standalone}">
-                                    <fileset dir="${project.build.directory}/generated-resources/appassembler/jsw/strongbox"/>
-                                </copy>
                                 <mkdir dir="${dir.strongbox.vault}/"/>
                                 <mkdir dir="${dir.strongbox.standalone}/tmp"/>
                                 <mkdir dir="${dir.strongbox.standalone}/logs"/>
@@ -352,7 +226,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -490,15 +363,6 @@
             <artifactId>strongbox-web-core</artifactId>
             <version>${project.version}</version>
             <classifier>spring-boot</classifier>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.mojo.appassembler</groupId>
-            <artifactId>appassembler-booter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.mojo.appassembler</groupId>
-            <artifactId>appassembler-model</artifactId>
         </dependency>
     </dependencies>
 
