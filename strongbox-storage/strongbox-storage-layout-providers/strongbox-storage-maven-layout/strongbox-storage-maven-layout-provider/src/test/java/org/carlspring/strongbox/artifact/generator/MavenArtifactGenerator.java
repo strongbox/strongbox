@@ -433,7 +433,7 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     @Override
     public void setLicenses(LicenseConfiguration[] licenses)
     {
-
+        this.licenses = (MavenLicenseConfiguration[]) licenses;
     }
 
 }
