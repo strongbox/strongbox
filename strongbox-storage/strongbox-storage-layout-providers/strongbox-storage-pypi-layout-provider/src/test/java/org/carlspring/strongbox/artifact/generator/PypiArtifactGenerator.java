@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -91,7 +92,16 @@ public class PypiArtifactGenerator
 
     @Override
     public void setLicenses(LicenseConfiguration[] licenses)
+            throws IOException
     {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            if (licenses.length > 1)
+            {
+                throw new IOException("PyPi doesn't support multiple licenses!");
+            }
+
+        }
         this.licenses = licenses;
     }
 
@@ -152,8 +162,12 @@ public class PypiArtifactGenerator
                                           long byteSize)
             throws IOException
     {
-        String licenseFileName = getLicenseName();
-        
+        String licenseFileName = LicenseType.UNLICENSE.getName();
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            licenseFileName = licenses[0].license().getName();
+        }
+
         //create PKG-INFO zip entry
         String pkgInfoPath = "PKG-INFO";
         byte[] pkgInfoContent = String.format(METADATA_CONTENT, name, version, licenseFileName).getBytes();
@@ -214,64 +228,11 @@ public class PypiArtifactGenerator
         TestFileUtils.generateFile(zos, byteSize, randomPath);
     }
 
-    private String getLicenseName() 
-            throws IOException
-    {
-        if (!ArrayUtils.isEmpty(licenses))
-        {
-            if (licenses.length > 1)
-            {
-                throw new IOException("PyPi doesn't support multiple licenses!");
-            }
-
-            return licenses[0].license().getName();
-        }
-
-        return LicenseType.UNLICENSE.getName();
-    }
-    
-    private String getLicensePath()
-            throws IOException
-    {
-        if (!ArrayUtils.isEmpty(licenses))
-        {
-            if (licenses.length > 1)
-            {
-                throw new IOException("PyPi doesn't support multiple licenses!");
-            }
-
-            return licenses[0].destinationPath();
-        }
-
-        return "LICENSE";
-    }
-    
-    private String getLicenseFileSourcePath()
-            throws IOException
-    {
-        if (!ArrayUtils.isEmpty(licenses))
-        {
-            if (licenses.length > 1)
-            {
-                throw new IOException("PyPi doesn't support multiple licenses!");
-            }
-
-            return licenses[0].license().getLicenseFileSourcePath();
-        }
-
-        return LicenseType.UNLICENSE.getLicenseFileSourcePath();
-    }
-
     private void copyLicenseFiles(ZipOutputStream zos)
             throws IOException
     {
         if (!ArrayUtils.isEmpty(licenses))
         {
-            if (licenses.length > 1)
-            {
-                throw new IOException("Pypi packages doesn't support multiple licence");
-            }
-
             LicenseConfiguration license = licenses[0];
             ZipEntry zipEntry = new ZipEntry(license.destinationPath());
             zos.putNextEntry(zipEntry);
@@ -294,14 +255,26 @@ public class PypiArtifactGenerator
         String dirPath = String.format("%s-%s.%s", name, version, "dist-info");
 
         //create METADATA zip entry
-        String licenseFileName = getLicenseName();
+        String licenseFileName = LicenseType.UNLICENSE.getName();
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            licenseFileName = licenses[0].license().getName();
+        }
         String metadataPath = dirPath + "/" + "METADATA";
         byte[] metadataContent = String.format(METADATA_CONTENT, name, version, licenseFileName).getBytes();
         createZipEntry(zos, metadataPath, metadataContent);
 
         //create LICENSE zip entry
-        String licensePath = dirPath + "/" + getLicensePath();
-        byte[] licenseContent = getLicenseFileContent(getLicenseFileSourcePath());
+        String licensePath = "LICENSE";
+        String licenseFilePath = LicenseType.UNLICENSE.getLicenseFileSourcePath();
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            licenseFilePath = licenses[0].license().getLicenseFileSourcePath();
+            licensePath = licenses[0].destinationPath();
+        }
+        licensePath = dirPath + "/" + licensePath;
+
+        byte[] licenseContent = getLicenseFileContent(licenseFilePath);
         createZipEntry(zos, licensePath, licenseContent);
 
         //create WHEEL zip entry

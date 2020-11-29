@@ -22,7 +22,8 @@ public interface ArtifactGeneratorStrategy<T extends ArtifactGenerator>
         throws IOException;
     
     default void setLicenses(ArtifactGenerator artifactGenerator,
-                             Map<String, Object> attributesMap)
+                             Map<String, Object> attributesMap) 
+        throws IOException
     {
         Object licenses = attributesMap.get("licenses");
         if (licenses instanceof LicenseConfiguration[])

@@ -44,7 +44,8 @@ public interface ArtifactGenerator
                           long size)
         throws IOException;
     
-    void setLicenses(LicenseConfiguration[] licenses);
+    void setLicenses(LicenseConfiguration[] licenses)
+        throws IOException;
 
     default void copyLicenseFile(String licenseFileSourcePath,
                                  OutputStream os)
