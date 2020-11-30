@@ -6,9 +6,10 @@ import org.carlspring.strongbox.authentication.api.AuthenticationItems;
 import org.carlspring.strongbox.authentication.api.ldap.LdapAuthenticationConfigurationManager;
 import org.carlspring.strongbox.authentication.api.ldap.LdapConfiguration;
 import org.carlspring.strongbox.authentication.support.ExternalRoleMapping;
+import org.carlspring.strongbox.config.IntegrationTest;
+import org.carlspring.strongbox.config.LdapServerTestConfig;
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
 import org.carlspring.strongbox.config.hazelcast.HazelcastInstanceId;
-import org.carlspring.strongbox.config.IntegrationTest;
 import org.carlspring.strongbox.forms.configuration.security.ldap.LdapConfigurationTestForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
@@ -21,13 +22,11 @@ import java.util.stream.Stream;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Disabled;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 
@@ -84,20 +83,20 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("url", startsWith("ldap://127.0.0.1"))
                .body("userSearchBase", equalTo("ou=Users"))
                .body("userSearchFilter", equalTo("(uid={0})"))
+               .body("userPasswordEncoded", equalTo(false))
+               .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
                .body("roleMappingList[0].externalRole", equalTo("Admins"))
                .body("roleMappingList[0].strongboxRole", equalTo("ADMIN"))
                .body("roleMappingList[1].externalRole", equalTo("Developers"))
                .body("roleMappingList[1].strongboxRole", equalTo("REPOSITORY_MANAGER"))
                .body("roleMappingList[2].externalRole", equalTo("Contributors"))
                .body("roleMappingList[2].strongboxRole", equalTo("USER_ROLE"))
-               .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
                .body("authorities.groupSearchBase", equalTo("ou=Groups"))
                .body("authorities.groupSearchFilter", equalTo("(uniqueMember={0})"))
                .body("authorities.searchSubtree", equalTo(true))
                .body("authorities.groupRoleAttribute", equalTo("cn"))
                .body("authorities.rolePrefix", equalTo(""))
                .body("authorities.convertToUpperCase", equalTo(false))
-               .body("base64EncodedPassword", equalTo(false))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -133,6 +132,9 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("url", equalTo("ldap://127.0.0.1:33389/dc=carlspring,dc=com"))
                .body("userSearchBase", equalTo("ou=People"))
                .body("userSearchFilter", equalTo("(people={0})"))
+               .body("userPasswordEncoded", equalTo(false))
+               .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
+               .body("userDnPatternList[1]", equalTo("uid={0},ou=AllUsers"))
                .body("authorities.groupSearchBase", equalTo("ou=Groups"))
                .body("authorities.groupSearchFilter", equalTo("(uniqueMember={0})"))
                .body("authorities.searchSubtree", equalTo(true))
@@ -149,9 +151,6 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("roleMappingList[3].strongboxRole", equalTo("ARTIFACTS_MANAGER"))
                .body("roleMappingList[4].externalRole", equalTo("LogsManager"))
                .body("roleMappingList[4].strongboxRole", equalTo("LOGS_MANAGER"))
-               .body("userDnPatternList[0]", equalTo("uid={0},ou=Users"))
-               .body("userDnPatternList[1]", equalTo("uid={0},ou=AllUsers"))
-               .body("base64EncodedPassword", equalTo(false))
                .statusCode(HttpStatus.OK.value());
     }
 
@@ -440,8 +439,8 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Configuration
     @Profile("LdapAuthenticatorConfigurationControllerTest")
-    @Import(HazelcastConfiguration.class)
-    @ImportResource("classpath:/ldapServerApplicationContext.xml")
+    @Import({HazelcastConfiguration.class,
+             LdapServerTestConfig.class })
     public static class LdapAuthenticatorConfigurationControllerTestConfiguration
     {
 

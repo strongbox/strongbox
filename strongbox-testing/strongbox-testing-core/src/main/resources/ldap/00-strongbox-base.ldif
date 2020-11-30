@@ -1,18 +1,23 @@
-# This should already exist if the server is properly configured.
-# If it's not - you can uncomment during development/testing.
-#dn: dc=carlspring,dc=com
-#objectClass: top
-#objectClass: domain
-#dc: carlspring
+#
+# This LDIF file is to test LDAP functionality across multiple modules and contains some "generic" records to avoid
+# having to repeat yourself.
+#
+# Notes:
+#  *  Changes here are fine, but should be done carefully, since it might break some tests in other modules.
+#  *  ALL user passwords in this LDIF file MUST be `password` to avoid guessing.
+#  *  You should also keep in mind this file is DIRECTLY imported in the OpenLDAP container when you do `docker-compose up openldap`.
+#  *  Changes MUST be compatible with OpenLDAP as well or it will break the openldap container startup.
 
-# Create a place where users are stored
-dn: ou=Users, dc=carlspring, dc=com
+# Create an organizational unit where users will be stored.
+dn: ou=Users,dc=carlspring,dc=com
+changeType: add
 ou: Users
 description: All strongbox users.
 objectclass: organizationalUnit
 
-# Create users (passwords: password)
+# Create users
 dn: uid=mtodorov,ou=Users,dc=carlspring,dc=com
+changeType: add
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
@@ -24,33 +29,8 @@ mail: mtodorov@carlspring.com
 givenName: Martin
 userPassword: {bcrypt}$2a$10$lpwlxyjvXKzN1ccCrw2PBuZx.eVesWbfmTbsrCboMU.gsNWVcZWMi
 
-# Create users with base64 encoded password after algorithm(passwords: password)
-dn: uid=base64encoded-issue-1840,ou=Users,dc=carlspring,dc=com
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-objectClass: person
-objectClass: top
-uid: base64encoded-issue-1840
-cn: base64encoded-issue-1840
-sn: base64encoded
-mail: mtodorov@carlspring.com
-givenName: Martin
-userPassword: {MD5}X03MO1qnZdYdgyfeuILPmQ==
-
-# Create users with base64 encoded password including algorithm(passwords: password)
-dn: uid=base64withalgorithm-issue-1840,ou=Users,dc=carlspring,dc=com
-objectClass: inetOrgPerson
-objectClass: organizationalPerson
-objectClass: person
-objectClass: top
-uid: base64withalgorithm-issue-1840
-cn: base64withalgorithm-issue-1840
-sn: base64withalgorithm
-mail: mtodorov@carlspring.com
-givenName: Martin
-userPassword: e2JjcnlwdH0kMmEkMTAkbHB3bHh5anZYS3pOMWNjQ3J3MlBCdVp4LmVWZXNXYmZtVGJzckNib01VLmdzTldWY1pXTWk=
-
 dn: uid=stodorov,ou=Users,dc=carlspring,dc=com
+changeType: add
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
@@ -63,6 +43,7 @@ givenName: Steve
 userPassword: {MD5}{+0ZDjBqe9MQD0RE7FAQrvuBJu89w7XY1kOxjP5PbilQ=}d0f27c20288118f0fdde9e91e5e9ffb9
 
 dn: uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com
+changeType: add
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
@@ -75,6 +56,7 @@ givenName: Przemyslaw
 userPassword: {SHA-256}{mujKRdqeWWYAWhczNwVnBl6L6dHNwWO5eIGZ/G7pnBg=}bb63813f5b6f64ae306ebbbb23dcbb1c6f49eb9b989fc466b1b1a24a011bb2ce
 
 dn: uid=testuser1,ou=Users,dc=carlspring,dc=com
+changeType: add
 objectClass: inetOrgPerson
 objectClass: organizationalPerson
 objectClass: person
@@ -86,13 +68,15 @@ givenName: Test
 userPassword: {SHA-1}{mDhUc/Vlf/amwY9QzEX+N7ZE5XK/6jc5+ZOUypVrB/U=}9f06588201782cb6dcc454f81468e851d09171a9
 
 # Create groups
-dn: ou=Groups, dc=carlspring, dc=com
+dn: ou=Groups,dc=carlspring,dc=com
+changeType: add
 ou: Groups
 description: Base group organization unit.
 objectClass: organizationalUnit
 
 # Employees
-dn: ou=Employees, ou=Groups, dc=carlspring, dc=com
+dn: ou=Employees,ou=Groups,dc=carlspring,dc=com
+changeType: add
 ou: Employees
 cn: Employees
 description: All employees
@@ -100,7 +84,8 @@ objectClass: groupOfUniqueNames
 uniqueMember: cn=NULL
 
 # Employees -> Developers
-dn: ou=Developers, ou=Employees, ou=Groups, dc=carlspring, dc=com
+dn: ou=Developers,ou=Employees,ou=Groups,dc=carlspring,dc=com
+changeType: add
 ou: Developers
 cn: Developers
 description: All developers
@@ -108,21 +93,19 @@ objectClass: groupOfUniqueNames
 uniqueMember: uid=mtodorov,ou=Users,dc=carlspring,dc=com
 uniqueMember: uid=stodorov,ou=Users,dc=carlspring,dc=com
 uniqueMember: uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com
-uniqueMember: uid=base64encoded-issue-1840,ou=Users,dc=carlspring,dc=com
-uniqueMember: uid=base64withalgorithm-issue-1840,ou=Users,dc=carlspring,dc=com
 
 # Employees -> Contributors
-dn: ou=Contributors, ou=Employees, ou=Groups, dc=carlspring, dc=com
+dn: ou=Contributors,ou=Employees,ou=Groups,dc=carlspring,dc=com
+changeType: add
 ou: Contributors
 cn: Contributors
 description: All contributors
 objectClass: groupOfUniqueNames
 uniqueMember: uid=przemyslaw.fusik,ou=Users,dc=carlspring,dc=com
-uniqueMember: uid=base64encoded-issue-1840,ou=Users,dc=carlspring,dc=com
-uniqueMember: uid=base64withalgorithm-issue-1840,ou=Users,dc=carlspring,dc=com
 
 # Employees -> Managers
-dn: ou=Managers, ou=Employees, ou=Groups, dc=carlspring, dc=com
+dn: ou=Managers,ou=Employees,ou=Groups,dc=carlspring,dc=com
+changeType: add
 ou: Managers
 cn: Managers
 description: All managers
@@ -130,10 +113,10 @@ objectClass: groupOfUniqueNames
 uniqueMember: uid=mtodorov,ou=Users,dc=carlspring,dc=com
 
 # Employees -> Admins
-dn: ou=Admins, ou=Employees, ou=Groups, dc=carlspring, dc=com
+dn: ou=Admins,ou=Employees,ou=Groups,dc=carlspring,dc=com
+changeType: add
 ou: Admins
 cn: Admins
 description: All admins
 objectClass: groupOfUniqueNames
 uniqueMember: uid=stodorov,ou=Users,dc=carlspring,dc=com
-

@@ -62,7 +62,7 @@
     </bean>
     
     <bean id="customUserDetailsMapper" class="org.carlspring.strongbox.authentication.api.ldap.CustomLdapUserDetailsMapper">
-        <property name="base64EncodedPassword" value="${strongbox.authentication.ldap.base64EncodedPassword}"/>
+        <property name="userPasswordEncoded" value="${strongbox.authentication.ldap.userPasswordEncoded}"/>
     </bean>
 
 </beans>

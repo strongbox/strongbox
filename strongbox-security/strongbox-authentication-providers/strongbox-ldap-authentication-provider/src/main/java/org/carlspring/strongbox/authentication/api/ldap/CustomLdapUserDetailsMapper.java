@@ -10,15 +10,18 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsMapper;
 import org.springframework.util.StringUtils;
 
 /**
- * This class handles password base64 decoding base on property: strongbox.authentication.ldap.base64EncodedPassword set to true or false.
- * If base64EncodedPassword is set to true, given string will be decoded and return decoded hash.
+ * This class handles password base64 decoding based on the property strongbox.authentication.ldap.userPasswordEncoded.
  *
  * <p>
- * This handles all possible cases
+ *  When set to true will handle these possible cases:
+ *  {ALG}base64.encode(md5/sha1/bcrypt(mypassword))
+ *  base64.encode({ALG}md5/sha1/bcrypt(mypassword))
  * <p>
- * {ALG}md5/sha1/bcrypt(mypassword)
- * {ALG}base64.encode(md5/sha1/bcrypt(mypassword))
- * base64.encode({ALG}md5/sha1/bcrypt(mypassword))
+ *
+ * <p>
+ *  When set to false will handle the ordinary case:
+ *  {ALG}md5/sha1/bcrypt(mypassword)
+ * </p>
  *
  * @author mbharti
  * @date 19/10/20
@@ -35,13 +38,13 @@ public class CustomLdapUserDetailsMapper
 
     private static final Logger logger = LoggerFactory.getLogger(CustomLdapUserDetailsMapper.class);
 
-    private boolean isBase64EncodedPassword;
+    private boolean isUserPasswordEncoded;
 
     protected String mapPassword(Object passwordValue)
     {
         String passwordValueString = super.mapPassword(passwordValue);
 
-        if (!isBase64EncodedPassword())
+        if (!isUserPasswordEncoded())
         {
             return passwordValueString;
         }
@@ -121,19 +124,19 @@ public class CustomLdapUserDetailsMapper
      *
      * @return boolean
      */
-    public boolean isBase64EncodedPassword()
+    public boolean isUserPasswordEncoded()
     {
-        return isBase64EncodedPassword;
+        return isUserPasswordEncoded;
     }
 
 
     /**
      * Setting value whether Base64EncodedPassword is enabled or not
      *
-     * @param base64EncodedPassword
+     * @param userPasswordEncoded
      */
-    public void setBase64EncodedPassword(boolean base64EncodedPassword)
+    public void setUserPasswordEncoded(boolean userPasswordEncoded)
     {
-        isBase64EncodedPassword = base64EncodedPassword;
+        isUserPasswordEncoded = userPasswordEncoded;
     }
 }

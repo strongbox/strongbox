@@ -26,7 +26,7 @@ public class LdapConfiguration
 
     private String managerPassword;
 
-    private boolean base64EncodedPassword;
+    private boolean userPasswordEncoded;
 
     private LdapAuthoritiesConfiguration authoritiesConfiguration = new LdapAuthoritiesConfiguration();
 
@@ -121,13 +121,13 @@ public class LdapConfiguration
         this.enableProvider = enableProvider;
     }
 
-    public boolean isBase64EncodedPassword()
+    public boolean isUserPasswordEncoded()
     {
-        return base64EncodedPassword;
+        return userPasswordEncoded;
     }
 
-    public void setBase64EncodedPassword(boolean base64EncodedPassword)
+    public void setUserPasswordEncoded(boolean userPasswordEncoded)
     {
-        this.base64EncodedPassword = base64EncodedPassword;
+        this.userPasswordEncoded = userPasswordEncoded;
     }
 }

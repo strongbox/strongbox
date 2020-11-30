@@ -15,7 +15,7 @@ public class CustomLdapUserDetailsMapperTest
     public void testMapPasswordBase64EncodedFalse()
     {
         CustomLdapUserDetailsMapper userDetailsMapper = new CustomLdapUserDetailsMapper();
-        userDetailsMapper.setBase64EncodedPassword(false);
+        userDetailsMapper.setUserPasswordEncoded(false);
         String encodedPassword = userDetailsMapper.mapPassword("{MD5}X03MO1qnZdYdgyfeuILPmQ==");
 
         assertThat(encodedPassword).isEqualTo("{MD5}X03MO1qnZdYdgyfeuILPmQ==");
@@ -33,7 +33,7 @@ public class CustomLdapUserDetailsMapperTest
     public void testMapPasswordBase64EncodedTrue()
     {
         CustomLdapUserDetailsMapper userDetailsMapper = new CustomLdapUserDetailsMapper();
-        userDetailsMapper.setBase64EncodedPassword(true);
+        userDetailsMapper.setUserPasswordEncoded(true);
         String encodedPassword = userDetailsMapper.mapPassword("{MD5}X03MO1qnZdYdgyfeuILPmQ==");
 
         assertThat(encodedPassword).isEqualTo("{MD5}5f4dcc3b5aa765d61d8327deb882cf99");

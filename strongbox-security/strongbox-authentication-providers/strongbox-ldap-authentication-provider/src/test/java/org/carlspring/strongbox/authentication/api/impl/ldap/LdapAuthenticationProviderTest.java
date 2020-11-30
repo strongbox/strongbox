@@ -12,6 +12,7 @@ import java.util.Properties;
 import javax.inject.Inject;
 
 import org.carlspring.strongbox.authentication.support.AuthenticationContextInitializer;
+import org.carlspring.strongbox.config.LdapServerTestConfig;
 import org.carlspring.strongbox.config.UsersConfig;
 import org.carlspring.strongbox.configuration.StrongboxSecurityConfig;
 import org.carlspring.strongbox.users.domain.SystemRole;
@@ -39,10 +40,10 @@ import org.springframework.test.context.ContextHierarchy;
  * @author Przemyslaw Fusik
  * @author sbespalov
  */
-@SpringBootTest
+@SpringBootTest(properties = {"tests.unboundid.importLdifs=/ldap/00-strongbox-base.ldif,/ldap/10-issue-1840.ldif"})
 @ContextHierarchy({ @ContextConfiguration(classes = { UsersConfig.class,
-                                                      StrongboxSecurityConfig.class }),
-                    @ContextConfiguration(locations = "classpath:/ldapServerApplicationContext.xml"),
+                                                      StrongboxSecurityConfig.class,
+                                                      LdapServerTestConfig.class }),
                     @ContextConfiguration(initializers = LdapAuthenticationProviderTest.TestContextInitializer.class,
                                           locations = "classpath:/org/carlspring/strongbox/authentication/external/ldap/strongbox-authentication-providers.xml") })
 @ActiveProfiles(profiles = "test")
@@ -98,7 +99,7 @@ public class LdapAuthenticationProviderTest
     @Test
     public void base64EncodedPasswordAfterAlgorithmShouldFail()
     {
-        UserDetails ldapUser = ldapUserDetailsService.loadUserByUsername("base64encoded-issue-1840");
+        UserDetails ldapUser = ldapUserDetailsService.loadUserByUsername("issue1840-type-1");
 
         assertThat(ldapUser).isInstanceOf(LdapUserDetailsImpl.class);
 
@@ -110,7 +111,7 @@ public class LdapAuthenticationProviderTest
     @Test
     public void base64EncodedPasswordWithAlgorithmShouldFail()
     {
-        UserDetails ldapUser = ldapUserDetailsService.loadUserByUsername("base64withalgorithm-issue-1840");
+        UserDetails ldapUser = ldapUserDetailsService.loadUserByUsername("issue1840-type-2");
 
         assertThat(ldapUser).isInstanceOf(LdapUserDetailsImpl.class);
 
