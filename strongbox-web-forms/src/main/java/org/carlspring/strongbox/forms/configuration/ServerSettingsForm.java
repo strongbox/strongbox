@@ -65,7 +65,8 @@ public class ServerSettingsForm
                               String instanceName,
                               CorsConfigurationForm corsConfigurationForm,
                               SmtpConfigurationForm smtpConfigurationForm,
-                              ProxyConfigurationForm proxyConfigurationForm)
+                              ProxyConfigurationForm proxyConfigurationForm,
+                              String maxUploadSize)
     {
         this.baseUrl = baseUrl;
         this.port = port;
@@ -73,6 +74,7 @@ public class ServerSettingsForm
         this.corsConfigurationForm = corsConfigurationForm;
         this.smtpConfigurationForm = smtpConfigurationForm;
         this.proxyConfigurationForm = proxyConfigurationForm;
+        this.maxUploadSize = maxUploadSize;
     }
 
     public String getBaseUrl()

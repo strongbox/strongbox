@@ -372,13 +372,16 @@ public class ServerConfigurationControllerTestIT
                 Arrays.asList("http://example.com", "https://github.com/strongbox")
         );
 
+        String maxUploadSize = "10mb";
+
         // assign settings to server
         ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl,
                                                                        port,
                                                                        "Strongbox-1234",
                                                                        corsConfigurationForm,
                                                                        smtpConfigurationForm,
-                                                                       proxyConfigurationForm);
+                                                                       proxyConfigurationForm,
+                                                                       maxUploadSize);
 
         String url = getContextBaseUrl() + "/serverSettings";
 
