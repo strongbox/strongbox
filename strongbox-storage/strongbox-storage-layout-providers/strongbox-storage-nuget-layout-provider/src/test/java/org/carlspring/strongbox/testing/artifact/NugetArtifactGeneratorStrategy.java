@@ -20,6 +20,7 @@ public class NugetArtifactGeneratorStrategy
             throws IOException
     {
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version);
+        setLicenses(artifactGenerator, attributesMap);
 
         return artifactGenerator.generateArtifact(coordinates, bytesSize);
     }
