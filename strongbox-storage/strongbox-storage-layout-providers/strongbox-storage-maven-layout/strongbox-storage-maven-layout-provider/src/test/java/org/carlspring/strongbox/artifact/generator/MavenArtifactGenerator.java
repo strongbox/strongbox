@@ -4,6 +4,7 @@ import org.carlspring.commons.encryption.EncryptionAlgorithmsEnum;
 import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.commons.io.MultipleDigestOutputStream;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenLicenseConfiguration;
 import org.carlspring.strongbox.util.TestFileUtils;
@@ -427,6 +428,12 @@ public class MavenArtifactGenerator implements ArtifactGenerator
     public void setLicenses(MavenLicenseConfiguration[] licenses)
     {
         this.licenses = licenses;
+    }
+
+    @Override
+    public void setLicenses(LicenseConfiguration[] licenses)
+    {
+        this.licenses = (MavenLicenseConfiguration[]) licenses;
     }
 
 }

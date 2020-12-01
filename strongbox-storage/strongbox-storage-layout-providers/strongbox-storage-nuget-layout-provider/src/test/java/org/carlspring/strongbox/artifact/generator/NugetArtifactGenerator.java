@@ -7,6 +7,7 @@ import org.carlspring.strongbox.storage.metadata.nuget.Dependencies;
 import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.util.TestFileUtils;
 
@@ -359,6 +360,12 @@ public class NugetArtifactGenerator
     public String getBasedir()
     {
         return basePath.normalize().toAbsolutePath().toString();
+    }
+
+    @Override
+    public void setLicenses(LicenseConfiguration[] licenses)
+    {
+        // set Nuget licenses
     }
 
 }

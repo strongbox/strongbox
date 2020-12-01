@@ -3,6 +3,7 @@ package org.carlspring.strongbox.artifact.generator;
 import org.carlspring.strongbox.artifact.coordinates.NpmArtifactCoordinates;
 import org.carlspring.strongbox.npm.metadata.Dist;
 import org.carlspring.strongbox.npm.metadata.PackageVersion;
+import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
 import org.carlspring.strongbox.util.TestFileUtils;
 
 import java.io.BufferedOutputStream;
@@ -251,6 +252,13 @@ public class NpmArtifactGenerator
         }
 
         return publishJsonPath;
+    }
+
+    @Override
+    public void setLicenses(LicenseConfiguration[] licenses)
+    {
+        // set NPM licenses
+
     }
 
 }

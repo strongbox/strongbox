@@ -29,6 +29,9 @@ public class PypiArtifactGeneratorStrategy
                                                                           "none",
                                                                           "any",
                                                                           (String) attributesMap.get("packaging"));
+        
+        setLicenses(artifactGenerator, attributesMap);
+        
         return artifactGenerator.generateArtifact(coordinates, byteSize);
     }
 }
