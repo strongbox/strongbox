@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
+import org.carlspring.strongbox.testing.artifact.LicenseType;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.util.TestFileUtils;
 
@@ -79,8 +80,16 @@ public class NugetArtifactGenerator
     }
 
     @Override
-    public void setLicenses(LicenseConfiguration[] licenses)
+    public void setLicenses(LicenseConfiguration[] licenses) 
+            throws IOException
     {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            if (licenses.length > 1)
+            {
+                throw new IOException("Nuget doesn't support multiple licenses!");
+            }
+        }
         this.licenses = licenses;
     }
 
@@ -324,7 +333,7 @@ public class NugetArtifactGenerator
         metadata.authors = "carlspring";
         metadata.owners = "Carlspring Consulting &amp; Development Ltd.";
         metadata.description = "Strongbox Nuget package for tests";
-        String licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0";
+        String licenseUrl = LicenseType.NONE.getUrl();
         if (!ArrayUtils.isEmpty(licenses))
         {
             licenseUrl = licenses[0].license().getUrl();
