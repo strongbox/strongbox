@@ -78,7 +78,7 @@ public interface ArtifactGenerator
         ClassPathResource resource = new ClassPathResource(licenseConfiguration.license().getLicenseFileSourcePath(),
                                                            this.getClass().getClassLoader());
 
-        return Paths.get(resource.getURI()).toFile().length();
+        return IOUtils.toByteArray(resource.getInputStream()).length;
     }
 
 }

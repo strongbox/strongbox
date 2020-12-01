@@ -67,9 +67,9 @@ class NpmArtifactGeneratorTest
         assertArtifactAndHash(path);
         
         try (InputStream is = Files.newInputStream(path);
-                BufferedInputStream bis = new BufferedInputStream(is);
-                GzipCompressorInputStream gzInputStream = new GzipCompressorInputStream(bis);
-                TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(gzInputStream))
+             BufferedInputStream bis = new BufferedInputStream(is);
+             GzipCompressorInputStream gzInputStream = new GzipCompressorInputStream(bis);
+             TarArchiveInputStream tarArchiveInputStream = new TarArchiveInputStream(gzInputStream))
         {
             PackageVersion packageJson = null;
             TarArchiveEntry entry = null;
@@ -118,7 +118,7 @@ class NpmArtifactGeneratorTest
     void testArtifactGenerationWithLicense(@NpmRepository(repositoryId = REPOSITORY_RELEASES)
                                            Repository repository,
                                            @NpmTestArtifact(repositoryId = REPOSITORY_RELEASES,
-                                                            id = "npm-test-view",
+                                                            id = "npm-test-view-with-license",
                                                             versions = "1.0.0",
                                                             scope = "@carlspring",
                                                             bytesSize = 2048,
