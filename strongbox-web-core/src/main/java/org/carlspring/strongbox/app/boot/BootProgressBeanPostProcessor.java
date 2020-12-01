@@ -67,7 +67,7 @@ public class BootProgressBeanPostProcessor
             { "npmLayoutProvider", "Loading NPM layout provider.." },
             { "rawLayoutProvider", "Loading Raw layout provider.." },
             { "transactionManager", "Loading transaction manager..." },
-            { org.carlspring.strongbox.config.SecurityConfig.class.getName(), "Loading security configuration..." },
+            { org.carlspring.strongbox.config.WebSecurityConfig.class.getName(), "Loading security configuration..." },
             { org.carlspring.strongbox.config.SwaggerConfig.class.getName(), "Loading documentation..." },
             { "fallback", "Waiting for services to go live..."},
     }).collect(Collectors.toMap(p -> p[0], p -> p[1]));

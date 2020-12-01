@@ -81,7 +81,7 @@ import static org.carlspring.strongbox.net.MediaType.APPLICATION_YML_VALUE;
           EventsConfig.class,
           StorageCoreConfig.class,
           UsersConfig.class,
-          SecurityConfig.class,
+          WebSecurityConfig.class,
           ClientConfig.class,
           CronTasksConfig.class,
           SwaggerConfig.class })

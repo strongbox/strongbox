@@ -33,6 +33,7 @@ public class LdapAuthenticationConfigurationManager
     public static final String USER_DN_PATTERNS = "userDnPatterns";
     public static final String ROLES_MAPPING = "rolesMapping";
     public static final String CONVERT_TO_UPPER_CASE = "convertToUpperCase";
+    public static final String USER_PASSWORD_ENCODED = "userPasswordEncoded";
     public static final String ROLE_PREFIX = "rolePrefix";
     public static final String GROUP_ROLE_ATTRIBUTE = "groupRoleAttribute";
     public static final String GROUP_SEARCH_FILTER = "groupSearchFilter";
@@ -160,6 +161,7 @@ public class LdapAuthenticationConfigurationManager
                          .collect(Collectors.toList()));
 
         result.put(USER_DN_PATTERNS, source.getUserDnPatternList());
+        result.put(USER_PASSWORD_ENCODED, source.isUserPasswordEncoded());
 
         return result;
     }
@@ -189,6 +191,7 @@ public class LdapAuthenticationConfigurationManager
         result.setUrl((String) source.get(URL));
         result.setManagerDn((String) source.get(MANAGER_DN));
         result.setManagerPassword(String.valueOf(source.get(MANAGER_PASSWORD)));
+        result.setUserPasswordEncoded(Boolean.TRUE.equals(source.get(USER_PASSWORD_ENCODED)));
 
         LdapUserSearch userSearch = new LdapUserSearch();
         userSearch.setUserSearchBase((String) source.get(USER_SEARCH_BASE));

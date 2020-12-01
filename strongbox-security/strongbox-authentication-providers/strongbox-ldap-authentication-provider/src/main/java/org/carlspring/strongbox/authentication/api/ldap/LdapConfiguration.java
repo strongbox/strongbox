@@ -26,6 +26,8 @@ public class LdapConfiguration
 
     private String managerPassword;
 
+    private boolean userPasswordEncoded;
+
     private LdapAuthoritiesConfiguration authoritiesConfiguration = new LdapAuthoritiesConfiguration();
 
     private LdapUserSearch userSearch = new LdapUserSearch();
@@ -117,5 +119,15 @@ public class LdapConfiguration
     public void setEnableProvider(boolean enableProvider)
     {
         this.enableProvider = enableProvider;
+    }
+
+    public boolean isUserPasswordEncoded()
+    {
+        return userPasswordEncoded;
+    }
+
+    public void setUserPasswordEncoded(boolean userPasswordEncoded)
+    {
+        this.userPasswordEncoded = userPasswordEncoded;
     }
 }

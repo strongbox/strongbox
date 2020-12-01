@@ -23,13 +23,13 @@ services:
       - ./:/workspace
     working_dir: /workspace
   openldap:
-    image: osixia/openldap:1.3.0
+    image: osixia/openldap:1.4.0
     ports:
       - 53389:389
     environment:
-      - LDAP_BACKEND=bdb
-      # uid=admin,ou=system,dc=carlspring,dc=com
-      - LDAP_ADMIN_PASSWORD=secret
+      - LDAP_BACKEND=mdb
+      # cn=admin,dc=carlspring,dc=com
+      - LDAP_ADMIN_PASSWORD=password
       - LDAP_READONLY_USER=false
       - LDAP_DOMAIN=carlspring.com
       # Check http://www.openldap.org/doc/admin24/slapdconf2.html for increased level of logging
@@ -38,5 +38,7 @@ services:
       - LDAP_RFC2307BIS_SCHEMA=true
       - LDAP_TLS=false
     volumes:
-      - ./strongbox-security/strongbox-authentication-providers/strongbox-ldap-authentication-provider/src/test/resources:/container/service/slapd/assets/config/bootstrap/ldif/custom
+      # Manually map files which need to be imported to allow for importing from multi-modules.
+      - ./strongbox-testing/strongbox-testing-core/src/main/resources/ldap/00-strongbox-base.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/00-strongbox-base.ldif
+      - ./strongbox-security/strongbox-authentication-providers/strongbox-ldap-authentication-provider/src/test/resources/ldap/10-issue-1840.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/10-issue-1840.ldif
     command: --copy-service --loglevel trace
