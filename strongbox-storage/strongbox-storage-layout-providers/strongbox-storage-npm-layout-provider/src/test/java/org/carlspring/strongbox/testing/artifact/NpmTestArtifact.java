@@ -71,6 +71,7 @@ public @interface NpmTestArtifact
     
     /**
      * License Configuration for test artifact
+     * @see {https://docs.npmjs.com/cli/v6/configuring-npm/package-json#license}
      */
     LicenseConfiguration[] licenses() default {};
     

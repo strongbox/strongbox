@@ -181,6 +181,10 @@ public class NpmArtifactGenerator
         tarOut.closeArchiveEntry();
     }
 
+    /**
+     * NPM packages store license information in package.json metadata file
+     * @see {https://docs.npmjs.com/cli/v6/configuring-npm/package-json#license}
+     */
     private void populateNpmLicensesinPackageJson()
     {
         if (!ArrayUtils.isEmpty(licenses))
