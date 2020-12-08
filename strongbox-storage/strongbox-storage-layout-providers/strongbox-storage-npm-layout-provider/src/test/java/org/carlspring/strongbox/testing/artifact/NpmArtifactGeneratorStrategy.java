@@ -27,6 +27,9 @@ public class NpmArtifactGeneratorStrategy implements ArtifactGeneratorStrategy<N
                                                                         id,
                                                                         version,
                                                                         (String) attributesMap.get("extension"));
+        
+        setLicenses(artifactGenerator, attributesMap);
+
         Path packagePath = artifactGenerator.generateArtifact(coordinates, bytesSize);
         if (!Optional.ofNullable(attributesMap.get("repositoryId"))
                      .filter(repositoryId -> ((String) repositoryId).trim().length() > 0)
