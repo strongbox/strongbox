@@ -21,11 +21,7 @@
             <outputDirectory>strongbox-${project.version}/lib</outputDirectory>
             <fileMode>0755</fileMode>
             <includes>
-                <include>appassembler*.jar</include>
-                <include>jna*jar</include>
-                <include>libwrapper*</include>
                 <include>strongbox-web-core-*-spring-boot.jar</include>
-                <include>wrapper*</include>
             </includes>
         </fileSet>
         <fileSet>
@@ -46,29 +42,10 @@
             <directory>target/assembly/strongbox-${project.version}/bin</directory>
             <outputDirectory>strongbox-${project.version}/bin</outputDirectory>
             <includes>
-                <include>wrapper-linux-x86-*</include>
-                <include>wrapper-macosx-universal-*</include>
-                <include>wrapper-solaris-x86-*</include>
-                <include>wrapper-windows-x86-*</include>
-            </includes>
-            <fileMode>0755</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>target/assembly/strongbox-${project.version}/bin</directory>
-            <outputDirectory>strongbox-${project.version}/bin</outputDirectory>
-            <includes>
                 <include>strongbox.bat</include>
             </includes>
             <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
-        </fileSet>
-        <fileSet>
-            <directory>target/assembly/strongbox-${project.version}/bin</directory>
-            <outputDirectory>strongbox-${project.version}/bin</outputDirectory>
-            <includes>
-                <include>wrapper-windows-x86-32.exe</include>
-            </includes>
-            <fileMode>0755</fileMode>
         </fileSet>
         <fileSet>
             <directory>target/assembly/strongbox-${project.version}/tmp</directory>
