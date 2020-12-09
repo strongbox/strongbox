@@ -228,6 +228,10 @@ public class NugetArtifactGenerator
         }
     }
 
+    /**
+     * Nuget packages store license information in .nuspec metadata file
+     * @see {https://docs.microsoft.com/en-us/nuget/reference/nuspec#licenseurl}
+     */
     private void copyLicenseFiles(ZipOutputStream zos)
             throws IOException
     {

@@ -59,6 +59,7 @@ public @interface NugetTestArtifact
     
     /**
      * License Configuration for test artifact
+     * @see {https://docs.microsoft.com/en-us/nuget/reference/nuspec#licenseurl}
      */
     LicenseConfiguration[] licenses() default {};
 }
