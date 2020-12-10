@@ -181,6 +181,7 @@ public class TestRepositoryContext implements AutoCloseable, Comparable<TestRepo
             repository.setAllowsForceDeletion(repositoryAttributes.allowsForceDeletion());
             repository.setAllowsRedeployment(repositoryAttributes.allowsRedeployment());
             repository.setChecksumHeadersEnabled(repositoryAttributes.checksumHeadersEnabled());
+            repository.setStrictChecksumValidation(repositoryAttributes.strictChecksumValidation());
             repository.setStatus(repositoryAttributes.status().getStatus());
             repository.setTrashEnabled(repositoryAttributes.trashEnabled());
         });

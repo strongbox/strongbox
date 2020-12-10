@@ -41,6 +41,8 @@ public interface Repository
 
     boolean isChecksumHeadersEnabled();
 
+    boolean isStrictChecksumValidation();
+
     Set<String> getGroupRepositories();
 
     Set<String> getArtifactCoordinateValidators();
@@ -58,7 +60,7 @@ public interface Repository
     boolean acceptsSnapshots();
 
     boolean acceptsReleases();
-    
+
     RepositoryConfiguration getRepositoryConfiguration();
 
     String getStorageIdAndRepositoryId();
@@ -66,5 +68,5 @@ public interface Repository
     boolean isType(String type);
 
     RemoteRepository getRemoteRepository();
-    
+
 }

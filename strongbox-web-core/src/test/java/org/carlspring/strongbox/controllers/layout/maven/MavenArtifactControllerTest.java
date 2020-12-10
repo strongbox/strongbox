@@ -15,6 +15,7 @@ import org.carlspring.strongbox.providers.io.RootRepositoryPath;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
 import org.carlspring.strongbox.storage.repository.RepositoryStatusEnum;
@@ -49,6 +50,8 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import com.google.common.io.ByteStreams;
+import io.restassured.http.ContentType;
 import io.restassured.http.Header;
 import io.restassured.http.Headers;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
@@ -75,7 +78,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
+import static io.restassured.http.ContentType.*;
+import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.net.HttpURLConnection.HTTP_OK;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getArtifactLevelMetadataPath;
 import static org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils.getGroupLevelMetadataPath;
@@ -490,7 +497,80 @@ public class MavenArtifactControllerTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    public void testCopyArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+    public void  testUploadArtifact(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                                     setup = MavenIndexedRepositorySetup.class)
+                                     Repository repository,
+                                     @MavenTestArtifact(id = "org.carlspring.strongbox.upload:upload-foo",
+                                                        versions = "1.1")
+                                     Path artifactPath)
+            throws ArtifactOperationException
+    {
+        String storageId = repository.getStorage().getId();
+        String repositoryId = repository.getId();
+        String artifactFileName = "upload-foo-1.1.jar";
+        String artifactPathStr = "org/carlspring/strongbox/upload/upload-foo/1.1/upload-foo-1.1.jar";
+
+        byte[] bytes = getBytes(artifactPath);
+
+        mockMvc.contentType(BINARY.toString())
+               .header("Content-Disposition", "attachment; filename=\"" + artifactFileName + "\"")
+               .header("filename", artifactFileName)
+               .body(bytes)
+               .when()
+               .put("/storages/" + storageId + "/" + repositoryId + "/" + artifactPathStr)
+               .then()
+               .statusCode(HTTP_OK);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testFailUploadWhenArtifactChecksumIsBroken(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
+                                                                            setup = MavenIndexedRepositorySetup.class)
+                                                           @RepositoryAttributes(strictChecksumValidation = true)
+                                                           Repository repository,
+                                                           @MavenTestArtifact(id = "org.carlspring.strongbox.upload:upload-foo",
+                                                                              versions = "1.1")
+                                                           Path artifactPath)
+            throws IOException, ArtifactOperationException
+    {
+        String storageId = repository.getStorage().getId();
+        String repositoryId = repository.getId();
+        String artifactFileName = "upload-foo-1.1.jar";
+        String artifactPathStr = "org/carlspring/strongbox/upload/upload-foo/1.1/upload-foo-1.1.jar";
+
+        byte[] jarFileBytes = getBytes(artifactPath);
+
+        mockMvc.contentType(BINARY.toString())
+               .header("Content-Disposition", "attachment; filename=\"" + artifactFileName + "\"")
+               .header("filename", artifactFileName)
+               .body(jarFileBytes)
+               .when()
+               .put("/storages/" + storageId + "/" + repositoryId + "/" + artifactPathStr);
+
+        String md5PathStr = "org/carlspring/strongbox/upload/upload-foo/1.1/upload-foo-1.1.jar.md5";
+        RepositoryPath checksumPath = repositoryPathResolver.resolve(storageId,
+                                                                     repositoryId,
+                                                                     md5PathStr);
+        Files.write(checksumPath, "broken_checksum".getBytes());
+
+        String checksumFileName = "upload-foo-1.1.jar.md5";
+        byte[] md5FileBytes = getBytes(checksumPath);
+
+        mockMvc.contentType(BINARY.toString())
+               .header("Content-Disposition", "attachment; filename=\"" + checksumFileName + "\"")
+               .header("filename", checksumFileName)
+               .body(md5FileBytes)
+               .when()
+               .put("/storages/" + storageId + "/" + repositoryId + "/" + md5PathStr)
+               .then()
+               .statusCode(HTTP_CONFLICT);
+    }
+
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void  testCopyArtifactFile(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1,
                                                       setup = MavenIndexedRepositorySetup.class)
                                      Repository repository1,
                                      @MavenRepository(repositoryId = REPOSITORY_RELEASES_2,
@@ -1312,6 +1392,21 @@ public class MavenArtifactControllerTest
         }
 
         return new ArtifactSnapshotVersion(commonsHttpSnapshotVersion, snapshotVersion.getVersion());
+    }
+
+    private byte[] getBytes(Path artifactPath)
+            throws ArtifactOperationException
+    {
+        byte[] bytes;
+        try (InputStream is = Files.newInputStream(artifactPath))
+        {
+            bytes = ByteStreams.toByteArray(is);
+        }
+        catch (IOException e)
+        {
+            throw new ArtifactOperationException("Unable to convert to byte array", e);
+        }
+        return bytes;
     }
 
     private static class ArtifactSnapshotVersion

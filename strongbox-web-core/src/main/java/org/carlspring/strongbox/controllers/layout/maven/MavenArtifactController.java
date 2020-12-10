@@ -84,7 +84,8 @@ public class MavenArtifactController
 
     @ApiOperation(value = "Used to deploy an artifact")
     @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+                            @ApiResponse(code = 400, message = "An error occurred."),
+                            @ApiResponse(code = 409, message = "The artiafct checksum is broken")})
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(value = "{storageId}/{repositoryId}/{artifactPath:.+}")
     public ResponseEntity upload(@RepositoryMapping Repository repository,
@@ -100,6 +101,12 @@ public class MavenArtifactController
             artifactManagementService.validateAndStore(repositoryPath, request.getInputStream());
 
             return ResponseEntity.ok("The artifact was deployed successfully.");
+        }
+        catch (ArtifactStorageException artifactException)
+        {
+            logger.error(artifactException.getMessage(), artifactException);
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(artifactException.getMessage());
         }
         catch (Exception e)
         {

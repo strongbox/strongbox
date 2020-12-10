@@ -73,6 +73,8 @@ public class RepositoryData
 
     private boolean checksumHeadersEnabled;
 
+    private boolean strictChecksumValidation;
+
     private ProxyConfiguration proxyConfiguration;
 
     private RemoteRepositoryData remoteRepository;
@@ -122,6 +124,7 @@ public class RepositoryData
         this.allowsDelete = delegate.allowsDeletion();
         this.allowsDirectoryBrowsing = delegate.allowsDirectoryBrowsing();
         this.checksumHeadersEnabled = delegate.isChecksumHeadersEnabled();
+        this.strictChecksumValidation = delegate.isStrictChecksumValidation();
 
         RepositoryDto mutableRepository = (RepositoryDto)delegate;
         this.proxyConfiguration = immuteProxyConfiguration(mutableRepository.getProxyConfiguration());
@@ -276,6 +279,12 @@ public class RepositoryData
     public boolean isChecksumHeadersEnabled()
     {
         return checksumHeadersEnabled;
+    }
+
+    @Override
+    public boolean isStrictChecksumValidation()
+    {
+        return strictChecksumValidation;
     }
 
     public ProxyConfiguration getProxyConfiguration()

@@ -5,17 +5,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.carlspring.strongbox.artifact.ArtifactTag;
 import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
+import org.carlspring.strongbox.artifact.generator.ArtifactGenerator;
+import org.carlspring.strongbox.artifact.generator.MavenArtifactGenerator;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.providers.ProviderImplementationException;
+import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
 import org.carlspring.strongbox.providers.io.RepositoryStreamSupport.RepositoryInputStream;
 import org.carlspring.strongbox.repository.MavenRepositoryFeatures;
 import org.carlspring.strongbox.storage.ArtifactStorageException;
+import org.carlspring.strongbox.storage.checksum.ChecksumCacheManager;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.storage.validation.artifact.ArtifactCoordinatesValidationException;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -28,9 +34,12 @@ import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -43,6 +52,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
+import org.checkerframework.checker.units.qual.C;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -51,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.fail;
 import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
@@ -679,6 +690,45 @@ public class ArtifactManagementServiceImplTest
         assertThat(actualChecksums).isEqualTo(expectedChecksums);
     }
 
+    @ExtendWith({ RepositoryManagementTestExecutionListener.class,
+                  ArtifactManagementTestExecutionListener.class })
+    @Test
+    public void testFailArtifactStorageWhenChecksumIsBroken(@MavenRepository(repositoryId = "broken-checksum-test")
+                                                            @RepositoryAttributes(strictChecksumValidation = true)
+                                                            Repository repository,
+                                                            @MavenTestArtifact(resource = "org/carlspring/strongbox/strongbox-test-artifact/1.0/strongbox-test-artifact-1.0.jar")
+                                                            Path artifactPath)
+            throws IOException
+    {
+        String artifactPathStr = "org/carlspring/strongbox/strongbox-test-artifact/1.0/strongbox-test-artifact-1.0.jar";
+        RepositoryPath repositoryPath = repositoryPathResolver.resolve(repository).resolve(artifactPathStr);
+
+        try (InputStream is = Files.newInputStream(artifactPath))
+        {
+            mavenArtifactManagementService.store(repositoryPath,is);
+        }
+
+        String storageId = repository.getStorage().getId();
+        String repositoryId = repository.getId();
+        String checksumFilePath = "org/carlspring/strongbox/strongbox-test-artifact/1.0/strongbox-test-artifact-1.0.jar.md5";
+
+        RepositoryPath checksumPath = repositoryPathResolver.resolve(storageId,
+                                                                       repositoryId,
+                                                                       checksumFilePath);
+        Files.write(checksumPath, "broken_checksum".getBytes());
+
+        try (InputStream is = Files.newInputStream(checksumPath))
+        {
+            Throwable throwable = catchThrowable(() -> mavenArtifactManagementService.store(checksumPath,is));
+
+            String fullChecksumFilePath = String.format("/%s/%s/%s", storageId, repositoryId, checksumFilePath);
+
+            assertThat(throwable)
+                    .isExactlyInstanceOf(ArtifactStorageException.class)
+                    .hasMessage("Invalid checksum [broken_checksum] for artifact [strongbox:%s]",
+                                fullChecksumFilePath);
+        }
+    }
 
     private Long getResult(int i,
                            CountDownLatch storedSync, 

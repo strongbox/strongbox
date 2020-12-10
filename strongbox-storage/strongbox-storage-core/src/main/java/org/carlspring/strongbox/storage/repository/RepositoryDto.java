@@ -57,6 +57,8 @@ public class RepositoryDto
 
     private boolean checksumHeadersEnabled;
 
+    private boolean strictChecksumValidation;
+
     /**
      * The per-repository proxy settings that override the overall global proxy settings.
      */
@@ -223,9 +225,20 @@ public class RepositoryDto
         return checksumHeadersEnabled;
     }
 
+    public boolean isStrictChecksumValidation()
+    {
+        return strictChecksumValidation;
+    }
+
     public void setChecksumHeadersEnabled(boolean checksumHeadersEnabled)
     {
         this.checksumHeadersEnabled = checksumHeadersEnabled;
+    }
+
+    public void setStrictChecksumValidation(boolean strictChecksumValidation)
+    {
+
+        this.strictChecksumValidation = strictChecksumValidation;
     }
 
     public MutableProxyConfiguration getProxyConfiguration()
