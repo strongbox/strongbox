@@ -7,6 +7,7 @@ import org.carlspring.strongbox.domain.RemoteArtifactEntry;
 import org.carlspring.strongbox.rest.common.NpmRestAssuredBaseTest;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.NpmRemoteRepositorySetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.NpmTestArtifact;
 import org.carlspring.strongbox.testing.repository.NpmRepository;
@@ -67,7 +68,8 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testResolveArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                            @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                            @NpmRepository(repositoryId = REPOSITORY_PROXY,
+                                                           setup = NpmRemoteRepositorySetup.class)
                                             Repository proxyRepository)
             throws Exception
     {
@@ -87,7 +89,8 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testResolveArtifactViaGroupWithProxy(@Remote(url = REMOTE_URL)
-                                                     @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                                     @NpmRepository(repositoryId = REPOSITORY_PROXY,
+                                                                    setup = NpmRemoteRepositorySetup.class)
                                                      Repository proxyRepository,
                                                      @Group(repositories = REPOSITORY_PROXY)
                                                      @NpmRepository(repositoryId = REPOSITORY_GROUP)
@@ -105,7 +108,8 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testViewArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                         @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                         @NpmRepository(repositoryId = REPOSITORY_PROXY,
+                                                        setup = NpmRemoteRepositorySetup.class)
                                          Repository proxyRepository)
     {
         final String storageId = proxyRepository.getStorage().getId();
@@ -134,7 +138,8 @@ public class NpmArtifactControllerTestIT
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testSearchArtifactViaProxy(@Remote(url = REMOTE_URL)
-                                           @NpmRepository(repositoryId = REPOSITORY_PROXY)
+                                           @NpmRepository(repositoryId = REPOSITORY_PROXY,
+                                                          setup = NpmRemoteRepositorySetup.class)
                                            Repository proxyRepository)
     {
         final String storageId = proxyRepository.getStorage().getId();

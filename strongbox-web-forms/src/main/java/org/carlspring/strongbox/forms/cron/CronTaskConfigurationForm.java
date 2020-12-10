@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.commons.lang3.ObjectUtils;
 
-
 /**
  * @author Przemyslaw Fusik
  */
@@ -18,6 +17,8 @@ public class CronTaskConfigurationForm
     private String jobClass;
 
     private String cronExpression;
+
+    private boolean cronEnabled = true;
 
     private boolean oneTimeExecution;
 
@@ -74,4 +75,15 @@ public class CronTaskConfigurationForm
     {
         this.immediateExecution = immediateExecution;
     }
+
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
+    }
+
+    public void setCronEnabled(boolean cronEnabled)
+    {
+        this.cronEnabled = cronEnabled;
+    }
+
 }

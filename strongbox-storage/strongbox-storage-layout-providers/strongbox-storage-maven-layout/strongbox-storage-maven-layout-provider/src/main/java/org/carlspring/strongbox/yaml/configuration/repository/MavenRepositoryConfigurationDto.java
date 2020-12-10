@@ -23,6 +23,8 @@ public class MavenRepositoryConfigurationDto
     // defaults to once daily at 2 am
     private String cronExpression = "0 0 2 * * ?";
 
+    private boolean cronEnabled = true;
+
     private String metadataExpirationStrategy = MetadataExpirationStrategyType.CHECKSUM.describe();
 
     @Override
@@ -73,5 +75,11 @@ public class MavenRepositoryConfigurationDto
     public CustomRepositoryConfiguration getImmutable()
     {
         return new MavenRepositoryConfigurationData(this);
+    }
+
+    @Override
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
     }
 }

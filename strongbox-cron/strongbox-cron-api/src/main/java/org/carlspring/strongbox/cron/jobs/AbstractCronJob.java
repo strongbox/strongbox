@@ -68,7 +68,7 @@ public abstract class AbstractCronJob
             return;
         }
 
-        if (!enabled(configuration, environment))
+        if (!enabled(configuration, environment) || !configuration.isCronEnabled())
         {
             logger.info("Cron job [{}] disabled, skip execution.", configuration.getName());
 

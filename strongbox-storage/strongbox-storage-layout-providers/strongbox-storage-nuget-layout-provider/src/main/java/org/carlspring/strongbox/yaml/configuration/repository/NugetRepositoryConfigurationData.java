@@ -25,16 +25,21 @@ public class NugetRepositoryConfigurationData
 
     private Integer remoteFeedPageSize;
 
+    private String cronExpression;
+
+    private boolean cronEnabled;
+
     public NugetRepositoryConfigurationData()
     {
 
     }
 
-
     public NugetRepositoryConfigurationData(final NugetRepositoryConfigurationDto delegate)
     {
         this.feedVersion = delegate.getFeedVersion();
         this.remoteFeedPageSize = delegate.getRemoteFeedPageSize();
+        this.cronExpression = delegate.getCronExpression();
+        this.cronEnabled = delegate.isCronEnabled();
     }
 
     public String getFeedVersion()
@@ -45,5 +50,17 @@ public class NugetRepositoryConfigurationData
     public Integer getRemoteFeedPageSize()
     {
         return remoteFeedPageSize;
+    }
+
+    @Override
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
+    @Override
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
     }
 }

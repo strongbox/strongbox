@@ -157,6 +157,8 @@ configuration:
           repositoryConfiguration:
             type: NuGet
             remoteFeedPageSize: 1000
+            cronExpression: "0 0 0 * * ?"
+            cronEnabled: true
     storage-springsource-proxies:
       id: storage-springsource-proxies
       repositories:
@@ -318,6 +320,10 @@ configuration:
               type: npm
               lastChangeId: 0
               replicateUrl: https://replicate.npmjs.com/
+          repositoryConfiguration:
+            type: npm
+            cronEnabled: true
+            cronExpression: "0 0 * ? * * *"
     storage-nuget:
       id: storage-nuget
       repositories:

@@ -31,6 +31,8 @@ public class CronTaskConfigurationDto
 
     private boolean immediateExecution = false;
 
+    private boolean cronEnabled = true;
+
     private Map<String, String> properties = new HashMap<>();
 
     public CronTaskConfigurationDto()
@@ -139,18 +141,23 @@ public class CronTaskConfigurationDto
         this.jobClass = jobClass;
     }
 
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
+    }
+
+    public void setCronEnabled(boolean cronEnabled)
+    {
+        this.cronEnabled = cronEnabled;
+    }
+
     @Override
     public String toString()
     {
-        return "CronTaskConfigurationDto{" +
-               "uuid='" + uuid + '\'' +
-               ", name='" + name + '\'' +
-               ", jobClass='" + jobClass + '\'' +
-               ", cronExpression='" + cronExpression + '\'' +
-               ", oneTimeExecution=" + oneTimeExecution +
-               ", immediateExecution=" + immediateExecution +
-               ", properties=" + properties +
-               '}';
+        return "CronTaskConfigurationDto [uuid=" + uuid + ", name=" + name + ", jobClass=" + jobClass
+                + ", cronExpression=" + cronExpression + ", oneTimeExecution=" + oneTimeExecution
+                + ", immediateExecution=" + immediateExecution + ", cronEnabled=" + cronEnabled + ", properties="
+                + properties + "]";
     }
 
     @Override

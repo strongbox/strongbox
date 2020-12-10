@@ -17,6 +17,7 @@ import org.carlspring.strongbox.nuget.NugetSearchRequest;
 import org.carlspring.strongbox.repository.NugetRepositoryFeatures;
 import org.carlspring.strongbox.services.ArtifactEntryService;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.testing.NugetRemoteRepositorySetup;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
@@ -51,7 +52,8 @@ public class NugetRemoteRepositoryTest
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
     public void testRepositoryIndexFetching(@Remote(url = REMOTE_URL)
-                                            @NugetRepository(repositoryId = REPOSITORY_PROXY)
+                                            @NugetRepository(repositoryId = REPOSITORY_PROXY,
+                                                             setup = NugetRemoteRepositorySetup.class)
                                             Repository repository)
             throws ArtifactTransportException, IOException
     {

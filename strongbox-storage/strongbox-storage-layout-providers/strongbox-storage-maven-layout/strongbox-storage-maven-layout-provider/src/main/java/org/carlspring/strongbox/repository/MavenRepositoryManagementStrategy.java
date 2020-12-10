@@ -46,26 +46,35 @@ public class MavenRepositoryManagementStrategy
 
         String storageId = storage.getId();
         String repositoryId = repository.getId();
-        MavenRepositoryConfiguration repositoryConfig =
-                (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
+        MavenRepositoryConfiguration repositoryConfig = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
 
         if (repository.isHostedRepository())
         {
-            createRebuildMavenIndexCronJob(storageId, repositoryId, repositoryConfig.getCronExpression());
+            createRebuildMavenIndexCronJob(storageId,
+                                           repositoryId,
+                                           repositoryConfig.getCronExpression(),
+                                           repositoryConfig.isCronEnabled());
         }
         if (repository.isProxyRepository())
         {
-            createRemoteIndexDownloaderCronTask(storageId, repositoryId, repositoryConfig.getCronExpression());
+            createRemoteIndexDownloaderCronTask(storageId,
+                                                repositoryId,
+                                                repositoryConfig.getCronExpression(),
+                                                repositoryConfig.isCronEnabled());
         }
         if (repository.isGroupRepository())
         {
-            createMergeMavenGroupRepositoryIndexCronJob(storageId, repositoryId, repositoryConfig.getCronExpression());
+            createMergeMavenGroupRepositoryIndexCronJob(storageId,
+                                                        repositoryId,
+                                                        repositoryConfig.getCronExpression(),
+                                                        repositoryConfig.isCronEnabled());
         }
     }
 
     private void createRemoteIndexDownloaderCronTask(String storageId,
                                                      String repositoryId,
-                                                     String cronExpression)
+                                                     String cronExpression,
+                                                     boolean cronEnabled)
             throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
@@ -75,6 +84,7 @@ public class MavenRepositoryManagementStrategy
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
+        configuration.setCronEnabled(cronEnabled);
 
         try
         {
@@ -88,7 +98,8 @@ public class MavenRepositoryManagementStrategy
 
     private void createRebuildMavenIndexCronJob(String storageId,
                                                 String repositoryId,
-                                                String cronExpression)
+                                                String cronExpression,
+                                                boolean cronEnabled)
             throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
@@ -98,6 +109,7 @@ public class MavenRepositoryManagementStrategy
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
+        configuration.setCronEnabled(cronEnabled);
 
         try
         {
@@ -111,7 +123,8 @@ public class MavenRepositoryManagementStrategy
 
     private void createMergeMavenGroupRepositoryIndexCronJob(String storageId,
                                                              String repositoryId,
-                                                             String cronExpression)
+                                                             String cronExpression,
+                                                             boolean cronEnabled)
             throws RepositoryManagementStrategyException
     {
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
@@ -121,6 +134,7 @@ public class MavenRepositoryManagementStrategy
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(false);
+        configuration.setCronEnabled(cronEnabled);
 
         try
         {

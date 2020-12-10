@@ -5,6 +5,7 @@ import org.carlspring.strongbox.cron.jobs.DownloadRemoteFeedCronJob;
 import org.carlspring.strongbox.cron.services.CronTaskDataService;
 import org.carlspring.strongbox.storage.Storage;
 import org.carlspring.strongbox.storage.repository.Repository;
+import org.carlspring.strongbox.yaml.configuration.repository.NugetRepositoryConfiguration;
 
 import javax.inject.Inject;
 
@@ -25,7 +26,6 @@ public class NugetRepositoryManagementStrategy
     @Inject
     private CronTaskDataService cronTaskDataService;
 
-    
     @Override
     protected void createRepositoryInternal(Storage storage,
                                             Repository repository)
@@ -33,26 +33,33 @@ public class NugetRepositoryManagementStrategy
     {
         String storageId = storage.getId();
         String repositoryId = repository.getId();
-        
+        NugetRepositoryConfiguration repositoryConfiguration = (NugetRepositoryConfiguration) repository.getRepositoryConfiguration();
+
         if (repository.isProxyRepository())
         {
-            createRemoteFeedDownloaderCronTask(storageId, repositoryId);
+            createRemoteFeedDownloaderCronTask(storageId,
+                                               repositoryId,
+                                               repositoryConfiguration.getCronExpression(),
+                                               repositoryConfiguration.isCronEnabled());
         }
     }
 
     private void createRemoteFeedDownloaderCronTask(String storageId,
-                                                    String repositoryId)
+                                                    String repositoryId,
+                                                    String cronExpression,
+                                                    boolean cronEnabled)
         throws RepositoryManagementStrategyException
     {
         String downloadRemoteFeedCronJobName = "Remote feed download for " + storageId + ":" + repositoryId;
-        
+
         CronTaskConfigurationDto configuration = new CronTaskConfigurationDto();
         configuration.setName(downloadRemoteFeedCronJobName);
         configuration.setJobClass(DownloadRemoteFeedCronJob.class.getName());
-        configuration.setCronExpression("0 0 0 * * ?"); // Execute once daily at 00:00:00
+        configuration.setCronExpression(cronExpression);
         configuration.addProperty("storageId", storageId);
         configuration.addProperty("repositoryId", repositoryId);
         configuration.setImmediateExecution(true);
+        configuration.setCronEnabled(cronEnabled);
 
         try
         {
@@ -65,5 +72,5 @@ public class NugetRepositoryManagementStrategy
             throw new RepositoryManagementStrategyException(e.getMessage(), e);
         }
     }
-    
+
 }

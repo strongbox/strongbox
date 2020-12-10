@@ -3,6 +3,7 @@ package org.carlspring.strongbox.testing;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.carlspring.strongbox.storage.repository.remote.RemoteRepositoryDto;
 import org.carlspring.strongbox.testing.storage.repository.RepositorySetup;
+import org.carlspring.strongbox.yaml.configuration.repository.NpmRepositoryConfigurationDto;
 import org.carlspring.strongbox.yaml.configuration.repository.remote.NpmRemoteRepositoryConfigurationDto;
 
 /**
@@ -23,8 +24,10 @@ public class NpmReplicateUrlRepositorySetup
         remoteRepositoryConfiguration.setReplicateUrl(REPLICATE_URL);
 
         remoteRepository.setCustomConfiguration(remoteRepositoryConfiguration);
-
         repository.setRemoteRepository(remoteRepository);
+
+        NpmRepositoryConfigurationDto repositoryConfiguration = new NpmRepositoryConfigurationDto();
+        repository.setRepositoryConfiguration(repositoryConfiguration);
     }
     
 }

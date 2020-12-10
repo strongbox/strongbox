@@ -18,10 +18,14 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressFBWarnings(value = "AJCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 @JsonTypeName(NpmLayoutProvider.ALIAS)
 public class NpmRepositoryConfigurationData
-        extends CustomRepositoryConfiguration
+        extends CustomRepositoryConfiguration implements NpmRepositoryConfiguration
 {
 
     private boolean allowsUnpublish;
+
+    private String cronExpression;
+
+    private boolean cronEnabled;
 
     public NpmRepositoryConfigurationData()
     {
@@ -31,10 +35,24 @@ public class NpmRepositoryConfigurationData
     public NpmRepositoryConfigurationData(final NpmRepositoryConfigurationDto delegate)
     {
         this.allowsUnpublish = delegate.allowsUnpublish();
+        this.cronExpression = delegate.getCronExpression();
+        this.cronEnabled = delegate.isCronEnabled();
     }
 
     public boolean isAllowsUnpublish()
     {
         return allowsUnpublish;
+    }
+
+    @Override
+    public String getCronExpression()
+    {
+        return cronExpression;
+    }
+
+    @Override
+    public boolean isCronEnabled()
+    {
+        return cronEnabled;
     }
 }
