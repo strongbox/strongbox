@@ -56,4 +56,10 @@ public @interface NugetTestArtifact
      */
     @AliasFor(annotation = TestArtifact.class)
     long bytesSize() default 1000000;
+    
+    /**
+     * License Configuration for test artifact
+     * @see {https://docs.microsoft.com/en-us/nuget/reference/nuspec#licenseurl}
+     */
+    LicenseConfiguration[] licenses() default {};
 }

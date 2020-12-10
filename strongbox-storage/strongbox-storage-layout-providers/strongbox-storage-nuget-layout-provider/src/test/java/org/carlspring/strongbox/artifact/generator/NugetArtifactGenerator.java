@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.metadata.nuget.Dependency;
 import org.carlspring.strongbox.storage.metadata.nuget.NugetFormatException;
 import org.carlspring.strongbox.storage.metadata.nuget.Nuspec;
 import org.carlspring.strongbox.testing.artifact.LicenseConfiguration;
+import org.carlspring.strongbox.testing.artifact.LicenseType;
 import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.carlspring.strongbox.util.TestFileUtils;
 
@@ -26,6 +27,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.codec.digest.MessageDigestAlgorithms;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +62,8 @@ public class NugetArtifactGenerator
 
     private Path basePath;
 
+    private LicenseConfiguration[] licenses;
+
     public NugetArtifactGenerator(String baseDir)
     {
         this(Paths.get(baseDir));
@@ -68,6 +72,25 @@ public class NugetArtifactGenerator
     public NugetArtifactGenerator(Path basePath)
     {
         this.basePath = basePath.normalize().toAbsolutePath();
+    }
+
+    public String getBasedir()
+    {
+        return basePath.normalize().toAbsolutePath().toString();
+    }
+
+    @Override
+    public void setLicenses(LicenseConfiguration[] licenses) 
+            throws IOException
+    {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            if (licenses.length > 1)
+            {
+                throw new IOException("Nuget doesn't support multiple licenses!");
+            }
+        }
+        this.licenses = licenses;
     }
 
     @Override
@@ -198,12 +221,30 @@ public class NugetArtifactGenerator
 
                     createContentType(zos);
                     createRels(id, zos);
+                    copyLicenseFiles(zos);
                 }
                 generateChecksum(packagePath, layoutOutputStream);
             }
         }
     }
 
+    /**
+     * Nuget packages store license information in .nuspec metadata file
+     * @see {https://docs.microsoft.com/en-us/nuget/reference/nuspec#licenseurl}
+     */
+    private void copyLicenseFiles(ZipOutputStream zos)
+            throws IOException
+    {
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            LicenseConfiguration license = licenses[0];
+            ZipEntry zipEntry = new ZipEntry(license.destinationPath());
+            zos.putNextEntry(zipEntry);
+
+            copyLicenseFile(license.license().getLicenseFileSourcePath(), zos);
+        }
+    }
+    
     private void createRels(String id,
                             ZipOutputStream zos)
             throws IOException
@@ -295,8 +336,13 @@ public class NugetArtifactGenerator
         metadata.version = version;
         metadata.authors = "carlspring";
         metadata.owners = "Carlspring Consulting &amp; Development Ltd.";
-        metadata.licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0";
         metadata.description = "Strongbox Nuget package for tests";
+        String licenseUrl = LicenseType.NONE.getUrl();
+        if (!ArrayUtils.isEmpty(licenses))
+        {
+            licenseUrl = licenses[0].license().getUrl();
+        }
+        metadata.licenseUrl = licenseUrl;
 
         if (dependencyList != null)
         {
@@ -355,17 +401,6 @@ public class NugetArtifactGenerator
     {
         String sha512 = layoutOutputStream.getDigestMap().get(MessageDigestAlgorithms.SHA_512);
         MessageDigestUtils.writeChecksum(artifactPath, ".sha512", sha512);
-    }
-
-    public String getBasedir()
-    {
-        return basePath.normalize().toAbsolutePath().toString();
-    }
-
-    @Override
-    public void setLicenses(LicenseConfiguration[] licenses)
-    {
-        // set Nuget licenses
     }
 
 }
