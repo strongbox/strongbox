@@ -35,8 +35,8 @@ import javax.persistence.PersistenceContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -132,14 +132,21 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         return allowsUnpublish;
     }
 
+
+    private Repository getRepository(String storageId,
+                                     String repositoryId)
+    {
+        Storage storage = getConfiguration().getStorage(storageId);
+        return storage.getRepository(repositoryId);
+    }
+
     private void fetchRemoteSearchResult(String storageId,
                                          String repositoryId,
                                          String text,
                                          Integer size)
     {
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        Repository repository = getRepository(storageId, repositoryId);
 
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
@@ -157,7 +164,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path("-/v1/search").queryParam("text", text).queryParam("size", size);
 
-            InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
+            BufferedInputStream inputStream = service.request().buildGet().invoke(BufferedInputStream.class);
             searchResults = npmJacksonMapper.readValue(inputStream, SearchResults.class);
 
             logger.debug("Searched NPM packages for [{}].", remoteRepository.getUrl());
@@ -189,8 +196,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
         throws IOException
     {
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        Repository repository = getRepository(storageId, repositoryId);
 
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
@@ -264,7 +270,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
 
         JsonFactory jfactory = new JsonFactory();
 
-        try (InputStream is = request.invoke(InputStream.class))
+        try (BufferedInputStream is = request.invoke(BufferedInputStream.class))
         {
 
             JsonParser jp = jfactory.createParser(is);
@@ -336,8 +342,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
                                         String packageId)
     {
 
-        Storage storage = getConfiguration().getStorage(storageId);
-        Repository repository = storage.getRepository(repositoryId);
+        Repository repository = getRepository(storageId, repositoryId);
 
         RemoteRepository remoteRepository = repository.getRemoteRepository();
         if (remoteRepository == null)
@@ -355,7 +360,7 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             WebTarget service = restClient.target(remoteRepository.getUrl());
             service = service.path(packageId);
 
-            InputStream inputStream = service.request().buildGet().invoke(InputStream.class);
+            BufferedInputStream inputStream = service.request().buildGet().invoke(BufferedInputStream.class);
             packageFeed = npmJacksonMapper.readValue(inputStream, PackageFeed.class);
 
             logger.debug("Downloaded NPM changes feed for [{}].", remoteRepository.getUrl());
@@ -412,8 +417,8 @@ public class NpmRepositoryFeatures implements RepositoryFeatures
             String storageId = event.getStorageId();
             String repositoryId = event.getRepositoryId();
 
-            Storage storage = getConfiguration().getStorage(storageId);
-            Repository repository = storage.getRepository(repositoryId);
+            Repository repository = getRepository(storageId, repositoryId);
+
             RemoteRepository remoteRepository = repository.getRemoteRepository();
             if (remoteRepository == null)
             {

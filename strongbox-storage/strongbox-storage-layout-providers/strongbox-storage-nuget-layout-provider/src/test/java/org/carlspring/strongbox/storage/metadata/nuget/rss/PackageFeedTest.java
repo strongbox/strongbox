@@ -58,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
             throws Exception
     {
         // GIVEN
-        InputStream inputStream = NugetTestResourceUtil.getAsStream("rss/rss_feed.xml");
+        BufferedInputStream inputStream = new BufferedInputStream(NugetTestResourceUtil.getAsStream("rss/rss_feed.xml"));
 
         // WHEN
         PackageFeed packageFeed = PackageFeed.parse(inputStream);
