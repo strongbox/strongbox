@@ -1,11 +1,12 @@
 package org.carlspring.strongbox.providers.io;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.carlspring.strongbox.booters.PropertiesBooter;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,6 +14,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
@@ -22,18 +24,21 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 public class RepositoryPathTest
 {
 
-    private static final Path REPOSITORY_BASEDIR = Paths.get("target/strongbox-vault/storages/storage0/releases").toAbsolutePath();
+    private Path repositoryBasePath;
 
     private RepositoryDto repository;
 
     private LayoutFileSystem repositoryFileSystem;
 
-
     @BeforeEach
     public void setup()
+            throws FileNotFoundException,
+                   URISyntaxException
     {
+        repositoryBasePath = getRepositoryBasePath();
+
         repository = new RepositoryDto();
-        repository.setBasedir(REPOSITORY_BASEDIR.toAbsolutePath().toString());
+        repository.setBasedir(repositoryBasePath.toAbsolutePath().toString());
 
         PropertiesBooter propertiesBooter = new PropertiesBooter();
         repositoryFileSystem = new LayoutFileSystem(propertiesBooter, new RepositoryData(repository), FileSystems.getDefault(), null)
@@ -51,7 +56,7 @@ public class RepositoryPathTest
     {
         assertThatExceptionOfType(RepositoryRelativePathConstructionException.class)
                 .isThrownBy(() -> {
-                    RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+                    RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
                     path.resolve("/absolute");
         });
     }
@@ -61,7 +66,7 @@ public class RepositoryPathTest
     {
         assertThatExceptionOfType(RepositoryRelativePathConstructionException.class)
                 .isThrownBy(() -> {
-                    RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+                    RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
                     path.resolve(Paths.get("/absolute"));
         });
     }
@@ -71,7 +76,7 @@ public class RepositoryPathTest
     {
         assertThatExceptionOfType(RepositoryRelativePathConstructionException.class)
                 .isThrownBy(() -> {
-                    RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+                    RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
                     path.resolveSibling("/absolute");
         });
     }
@@ -81,7 +86,7 @@ public class RepositoryPathTest
     {
         assertThatExceptionOfType(RepositoryRelativePathConstructionException.class)
                 .isThrownBy(() -> {
-                    RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+                    RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
                     path.resolveSibling(Paths.get("/absolute"));
         });
     }
@@ -89,30 +94,29 @@ public class RepositoryPathTest
     @Test
     public void repositoryPathShouldResolveStringRelativePaths()
     {
-        RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+        RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
 
         path = path.resolve("relative");
 
-        assertThat(path).isEqualTo(REPOSITORY_BASEDIR.resolve("relative"));
+        assertThat(path).isEqualTo(repositoryBasePath.resolve("relative"));
     }
 
     @Test
     public void repositoryPathShouldResolvePathRelativePaths()
     {
-        RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+        RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
 
         path = path.resolve(Paths.get("relative"));
 
-        assertThat(path).isEqualTo(REPOSITORY_BASEDIR.resolve("relative"));
+        assertThat(path).isEqualTo(repositoryBasePath.resolve("relative"));
     }
 
     @Test
     public void shouldNotBePossibleToResolveSiblingStringOutsideTheRepositoryRoot()
     {
-
         assertThatExceptionOfType(PathExceededRootRepositoryPathException.class)
                 .isThrownBy(() -> {
-                    RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+                    RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
                     path.resolveSibling("relative");
         });
     }
@@ -122,7 +126,7 @@ public class RepositoryPathTest
     {
         assertThatExceptionOfType(PathExceededRootRepositoryPathException.class)
              .isThrownBy(() -> {
-                 RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem);
+                 RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem);
                  path.resolveSibling(Paths.get("relative"));
         });
     }
@@ -131,22 +135,36 @@ public class RepositoryPathTest
     @Test
     public void repositoryPathShouldResolveSiblingStringRelativePaths()
     {
-        RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem).resolve("onePathFurther");
+        RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem).resolve("onePathFurther");
 
         path = path.resolveSibling("relative");
 
-        assertThat(path).isEqualTo(REPOSITORY_BASEDIR.resolve("relative"));
+        assertThat(path).isEqualTo(repositoryBasePath.resolve("relative"));
     }
 
     @Test
     public void repositoryPathShouldResolveSiblingPathRelativePaths()
     {
-        RepositoryPath path = new RepositoryPath(REPOSITORY_BASEDIR, repositoryFileSystem).resolve("onePathFurther");
+        RepositoryPath path = new RepositoryPath(repositoryBasePath, repositoryFileSystem).resolve("onePathFurther");
 
         path = path.resolveSibling(Paths.get("relative"));
 
-        assertThat(path).isEqualTo(REPOSITORY_BASEDIR.resolve("relative"));
+        assertThat(path).isEqualTo(repositoryBasePath.resolve("relative"));
     }
 
+    private Path getRepositoryBasePath()
+            throws FileNotFoundException,
+                   URISyntaxException
+    {
+        ClassLoader classLoader = getClass().getClassLoader();
 
+        // Directory "target/test-classes" is loaded
+        URL resource = classLoader.getResource("");
+        if (resource != null)
+        {
+            return Paths.get(resource.toURI());
+        }
+
+        throw new FileNotFoundException("Resource 'target/test-classes' was not found");
+    }
 }
