@@ -6,6 +6,8 @@ spring:
   servlet:
     multipart:
       enabled: true
+      max-file-size: 1MB
+      max-request-size: 10MB
 strongbox:
   basedir: .
   home: ${strongbox.basedir}/strongbox
