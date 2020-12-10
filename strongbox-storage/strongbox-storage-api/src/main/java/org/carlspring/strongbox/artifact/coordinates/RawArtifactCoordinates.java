@@ -13,7 +13,7 @@ public class RawArtifactCoordinates
         extends AbstractArtifactCoordinates<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
-    public static final String LAYOUT_NAME = "Null Layout";
+    public static final String LAYOUT_NAME = "Raw Layout";
     private static final String PATH = "path";
 
     public RawArtifactCoordinates()
@@ -75,7 +75,7 @@ public class RawArtifactCoordinates
     @Override
     public String toString()
     {
-        final StringBuilder sb = new StringBuilder("NullArtifactCoordinates{");
+        final StringBuilder sb = new StringBuilder("RawArtifactCoordinates{");
         sb.append("objectId='").append(objectId).append('\'');
         sb.append(", uuid='").append(uuid).append('\'');
         sb.append(", entityVersion=").append(entityVersion);
