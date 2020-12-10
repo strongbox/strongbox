@@ -144,7 +144,7 @@ public class MutableProxyConfiguration
                           .add("host", host)
                           .add("port", port)
                           .add("username", username)
-                          .add("password", password)
+                          .add("password", password == null ? "null" : "*********")
                           .add("type", type)
                           .add("nonProxyHosts", nonProxyHosts)
                           .toString();

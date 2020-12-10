@@ -139,6 +139,7 @@ public class WebConfig
         };
         result.setIncludeQueryString(true);
         result.setIncludeHeaders(true);
+        result.setHeaderPredicate(s -> !(s.equals("Authorization") || s.equals("Cookie")));
         result.setIncludeClientInfo(true);
         return result;
     }
