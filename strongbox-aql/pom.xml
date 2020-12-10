@@ -139,12 +139,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${version.groovy}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.jtwig</groupId>
             <artifactId>jtwig-core</artifactId>
             <scope>provided</scope>   
