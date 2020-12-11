@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-PR-62-SNAPSHOT</version>
+        <version>1.0-PR-135-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -128,6 +128,10 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
         </dependency>
     </dependencies>
 

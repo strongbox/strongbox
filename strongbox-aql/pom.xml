@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-PR-62-SNAPSHOT</version>
+        <version>1.0-PR-135-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -78,13 +78,6 @@
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-commons</artifactId>
                         <version>${project.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                        <version>${version.groovy}</version>
-                        <scope>runtime</scope>
-                        <type>pom</type>
                     </dependency>
                 </dependencies>
             </plugin>
