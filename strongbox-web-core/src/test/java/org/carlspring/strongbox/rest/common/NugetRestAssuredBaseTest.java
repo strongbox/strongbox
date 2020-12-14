@@ -77,21 +77,4 @@ public abstract class NugetRestAssuredBaseTest
         this.contextBaseUrl = contextBaseUrl;
     }
 
-    public byte[] readPackageContent(Path packageFilePath)
-        throws IOException
-    {
-        ByteArrayOutputStream contentStream = new ByteArrayOutputStream();
-
-        MultipartEntityBuilder.create()
-                              .addBinaryBody("package", new BufferedInputStream(Files.newInputStream(packageFilePath)))
-                              .setBoundary("---------------------------123qwe")
-                              .build()
-                              .writeTo(contentStream);
-        contentStream.flush();
-
-        byte[] packageContent = contentStream.toByteArray();
-
-        return packageContent;
-    }
-
 }

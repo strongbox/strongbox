@@ -31,7 +31,6 @@ import io.restassured.module.mockmvc.config.RestAssuredMockMvcConfig;
 import io.restassured.module.mockmvc.response.MockMvcResponse;
 import io.restassured.module.mockmvc.specification.MockMvcRequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
@@ -190,7 +189,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
     public void testPackageCommonFlow(@NugetRepository(storageId = STORAGE_ID,
                                                        repositoryId = REPOSITORY_RELEASES_1)
                                       Repository repository,
@@ -205,15 +203,14 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String packageVersion = "1.0.0";
 
         long packageSize = Files.size(packagePath);
-        byte[] packageContent = readPackageContent(packagePath);
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packagePath).when()
+                                      .put(url, storageId, repositoryId)
+                                      .peek()
+                                      .then()
+                                      .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
@@ -260,7 +257,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
     public void testChocolatey(@NugetRepository(storageId = STORAGE_ID,
                                                 repositoryId = REPOSITORY_RELEASES_1)
                                Repository repository,
@@ -272,18 +268,14 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
         final String packageId = "Org.Carlspring.Strongbox.Examples.Nuget.Mono-Test";
-        final String packageVersion = "1.0.0";
-
-        long packageSize = Files.size(packagePath);
-        byte[] packageContent = readPackageContent(packagePath);
 
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packagePath).when()
+                                      .put(url, storageId, repositoryId)
+                                      .peek()
+                                      .then()
+                                      .statusCode(HttpStatus.CREATED.value());
 
         //Find by ID
 
@@ -358,7 +350,6 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled("Disabling this test case till Multipart workaround is not found in rest assured MockMvcRequestSpecification.")
     public void testLastVersionPackageSearch(@NugetRepository(storageId = STORAGE_ID,
                                                               repositoryId = REPOSITORY_RELEASES_1)
                                              Repository repository,
@@ -375,14 +366,14 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // VERSION 1.0.0
         Path packagePathV1 = packagePaths.get(0);
-        byte[] packageContent = readPackageContent(packagePathV1);
+        
         // Push
         String url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packagePathV1).when()
+                                        .put(url, storageId, repositoryId)
+                                        .peek()
+                                        .then()
+                                        .statusCode(HttpStatus.CREATED.value());
 
         // Count
         url = getContextBaseUrl() +
@@ -414,14 +405,14 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
 
         // VERSION 2.0.0
         Path packagePathV2 = packagePaths.get(1);
-        packageContent = readPackageContent(packagePathV2);
+
         // Push
         url = getContextBaseUrl() + "/storages/{storageId}/{repositoryId}/";
-        createPushRequest(packageContent).when()
-                                         .put(url, storageId, repositoryId)
-                                         .peek()
-                                         .then()
-                                         .statusCode(HttpStatus.CREATED.value());
+        createPushRequest(packagePathV2).when()
+                                        .put(url, storageId, repositoryId)
+                                        .peek()
+                                        .then()
+                                        .statusCode(HttpStatus.CREATED.value());
         
         // Count
         url = getContextBaseUrl() +
@@ -452,12 +443,12 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .body("feed.entry[0].properties.Version", equalTo("2.0.0"));
     }
 
-    public MockMvcRequestSpecification createPushRequest(byte[] packageContent)
+    public MockMvcRequestSpecification createPushRequest(Path packagePath)
     {
         return mockMvc.header(HttpHeaders.USER_AGENT, "NuGet/*")
                       .header("X-NuGet-ApiKey", API_KEY)
-                      .contentType(MediaType.MULTIPART_FORM_DATA_VALUE.concat("; boundary=---------------------------123qwe"))
-                      .body(packageContent);
+                      .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                      .multiPart("package", packagePath.toFile());
     }
 
     @Test
