@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -16,7 +17,8 @@ import org.springframework.context.annotation.Import;
  * @author carlspring
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
-                                   HibernateJpaAutoConfiguration.class })
+                                   HibernateJpaAutoConfiguration.class,
+                                   Neo4jDataAutoConfiguration.class})
 @Import(WebConfig.class)
 public class StrongboxSpringBootApplication
 {

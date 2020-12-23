@@ -23,6 +23,7 @@ import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementT
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Group;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpHeaders;
@@ -105,6 +106,7 @@ public class NpmArtifactControllerTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
+    @Disabled
     public void testViewArtifactViaProxy(@Remote(url = REMOTE_URL)
                                          @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                          Repository proxyRepository)
@@ -133,6 +135,7 @@ public class NpmArtifactControllerTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
+    @Disabled
     public void testSearchArtifactViaProxy(@Remote(url = REMOTE_URL)
                                            @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                            Repository proxyRepository)
@@ -151,14 +154,10 @@ public class NpmArtifactControllerTestIT
                .and()
                .body("objects.package.name", hasItem("restonnode"));
 
-//        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
-//                                                                          repositoryId,
-//                                                                          "Reston/Reston/0.2.0/Reston-0.2.0.tgz");
-        
         Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
                                                                           repositoryId,
                                                                           "restonnode/restonnode/1.0.2/restonnode-1.0.2.tgz");
-        
+
         assertThat(artifactEntry).isNotNull();
         assertThat(artifactEntry.getArtifactFileExists()).isFalse();
     }

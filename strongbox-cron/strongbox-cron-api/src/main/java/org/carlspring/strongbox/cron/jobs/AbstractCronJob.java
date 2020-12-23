@@ -19,11 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author carlspring
  */
 @DisallowConcurrentExecution
+@Transactional("cronJobTransactionManager")
 public abstract class AbstractCronJob
         extends QuartzJobBean
         implements InterruptableJob
@@ -45,7 +47,7 @@ public abstract class AbstractCronJob
 
     private String status = CronJobStatusEnum.SLEEPING.getStatus();
 
-    public abstract void executeTask(CronTaskConfigurationDto config)
+    protected abstract void executeTask(CronTaskConfigurationDto config)
             throws Throwable;
 
     @Override

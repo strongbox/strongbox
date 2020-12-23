@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.index.context.IndexingContext;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -78,6 +79,7 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
+    @Disabled
     public void testDownloadRemoteIndexAndExecuteSearch(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
                                                                          setup = MavenIndexedRepositorySetup.class)
                                                         Repository repository,
