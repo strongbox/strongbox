@@ -28,4 +28,6 @@ public interface LayoutProvider<T extends ArtifactCoordinates>
     Set<ArtifactGroup> getArtifactGroups(RepositoryPath path)
             throws IOException;
 
+    Set<String> getDigestAlgorithmSet();
+
 }

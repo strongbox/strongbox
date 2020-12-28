@@ -25,14 +25,17 @@ public class GenerateMavenMetadataOperation
 
     private final ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
+    private final String[] digestAlgorithms;
 
     public GenerateMavenMetadataOperation(@Nonnull final MavenMetadataManager mavenMetadataManager,
-                                          @Nonnull final ArtifactEventListenerRegistry artifactEventListenerRegistry)
+                                          @Nonnull final ArtifactEventListenerRegistry artifactEventListenerRegistry,
+                                          @Nonnull final String[] digestAlgorithms)
     {
         Objects.requireNonNull(mavenMetadataManager);
         Objects.requireNonNull(artifactEventListenerRegistry);
         this.mavenMetadataManager = mavenMetadataManager;
         this.artifactEventListenerRegistry = artifactEventListenerRegistry;
+        this.digestAlgorithms = digestAlgorithms;
     }
 
     @Override
@@ -42,7 +45,7 @@ public class GenerateMavenMetadataOperation
     {
         try
         {
-            mavenMetadataManager.generateMetadata(artifactGroupDirectoryPath, request);
+            mavenMetadataManager.generateMetadata(artifactGroupDirectoryPath, request, digestAlgorithms);
             artifactEventListenerRegistry.dispatchArtifactMetadataStoredEvent(artifactGroupDirectoryPath.resolve("maven-metadata.xml"));
         }
         catch (Exception e)

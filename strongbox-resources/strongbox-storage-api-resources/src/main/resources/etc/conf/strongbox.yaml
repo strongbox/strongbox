@@ -4,6 +4,11 @@ configuration:
   revision: ${strongbox.revision}
   baseUrl: http://localhost:48080/
   port: 48080
+  digestAlgorithmSet:
+    - MD5
+    - SHA-1
+    - SHA-256
+    - SHA-512
   sessionConfiguration:
     timeoutSeconds: 3600
   remoteRepositoriesConfiguration:
@@ -67,6 +72,9 @@ configuration:
             type: Maven 2
             indexingEnabled: true
             cronExpression: "0 0 2 * * ?"
+            digestAlgorithmSet:
+              - SHA-256
+              - SHA-512
     storage-common-proxies:
       id: storage-common-proxies
       repositories:

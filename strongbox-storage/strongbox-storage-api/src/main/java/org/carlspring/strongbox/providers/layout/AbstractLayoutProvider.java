@@ -72,10 +72,10 @@ public abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>
 
     protected abstract T getArtifactCoordinates(RepositoryPath repositoryPath) throws IOException;
 
-    protected Set<String> getDigestAlgorithmSet()
+    @Override
+    public Set<String> getDigestAlgorithmSet()
     {
-        return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1)
-                     .collect(Collectors.toSet());
+        return configurationManager.getConfiguration().getDigestAlgorithmSet();
     }
 
     public boolean isChecksum(RepositoryPath repositoryPath)

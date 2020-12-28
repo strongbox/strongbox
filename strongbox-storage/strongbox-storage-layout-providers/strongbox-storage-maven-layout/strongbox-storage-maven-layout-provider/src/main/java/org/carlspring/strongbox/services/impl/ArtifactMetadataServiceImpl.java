@@ -25,11 +25,13 @@ import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.ArtifactUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.javatuples.Pair;
 import org.slf4j.Logger;
@@ -120,7 +122,9 @@ public class ArtifactMetadataServiceImpl
             repositoryBasePath = repositoryBasePath.resolve(basePath);
         }
 
-        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry);
+        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager,
+                artifactEventListenerRegistry,
+                getDigestAlgorithms(repository));
         operation.setBasePath(repositoryBasePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
@@ -371,6 +375,17 @@ public class ArtifactMetadataServiceImpl
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
+    }
+
+    private String[] getDigestAlgorithms(Repository repository) {
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
+        if (mavenRepositoryConfiguration != null) {
+            Set<String> repoDigestAlgorithms = mavenRepositoryConfiguration.getDigestAlgorithmSet();
+            if (repoDigestAlgorithms != null && repoDigestAlgorithms.size() > 0) {
+                return repoDigestAlgorithms.toArray(new String[0]);
+            }
+        }
+        return configurationManager.getConfiguration().getDigestAlgorithmSet().toArray(new String[0]);
     }
 
 }

@@ -123,6 +123,20 @@ public class MavenMetadataManager
                               final Metadata metadata,
                               final MetadataType metadataType) throws IOException
     {
+        storeMetadata(
+                metadataBasePath,
+                version,
+                metadata,
+                metadataType,
+                metadataBasePath.getFileSystem().getDigestAlgorithmSet().toArray(new String[0]));
+    }
+
+    public void storeMetadata(final RepositoryPath metadataBasePath,
+                              final String version,
+                              final Metadata metadata,
+                              final MetadataType metadataType,
+                              final String[] digestAlgorithms) throws IOException
+    {
 
         doInLock(metadataBasePath, path ->
                  {
@@ -130,9 +144,11 @@ public class MavenMetadataManager
                      {
                          Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);
                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
-                                                                               Files.newOutputStream(metadataPath,
-                                                                                                     StandardOpenOption.CREATE,
-                                                                                                     StandardOpenOption.TRUNCATE_EXISTING)))
+                                 Files.newOutputStream(metadataPath,
+                                         StandardOpenOption.CREATE,
+                                         StandardOpenOption.TRUNCATE_EXISTING),
+                                 digestAlgorithms,
+                                 true))
                          {
                              Writer writer = WriterFactory.newXmlWriter(os);
 
@@ -154,7 +170,8 @@ public class MavenMetadataManager
      * Generate a metadata file for an artifact.
      */
     public void generateMetadata(RepositoryPath artifactGroupDirectoryPath,
-                                 VersionCollectionRequest request)
+                                 VersionCollectionRequest request,
+                                 String[] digestAlgorithms)
             throws IOException,
                    ProviderImplementationException,
                    UnknownRepositoryTypeException
@@ -208,7 +225,7 @@ public class MavenMetadataManager
             MetadataHelper.setLastUpdated(versioning);
 
             // Write basic metadata
-            storeMetadata(artifactGroupDirectoryPath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+            storeMetadata(artifactGroupDirectoryPath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL, digestAlgorithms);
 
             logger.debug("Generated Maven metadata for {}:{}.", artifactGroupId, artifactId);
         }
@@ -240,7 +257,7 @@ public class MavenMetadataManager
             }
 
             // Write artifact metadata
-            storeMetadata(artifactGroupDirectoryPath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL);
+            storeMetadata(artifactGroupDirectoryPath, null, metadata, MetadataType.ARTIFACT_ROOT_LEVEL, digestAlgorithms);
 
             logger.debug("Generated Maven metadata for {}:{}.", artifactGroupId, artifactId);
         }
@@ -257,16 +274,18 @@ public class MavenMetadataManager
         if (!request.getPlugins().isEmpty())
         {
             generateMavenPluginMetadata(artifactGroupId, artifactId, artifactGroupDirectoryPath.getParent(),
-                                        request.getPlugins());
+                                        request.getPlugins(), digestAlgorithms);
         }
     }
 
-    private void generateMavenPluginMetadata(String groupId, String aritfactId, RepositoryPath pluginMetadataPath, List<Plugin> plugins) throws IOException
+    private void generateMavenPluginMetadata(String groupId, String aritfactId, RepositoryPath pluginMetadataPath,
+                                             List<Plugin> plugins,
+                                             String[] digestAlgorithms) throws IOException
     {
         Metadata pluginMetadata = new Metadata();
         pluginMetadata.setPlugins(plugins);
 
-        storeMetadata(pluginMetadataPath, null, pluginMetadata, MetadataType.PLUGIN_GROUP_LEVEL);
+        storeMetadata(pluginMetadataPath, null, pluginMetadata, MetadataType.PLUGIN_GROUP_LEVEL, digestAlgorithms);
 
         logger.debug("Generated Maven plugin metadata for {}:{}.", groupId, aritfactId);
     }

@@ -6,6 +6,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.google.common.base.MoreObjects;
@@ -32,6 +33,8 @@ public class MutableConfiguration
     private String baseUrl = "http://localhost/";
 
     private int port = 48080;
+
+    private Set<String> digestAlgorithmSet;
 
     /**
      * The global proxy settings to use when no per-repository proxy settings have been defined.
@@ -112,6 +115,14 @@ public class MutableConfiguration
     public void setPort(int port)
     {
         this.port = port;
+    }
+
+    public Set<String> getDigestAlgorithmSet() {
+        return digestAlgorithmSet;
+    }
+
+    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {
+        this.digestAlgorithmSet = digestAlgorithmSet;
     }
 
     public MutableProxyConfiguration getProxyConfiguration()

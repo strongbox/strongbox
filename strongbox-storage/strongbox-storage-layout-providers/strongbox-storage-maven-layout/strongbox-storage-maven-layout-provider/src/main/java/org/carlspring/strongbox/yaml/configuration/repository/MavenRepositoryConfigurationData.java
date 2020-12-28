@@ -10,6 +10,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import java.util.Set;
+
 /**
  * @author Przemyslaw Fusik
  */
@@ -29,6 +31,8 @@ public class MavenRepositoryConfigurationData
 
     private String metadataExpirationStrategy;
 
+    private Set<String> digestAlgorithmSet;
+
     public MavenRepositoryConfigurationData()
     {
     }
@@ -39,6 +43,7 @@ public class MavenRepositoryConfigurationData
         this.indexingClassNamesEnabled = delegate.isIndexingClassNamesEnabled();
         this.cronExpression = delegate.getCronExpression();
         this.metadataExpirationStrategy = delegate.getMetadataExpirationStrategy();
+        this.digestAlgorithmSet = delegate.getDigestAlgorithmSet();
     }
 
     public boolean isIndexingEnabled()
@@ -63,5 +68,9 @@ public class MavenRepositoryConfigurationData
         return metadataExpirationStrategy;
     }
 
+    @Override
+    public Set<String> getDigestAlgorithmSet() {
+        return digestAlgorithmSet;
+    }
 }
 

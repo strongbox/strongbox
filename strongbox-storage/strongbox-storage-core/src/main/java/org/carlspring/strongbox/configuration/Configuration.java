@@ -37,6 +37,8 @@ public class Configuration
 
     private final int port;
 
+    private Set<String> digestAlgorithmSet;
+
     private final ProxyConfiguration proxyConfiguration;
 
     private final SessionConfiguration sessionConfiguration;
@@ -60,6 +62,7 @@ public class Configuration
         revision = delegate.getRevision();
         baseUrl = delegate.getBaseUrl();
         port = delegate.getPort();
+        digestAlgorithmSet = delegate.getDigestAlgorithmSet();
         proxyConfiguration = immuteProxyConfiguration(delegate.getProxyConfiguration());
         sessionConfiguration = immuteSessionConfiguration(delegate.getSessionConfiguration());
         remoteRepositoriesConfiguration = immuteRemoteRepositoriesConfiguration(
@@ -134,6 +137,10 @@ public class Configuration
     public int getPort()
     {
         return port;
+    }
+
+    public Set<String> getDigestAlgorithmSet() {
+        return digestAlgorithmSet;
     }
 
     public ProxyConfiguration getProxyConfiguration()

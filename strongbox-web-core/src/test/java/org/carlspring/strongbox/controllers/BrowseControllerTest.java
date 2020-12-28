@@ -181,7 +181,7 @@ public class BrowseControllerTest
                                            .prettyPeek()
                                            .as(DirectoryListing.class);
 
-        assertThat(returned.getFiles().size() == 6
+        assertThat(returned.getFiles().size() == 10
                    && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"))
                 .as("Invalid files returned").isTrue();
 

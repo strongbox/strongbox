@@ -20,7 +20,13 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toCollection;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.SnapshotVersion;
@@ -171,7 +177,7 @@ public class MavenMetadataManagementControllerTest
         List<SnapshotVersion> metadata2SnapshotVersions = metadata2SnapshotBefore.getVersioning().getSnapshotVersions();
         // This is minus three because in this case there are no classifiers, there's just a pom and a jar,
         // thus two and therefore getting the element before them would be three:
-        String previousLatestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 3).getVersion();
+        String previousLatestTimestamp = getPreviousSnapshotVersion(metadata2SnapshotVersions).getVersion();
         String latestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 1).getVersion();
 
         logger.debug("[testRebuildSnapshotMetadataWithBasePath] latestTimestamp {}", latestTimestamp);
@@ -259,6 +265,14 @@ public class MavenMetadataManagementControllerTest
         assertThat(MetadataHelper.containsVersion(metadataAfter, "3.2")).as("Unexpected set of versions!").isFalse();
         assertThat(metadataAfter.getVersioning().getLatest()).as("Incorrect metadata!").isNotNull();
         assertThat(metadataAfter.getVersioning().getLatest()).as("Incorrect metadata!").isEqualTo("3.1");
+    }
+
+    private SnapshotVersion getPreviousSnapshotVersion(List<SnapshotVersion> snapshotVersion) {
+        Set<String> seenSet = new HashSet<>();
+        List<SnapshotVersion> distinctSnapshotVersions = snapshotVersion.parallelStream()
+                .filter(s -> seenSet.add(s.getVersion()))
+                .collect(Collectors.toList());
+        return distinctSnapshotVersions.get(distinctSnapshotVersions.size() - 2);
     }
 
     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })

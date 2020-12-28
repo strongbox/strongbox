@@ -393,6 +393,8 @@ public class MavenArtifactGenerator implements ArtifactGenerator
 
             String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());
             String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());
+            String sha256 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA256.getAlgorithm());
+            String sha512 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA512.getAlgorithm());
 
             Path checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.MD5.getExtension());
             try (OutputStream os = Files.newOutputStream(checksumPath))
@@ -405,6 +407,20 @@ public class MavenArtifactGenerator implements ArtifactGenerator
             try (OutputStream os = Files.newOutputStream(checksumPath))
             {
                 IOUtils.write(sha1, os, StandardCharsets.UTF_8);
+                os.flush();
+            }
+
+            checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA256.getExtension());
+            try (OutputStream os = Files.newOutputStream(checksumPath))
+            {
+                IOUtils.write(sha256, os, StandardCharsets.UTF_8);
+                os.flush();
+            }
+
+            checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA512.getExtension());
+            try (OutputStream os = Files.newOutputStream(checksumPath))
+            {
+                IOUtils.write(sha512, os, StandardCharsets.UTF_8);
                 os.flush();
             }
         }
