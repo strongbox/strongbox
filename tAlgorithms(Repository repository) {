@@ -1,0 +1,646 @@
+[1mdiff --git a/strongbox-resources/strongbox-storage-api-resources/src/main/resources/etc/conf/strongbox.yaml b/strongbox-resources/strongbox-storage-api-resources/src/main/resources/etc/conf/strongbox.yaml[m
+[1mindex 5fe18a166..be0c85fe0 100644[m
+[1m--- a/strongbox-resources/strongbox-storage-api-resources/src/main/resources/etc/conf/strongbox.yaml[m
+[1m+++ b/strongbox-resources/strongbox-storage-api-resources/src/main/resources/etc/conf/strongbox.yaml[m
+[36m@@ -4,6 +4,11 @@[m [mconfiguration:[m
+   revision: ${strongbox.revision}[m
+   baseUrl: http://localhost:48080/[m
+   port: 48080[m
+[32m+[m[32m  digestAlgorithmSet:[m
+[32m+[m[32m    - MD5[m
+[32m+[m[32m    - SHA-1[m
+[32m+[m[32m    - SHA-256[m
+[32m+[m[32m    - SHA-512[m
+   sessionConfiguration:[m
+     timeoutSeconds: 3600[m
+   remoteRepositoriesConfiguration:[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/AbstractLayoutProvider.java b/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/AbstractLayoutProvider.java[m
+[1mindex 94bad92ff..d2c98b963 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/AbstractLayoutProvider.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/AbstractLayoutProvider.java[m
+[36m@@ -72,10 +72,10 @@[m [mpublic abstract class AbstractLayoutProvider<T extends ArtifactCoordinates>[m
+ [m
+     protected abstract T getArtifactCoordinates(RepositoryPath repositoryPath) throws IOException;[m
+ [m
+[31m-    protected Set<String> getDigestAlgorithmSet()[m
+[32m+[m[32m    @Override[m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet()[m
+     {[m
+[31m-        return Stream.of(MessageDigestAlgorithms.MD5, MessageDigestAlgorithms.SHA_1)[m
+[31m-                     .collect(Collectors.toSet());[m
+[32m+[m[32m        return configurationManager.getConfiguration().getDigestAlgorithmSet();[m
+     }[m
+ [m
+     public boolean isChecksum(RepositoryPath repositoryPath)[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/LayoutProvider.java b/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/LayoutProvider.java[m
+[1mindex 8efb82621..fa6f0a56a 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/LayoutProvider.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-api/src/main/java/org/carlspring/strongbox/providers/layout/LayoutProvider.java[m
+[36m@@ -28,4 +28,6 @@[m [mpublic interface LayoutProvider<T extends ArtifactCoordinates>[m
+     Set<ArtifactGroup> getArtifactGroups(RepositoryPath path)[m
+             throws IOException;[m
+ [m
+[32m+[m[32m    Set<String> getDigestAlgorithmSet();[m
+[32m+[m
+ }[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-api/src/test/java/org/carlspring/strongbox/testing/NullLayoutProvider.java b/strongbox-storage/strongbox-storage-api/src/test/java/org/carlspring/strongbox/testing/NullLayoutProvider.java[m
+[1mindex 6197997d7..3a2c501a5 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-api/src/test/java/org/carlspring/strongbox/testing/NullLayoutProvider.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-api/src/test/java/org/carlspring/strongbox/testing/NullLayoutProvider.java[m
+[36m@@ -52,7 +52,7 @@[m [mpublic class NullLayoutProvider extends AbstractLayoutProvider<RawArtifactCoordi[m
+         return new RawArtifactCoordinates(RepositoryFiles.relativizePath(repositoryPath));[m
+     }[m
+ [m
+[31m-    protected Set<String> getDigestAlgorithmSet()[m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet()[m
+     {[m
+         return Stream.of(MessageDigestAlgorithms.MD5)[m
+                      .collect(Collectors.toSet());[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/Configuration.java b/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/Configuration.java[m
+[1mindex c6c42df50..8c9db08bd 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/Configuration.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/Configuration.java[m
+[36m@@ -37,6 +37,8 @@[m [mpublic class Configuration[m
+ [m
+     private final int port;[m
+ [m
+[32m+[m[32m    private Set<String> digestAlgorithmSet;[m
+[32m+[m
+     private final ProxyConfiguration proxyConfiguration;[m
+ [m
+     private final SessionConfiguration sessionConfiguration;[m
+[36m@@ -60,6 +62,7 @@[m [mpublic class Configuration[m
+         revision = delegate.getRevision();[m
+         baseUrl = delegate.getBaseUrl();[m
+         port = delegate.getPort();[m
+[32m+[m[32m        digestAlgorithmSet = delegate.getDigestAlgorithmSet();[m
+         proxyConfiguration = immuteProxyConfiguration(delegate.getProxyConfiguration());[m
+         sessionConfiguration = immuteSessionConfiguration(delegate.getSessionConfiguration());[m
+         remoteRepositoriesConfiguration = immuteRemoteRepositoriesConfiguration([m
+[36m@@ -136,6 +139,10 @@[m [mpublic class Configuration[m
+         return port;[m
+     }[m
+ [m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet() {[m
+[32m+[m[32m        return digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+[32m+[m
+     public ProxyConfiguration getProxyConfiguration()[m
+     {[m
+         return proxyConfiguration;[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/MutableConfiguration.java b/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/MutableConfiguration.java[m
+[1mindex 1bb7f0264..0a83cc388 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/MutableConfiguration.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-core/src/main/java/org/carlspring/strongbox/configuration/MutableConfiguration.java[m
+[36m@@ -6,6 +6,7 @@[m [mimport org.carlspring.strongbox.storage.routing.MutableRoutingRules;[m
+ import java.io.Serializable;[m
+ import java.util.LinkedHashMap;[m
+ import java.util.Map;[m
+[32m+[m[32mimport java.util.Set;[m
+ [m
+ import com.fasterxml.jackson.annotation.JsonRootName;[m
+ import com.google.common.base.MoreObjects;[m
+[36m@@ -33,6 +34,8 @@[m [mpublic class MutableConfiguration[m
+ [m
+     private int port = 48080;[m
+ [m
+[32m+[m[32m    private Set<String> digestAlgorithmSet;[m
+[32m+[m
+     /**[m
+      * The global proxy settings to use when no per-repository proxy settings have been defined.[m
+      */[m
+[36m@@ -114,6 +117,14 @@[m [mpublic class MutableConfiguration[m
+         this.port = port;[m
+     }[m
+ [m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet() {[m
+[32m+[m[32m        return digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {[m
+[32m+[m[32m        this.digestAlgorithmSet = digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+[32m+[m
+     public MutableProxyConfiguration getProxyConfiguration()[m
+     {[m
+         return proxyConfiguration;[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/locator/handlers/GenerateMavenMetadataOperation.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/locator/handlers/GenerateMavenMetadataOperation.java[m
+[1mindex 8aa155785..08d9e4346 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/locator/handlers/GenerateMavenMetadataOperation.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/locator/handlers/GenerateMavenMetadataOperation.java[m
+[36m@@ -25,7 +25,6 @@[m [mpublic class GenerateMavenMetadataOperation[m
+ [m
+     private final ArtifactEventListenerRegistry artifactEventListenerRegistry;[m
+ [m
+[31m-[m
+     public GenerateMavenMetadataOperation(@Nonnull final MavenMetadataManager mavenMetadataManager,[m
+                                           @Nonnull final ArtifactEventListenerRegistry artifactEventListenerRegistry)[m
+     {[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/MavenFileSystem.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/MavenFileSystem.java[m
+[1mindex 4df46cbbc..07c446b0b 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/MavenFileSystem.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/MavenFileSystem.java[m
+[36m@@ -8,6 +8,7 @@[m [mimport org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;[m
+ import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;[m
+ import org.carlspring.strongbox.storage.repository.Repository;[m
+ import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;[m
+[32m+[m[32mimport org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;[m
+ [m
+ import javax.inject.Inject;[m
+ import java.io.IOException;[m
+[36m@@ -39,17 +40,28 @@[m [mpublic class MavenFileSystem[m
+     @RepositoryIndexCreatorQualifier(RepositoryTypeEnum.GROUP)[m
+     private RepositoryIndexCreator groupRepositoryIndexCreator;[m
+ [m
+[32m+[m[32m    private final Repository repository;[m
+[32m+[m
+     public MavenFileSystem(PropertiesBooter propertiesBooter,[m
+                            Repository repository,[m
+                            FileSystem storageFileSystem,[m
+                            LayoutFileSystemProvider provider)[m
+     {[m
+         super(propertiesBooter, repository, storageFileSystem, provider);[m
+[32m+[m[32m        this.repository = repository;[m
+     }[m
+ [m
+     @Override[m
+     public Set<String> getDigestAlgorithmSet()[m
+     {[m
+[32m+[m[32m        MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository[m
+[32m+[m[32m                .getRepositoryConfiguration();[m
+[32m+[m[32m        if (mavenRepositoryConfiguration != null) {[m
+[32m+[m[32m            Set<String> repoDigestAlgorithms = mavenRepositoryConfiguration.getDigestAlgorithmSet();[m
+[32m+[m[32m            if (repoDigestAlgorithms != null && repoDigestAlgorithms.size() > 0) {[m
+[32m+[m[32m                return repoDigestAlgorithms;[m
+[32m+[m[32m            }[m
+[32m+[m[32m        }[m
+         return layoutProvider.getDigestAlgorithmSet();[m
+     }[m
+ [m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/services/impl/ArtifactMetadataServiceImpl.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/services/impl/ArtifactMetadataServiceImpl.java[m
+[1mindex cf0c772e4..e41133d7b 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/services/impl/ArtifactMetadataServiceImpl.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/services/impl/ArtifactMetadataServiceImpl.java[m
+[36m@@ -25,11 +25,13 @@[m [mimport java.nio.file.Files;[m
+ import java.security.NoSuchAlgorithmException;[m
+ import java.util.Iterator;[m
+ import java.util.List;[m
+[32m+[m[32mimport java.util.Set;[m
+ [m
+ import org.apache.maven.artifact.ArtifactUtils;[m
+ import org.apache.maven.artifact.repository.metadata.Metadata;[m
+ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;[m
+ import org.apache.maven.artifact.repository.metadata.Versioning;[m
+[32m+[m[32mimport org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;[m
+ import org.codehaus.plexus.util.xml.pull.XmlPullParserException;[m
+ import org.javatuples.Pair;[m
+ import org.slf4j.Logger;[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/storage/metadata/MavenMetadataManager.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/storage/metadata/MavenMetadataManager.java[m
+[1mindex ffbc7a563..8f73674c8 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/storage/metadata/MavenMetadataManager.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/storage/metadata/MavenMetadataManager.java[m
+[36m@@ -130,9 +130,13 @@[m [mpublic class MavenMetadataManager[m
+                      {[m
+                          Path metadataPath = MetadataHelper.getMetadataPath(metadataBasePath, version, metadataType);[m
+                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,[m
+[31m-                                                                               Files.newOutputStream(metadataPath,[m
+[31m-                                                                                                     StandardOpenOption.CREATE,[m
+[31m-                                                                                                     StandardOpenOption.TRUNCATE_EXISTING)))[m
+[32m+[m[32m                                 Files.newOutputStream(metadataPath,[m
+[32m+[m[32m                                         StandardOpenOption.CREATE,[m
+[32m+[m[32m                                         StandardOpenOption.TRUNCATE_EXISTING),[m
+[32m+[m[32m                                 metadataBasePath.getFileSystem()[m
+[32m+[m[32m                                         .getDigestAlgorithmSet()[m
+[32m+[m[32m                                         .toArray(new String[0]),[m
+[32m+[m[32m                                 true))[m
+                          {[m
+                              Writer writer = WriterFactory.newXmlWriter(os);[m
+ [m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfiguration.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfiguration.java[m
+[1mindex f8458779e..8951f729c 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfiguration.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfiguration.java[m
+[36m@@ -2,6 +2,8 @@[m [mpackage org.carlspring.strongbox.yaml.configuration.repository;[m
+ [m
+ import org.carlspring.strongbox.yaml.repository.RepositoryConfiguration;[m
+ [m
+[32m+[m[32mimport java.util.Set;[m
+[32m+[m
+ public interface MavenRepositoryConfiguration extends RepositoryConfiguration[m
+ {[m
+ [m
+[36m@@ -13,4 +15,6 @@[m [mpublic interface MavenRepositoryConfiguration extends RepositoryConfiguration[m
+ [m
+     String getMetadataExpirationStrategy();[m
+ [m
+[31m-}[m
+\ No newline at end of file[m
+[32m+[m[32m    Set<String> getDigestAlgorithmSet();[m
+[32m+[m
+[32m+[m[32m}[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationData.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationData.java[m
+[1mindex 0c60ef1c9..e85cd773e 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationData.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationData.java[m
+[36m@@ -10,6 +10,8 @@[m [mimport javax.xml.bind.annotation.XmlAccessorType;[m
+ import com.fasterxml.jackson.annotation.JsonTypeName;[m
+ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;[m
+ [m
+[32m+[m[32mimport java.util.Set;[m
+[32m+[m
+ /**[m
+  * @author Przemyslaw Fusik[m
+  */[m
+[36m@@ -29,6 +31,8 @@[m [mpublic class MavenRepositoryConfigurationData[m
+ [m
+     private String metadataExpirationStrategy;[m
+ [m
+[32m+[m[32m    private Set<String> digestAlgorithmSet;[m
+[32m+[m
+     public MavenRepositoryConfigurationData()[m
+     {[m
+     }[m
+[36m@@ -39,6 +43,7 @@[m [mpublic class MavenRepositoryConfigurationData[m
+         this.indexingClassNamesEnabled = delegate.isIndexingClassNamesEnabled();[m
+         this.cronExpression = delegate.getCronExpression();[m
+         this.metadataExpirationStrategy = delegate.getMetadataExpirationStrategy();[m
+[32m+[m[32m        this.digestAlgorithmSet = delegate.getDigestAlgorithmSet();[m
+     }[m
+ [m
+     public boolean isIndexingEnabled()[m
+[36m@@ -63,5 +68,9 @@[m [mpublic class MavenRepositoryConfigurationData[m
+         return metadataExpirationStrategy;[m
+     }[m
+ [m
+[32m+[m[32m    @Override[m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet() {[m
+[32m+[m[32m        return digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+ }[m
+ [m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationDto.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationDto.java[m
+[1mindex 8b9fb1e96..29207830f 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationDto.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/main/java/org/carlspring/strongbox/yaml/configuration/repository/MavenRepositoryConfigurationDto.java[m
+[36m@@ -7,6 +7,9 @@[m [mimport org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrateg[m
+ [m
+ import com.fasterxml.jackson.annotation.JsonTypeName;[m
+ [m
+[32m+[m[32mimport java.util.LinkedHashSet;[m
+[32m+[m[32mimport java.util.Set;[m
+[32m+[m
+ /**[m
+  * @author carlspring[m
+  * @author Pablo Tirado[m
+[36m@@ -25,6 +28,8 @@[m [mpublic class MavenRepositoryConfigurationDto[m
+ [m
+     private String metadataExpirationStrategy = MetadataExpirationStrategyType.CHECKSUM.describe();[m
+ [m
+[32m+[m[32m    private Set<String> digestAlgorithmSet = new LinkedHashSet<>();[m
+[32m+[m
+     @Override[m
+     public boolean isIndexingEnabled()[m
+     {[m
+[36m@@ -74,4 +79,12 @@[m [mpublic class MavenRepositoryConfigurationDto[m
+     {[m
+         return new MavenRepositoryConfigurationData(this);[m
+     }[m
+[32m+[m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet() {[m
+[32m+[m[32m        return digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {[m
+[32m+[m[32m        this.digestAlgorithmSet = digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+ }[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/artifact/generator/MavenArtifactGenerator.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/artifact/generator/MavenArtifactGenerator.java[m
+[1mindex e69e9f670..8e06f2f35 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/artifact/generator/MavenArtifactGenerator.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/artifact/generator/MavenArtifactGenerator.java[m
+[36m@@ -393,6 +393,8 @@[m [mpublic class MavenArtifactGenerator implements ArtifactGenerator[m
+ [m
+             String md5 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.MD5.getAlgorithm());[m
+             String sha1 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA1.getAlgorithm());[m
+[32m+[m[32m            String sha256 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA256.getAlgorithm());[m
+[32m+[m[32m            String sha512 = mdis.getMessageDigestAsHexadecimalString(EncryptionAlgorithmsEnum.SHA512.getAlgorithm());[m
+ [m
+             Path checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.MD5.getExtension());[m
+             try (OutputStream os = Files.newOutputStream(checksumPath))[m
+[36m@@ -407,6 +409,20 @@[m [mpublic class MavenArtifactGenerator implements ArtifactGenerator[m
+                 IOUtils.write(sha1, os, StandardCharsets.UTF_8);[m
+                 os.flush();[m
+             }[m
+[32m+[m
+[32m+[m[32m            checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA256.getExtension());[m
+[32m+[m[32m            try (OutputStream os = Files.newOutputStream(checksumPath))[m
+[32m+[m[32m            {[m
+[32m+[m[32m                IOUtils.write(sha256, os, StandardCharsets.UTF_8);[m
+[32m+[m[32m                os.flush();[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            checksumPath = artifactPath.resolveSibling(artifactPath.getFileName() + EncryptionAlgorithmsEnum.SHA512.getExtension());[m
+[32m+[m[32m            try (OutputStream os = Files.newOutputStream(checksumPath))[m
+[32m+[m[32m            {[m
+[32m+[m[32m                IOUtils.write(sha512, os, StandardCharsets.UTF_8);[m
+[32m+[m[32m                os.flush();[m
+[32m+[m[32m            }[m
+         }[m
+     }[m
+ [m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/services/ArtifactManagementServiceImplTest.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/services/ArtifactManagementServiceImplTest.java[m
+[1mindex e609e9e03..df1156a7b 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/services/ArtifactManagementServiceImplTest.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/services/ArtifactManagementServiceImplTest.java[m
+[36m@@ -2,8 +2,10 @@[m [mpackage org.carlspring.strongbox.services;[m
+ [m
+ import static org.assertj.core.api.Assertions.assertThat;[m
+ [m
+[32m+[m[32mimport org.apache.commons.codec.digest.DigestUtils;[m
+[32m+[m[32mimport org.apache.commons.io.IOUtils;[m
+[32m+[m[32mimport org.carlspring.commons.io.MultipleDigestInputStream;[m
+ import org.carlspring.strongbox.artifact.ArtifactTag;[m
+[31m-import org.carlspring.strongbox.artifact.MavenArtifact;[m
+ import org.carlspring.strongbox.artifact.MavenArtifactUtils;[m
+ import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;[m
+ import org.carlspring.strongbox.domain.ArtifactEntry;[m
+[36m@@ -16,6 +18,7 @@[m [mimport org.carlspring.strongbox.storage.ArtifactStorageException;[m
+ import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;[m
+ import org.carlspring.strongbox.storage.repository.Repository;[m
+ import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;[m
+[32m+[m[32mimport org.carlspring.strongbox.testing.MavenMetadataChecksumSetup;[m
+ import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;[m
+ import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;[m
+ import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;[m
+[36m@@ -41,8 +44,8 @@[m [mimport java.util.stream.Collectors;[m
+ import java.util.stream.IntStream;[m
+ import java.util.stream.Stream;[m
+ [m
+[31m-import org.apache.commons.io.FilenameUtils;[m
+ import org.apache.maven.artifact.Artifact;[m
+[32m+[m[32mimport org.carlspring.strongbox.util.MessageDigestUtils;[m
+ import org.junit.jupiter.api.Test;[m
+ import org.junit.jupiter.api.extension.ExtendWith;[m
+ import org.junit.jupiter.api.parallel.Execution;[m
+[36m@@ -87,6 +90,8 @@[m [mpublic class ArtifactManagementServiceImplTest[m
+ [m
+     private static final String TRTS_SNAPSHOTS = "trts-snapshots";[m
+ [m
+[32m+[m[32m    private static final String TMC_SNAPSHOTS = "tmc-snapshots";[m
+[32m+[m
+     private static final String TCRW_RELEASES_WITH_LOCK = "tcrw-releases-with-lock";[m
+ [m
+     private static final String LAST_VERSION_RELEASES = "last-version-releases";[m
+[36m@@ -658,12 +663,16 @@[m [mpublic class ArtifactManagementServiceImplTest[m
+             mavenArtifactManagementService.store(repositoryPath, is);[m
+         }[m
+ [m
+[31m-        // Obtains two expected checksums[m
+[32m+[m[32m        // Obtains four expected checksums[m
+         String sha1Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha1")));[m
+[32m+[m[32m        String sha256Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha256")));[m
+[32m+[m[32m        String sha512Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha512")));[m
+         String md5Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".md5")));[m
+ [m
+         Map <String, String> expectedChecksums = new HashMap<>();[m
+         expectedChecksums.put("SHA-1", sha1Checksum);[m
+[32m+[m[32m        expectedChecksums.put("SHA-256", sha256Checksum);[m
+[32m+[m[32m        expectedChecksums.put("SHA-512", sha512Checksum);[m
+         expectedChecksums.put("MD5", md5Checksum);[m
+ [m
+         String path = RepositoryFiles.relativizePath(repositoryPath);[m
+[36m@@ -679,6 +688,50 @@[m [mpublic class ArtifactManagementServiceImplTest[m
+         assertThat(actualChecksums).isEqualTo(expectedChecksums);[m
+     }[m
+ [m
+[32m+[m[32m    @ExtendWith({RepositoryManagementTestExecutionListener.class,[m
+[32m+[m[32m            ArtifactManagementTestExecutionListener.class})[m
+[32m+[m[32m    @Test[m
+[32m+[m[32m    public void testMetadataChecksum(@MavenRepository(repositoryId = TMC_SNAPSHOTS,[m
+[32m+[m[32m            setup = MavenMetadataChecksumSetup.class) Repository repository,[m
+[32m+[m[32m                                     @MavenTestArtifact(repositoryId = TMC_SNAPSHOTS,[m
+[32m+[m[32m                                             id = "org.carlspring.strongbox:metadata-foo",[m
+[32m+[m[32m                                             versions = {"2.0"})[m
+[32m+[m[32m                                             Path artifactPath)[m
+[32m+[m[32m            throws Exception {[m
+[32m+[m[32m        final String storageId = repository.getStorage().getId();[m
+[32m+[m[32m        final String repositoryId = repository.getId();[m
+[32m+[m
+[32m+[m[32m        String metadataPathStr = "org/carlspring/strongbox/metadata-foo/maven-metadata.xml";[m
+[32m+[m[32m        RepositoryPath metadataPath = repositoryPathResolver.resolve(repository).resolve(metadataPathStr);[m
+[32m+[m[32m        artifactMetadataService.rebuildMetadata(storageId,[m
+[32m+[m[32m                repositoryId,[m
+[32m+[m[32m                "org/carlspring/strongbox/metadata-foo");[m
+[32m+[m[32m        assertThat(metadataPath.resolveSibling(metadataPath.getFileName() + ".sha1").toFile()).doesNotExist();[m
+[32m+[m[32m        assertThat(metadataPath.resolveSibling(metadataPath.getFileName() + ".md5").toFile()).doesNotExist();[m
+[32m+[m
+[32m+[m[32m        // Obtains two actual checksums[m
+[32m+[m[32m        String sha256Checksum = MessageDigestUtils.readChecksumFile([m
+[32m+[m[32m                metadataPath.resolveSibling(metadataPath.getFileName() + ".sha256").toString());[m
+[32m+[m[32m        String sha512Checksum = MessageDigestUtils.readChecksumFile([m
+[32m+[m[32m                metadataPath.resolveSibling(metadataPath.getFileName() + ".sha512").toString());[m
+[32m+[m
+[32m+[m[32m        Map<String, String> actualChecksums = new HashMap<>();[m
+[32m+[m[32m        Map<String, String> expectedChecksums = new HashMap<>();[m
+[32m+[m[32m        actualChecksums.put("SHA-256", sha256Checksum);[m
+[32m+[m[32m        actualChecksums.put("SHA-512", sha512Checksum);[m
+[32m+[m[32m        try (InputStream is = Files.newInputStream(metadataPath);[m
+[32m+[m[32m             MultipleDigestInputStream mdis = new MultipleDigestInputStream(is))[m
+[32m+[m[32m        {[m
+[32m+[m[32m            String metadataContent = IOUtils.toString(mdis, StandardCharsets.UTF_8);[m
+[32m+[m[32m            String expectedSha256 = DigestUtils.sha256Hex(metadataContent);[m
+[32m+[m[32m            String expectedSha512 = DigestUtils.sha512Hex(metadataContent);[m
+[32m+[m[32m            expectedChecksums.put("SHA-256", expectedSha256);[m
+[32m+[m[32m            expectedChecksums.put("SHA-512", expectedSha512);[m
+[32m+[m[32m        }[m
+[32m+[m[32m        assertThat(actualChecksums).isNotNull();[m
+[32m+[m[32m        assertThat(actualChecksums).isEqualTo(expectedChecksums);[m
+[32m+[m[32m    }[m
+[32m+[m
+ [m
+     private Long getResult(int i,[m
+                            CountDownLatch storedSync, [m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/testing/MavenMetadataChecksumSetup.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/testing/MavenMetadataChecksumSetup.java[m
+[1mnew file mode 100644[m
+[1mindex 000000000..48a03faf4[m
+[1m--- /dev/null[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/testing/MavenMetadataChecksumSetup.java[m
+[36m@@ -0,0 +1,28 @@[m
+[32m+[m[32mpackage org.carlspring.strongbox.testing;[m
+[32m+[m
+[32m+[m[32mimport org.carlspring.strongbox.storage.repository.RepositoryDto;[m
+[32m+[m[32mimport org.carlspring.strongbox.testing.storage.repository.RepositorySetup;[m
+[32m+[m[32mimport org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfigurationDto;[m
+[32m+[m
+[32m+[m[32mimport java.util.Collection;[m
+[32m+[m[32mimport java.util.Collections;[m
+[32m+[m[32mimport java.util.HashSet;[m
+[32m+[m[32mimport java.util.Set;[m
+[32m+[m
+[32m+[m[32m/**[m
+[32m+[m[32m * @author sainalshah[m
+[32m+[m[32m */[m
+[32m+[m[32mpublic class MavenMetadataChecksumSetup implements RepositorySetup[m
+[32m+[m[32m{[m
+[32m+[m
+[32m+[m[32m    @Override[m
+[32m+[m[32m    public void setup(RepositoryDto repository)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();[m
+[32m+[m[32m        Set<String> digestAlgorithmSet = new HashSet<>();[m
+[32m+[m[32m        digestAlgorithmSet.add("SHA-256");[m
+[32m+[m[32m        digestAlgorithmSet.add("SHA-512");[m
+[32m+[m[32m        mavenRepositoryConfiguration.setDigestAlgorithmSet(digestAlgorithmSet);[m
+[32m+[m[32m        repository.setRepositoryConfiguration(mavenRepositoryConfiguration);[m
+[32m+[m[32m    }[m
+[32m+[m[32m}[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/testing/MavenMetadataServiceHelper.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/testing/MavenMetadataServiceHelper.java[m
+[1mindex 79f698cb1..009a1b2b9 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/testing/MavenMetadataServiceHelper.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-maven-layout/strongbox-storage-maven-layout-provider/src/test/java/org/carlspring/strongbox/testing/MavenMetadataServiceHelper.java[m
+[36m@@ -1,15 +1,18 @@[m
+ package org.carlspring.strongbox.testing;[m
+ [m
+ import org.carlspring.strongbox.artifact.locator.ArtifactDirectoryLocator;[m
+[32m+[m[32mimport org.carlspring.strongbox.configuration.ConfigurationManager;[m
+ import org.carlspring.strongbox.event.artifact.ArtifactEventListenerRegistry;[m
+ import org.carlspring.strongbox.locator.handlers.GenerateMavenMetadataOperation;[m
+ import org.carlspring.strongbox.providers.io.RepositoryPath;[m
+ import org.carlspring.strongbox.providers.io.RepositoryPathResolver;[m
+ import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;[m
+ import org.carlspring.strongbox.storage.repository.Repository;[m
+[32m+[m[32mimport org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;[m
+ [m
+ import javax.inject.Inject;[m
+ import java.io.IOException;[m
+[32m+[m[32mimport java.util.Set;[m
+ [m
+ /**[m
+  * @author Pablo Tirado[m
+[36m@@ -26,6 +29,9 @@[m [mpublic class MavenMetadataServiceHelper[m
+     @Inject[m
+     protected ArtifactEventListenerRegistry artifactEventListenerRegistry;[m
+ [m
+[32m+[m[32m    @Inject[m
+[32m+[m[32m    private ConfigurationManager configurationManager;[m
+[32m+[m
+     public void generateMavenMetadata(Repository repository)[m
+             throws IOException[m
+     {[m
+[1mdiff --git a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-nuget-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/NugetLayoutProvider.java b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-nuget-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/NugetLayoutProvider.java[m
+[1mindex 27cb24d14..4553fd919 100644[m
+[1m--- a/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-nuget-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/NugetLayoutProvider.java[m
+[1m+++ b/strongbox-storage/strongbox-storage-layout-providers/strongbox-storage-nuget-layout-provider/src/main/java/org/carlspring/strongbox/providers/layout/NugetLayoutProvider.java[m
+[36m@@ -87,7 +87,7 @@[m [mpublic class NugetLayoutProvider[m
+     }[m
+ [m
+     @Override[m
+[31m-    protected Set<String> getDigestAlgorithmSet()[m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet()[m
+     {[m
+         return Stream.of(MessageDigestAlgorithms.SHA_512)[m
+                      .collect(Collectors.toSet());[m
+[1mdiff --git a/strongbox-web-core/src/main/java/org/carlspring/strongbox/converters/configuration/MavenRepositoryConfigurationConverter.java b/strongbox-web-core/src/main/java/org/carlspring/strongbox/converters/configuration/MavenRepositoryConfigurationConverter.java[m
+[1mindex f0467fde4..f01c35427 100644[m
+[1m--- a/strongbox-web-core/src/main/java/org/carlspring/strongbox/converters/configuration/MavenRepositoryConfigurationConverter.java[m
+[1m+++ b/strongbox-web-core/src/main/java/org/carlspring/strongbox/converters/configuration/MavenRepositoryConfigurationConverter.java[m
+[36m@@ -19,6 +19,7 @@[m [mpublic enum MavenRepositoryConfigurationConverter[m
+         configuration.setIndexingEnabled(mavenRepositoryConfigurationForm.isIndexingEnabled());[m
+         configuration.setCronExpression(mavenRepositoryConfigurationForm.getCronExpression());[m
+         configuration.setMetadataExpirationStrategy(mavenRepositoryConfigurationForm.getMetadataExpirationStrategy());[m
+[32m+[m[32m        configuration.setDigestAlgorithmSet(mavenRepositoryConfigurationForm.getDigestAlgorithmSet());[m
+ [m
+         return configuration;[m
+     }[m
+[1mdiff --git a/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/BrowseControllerTest.java b/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/BrowseControllerTest.java[m
+[1mindex b851a4ee2..0bf3c2285 100644[m
+[1m--- a/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/BrowseControllerTest.java[m
+[1m+++ b/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/BrowseControllerTest.java[m
+[36m@@ -181,7 +181,7 @@[m [mpublic class BrowseControllerTest[m
+                                            .prettyPeek()[m
+                                            .as(DirectoryListing.class);[m
+ [m
+[31m-        assertThat(returned.getFiles().size() == 6[m
+[32m+[m[32m        assertThat(returned.getFiles().size() == 10[m
+                    && returned.getFiles().get(0).getName().equals("test-browsing-1.1.jar"))[m
+                 .as("Invalid files returned").isTrue();[m
+ [m
+[1mdiff --git a/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/layout/maven/MavenMetadataManagementControllerTest.java b/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/layout/maven/MavenMetadataManagementControllerTest.java[m
+[1mindex d8c23034c..8ca75dcd7 100644[m
+[1m--- a/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/layout/maven/MavenMetadataManagementControllerTest.java[m
+[1m+++ b/strongbox-web-core/src/test/java/org/carlspring/strongbox/controllers/layout/maven/MavenMetadataManagementControllerTest.java[m
+[36m@@ -20,7 +20,13 @@[m [mimport java.lang.annotation.Retention;[m
+ import java.lang.annotation.RetentionPolicy;[m
+ import java.lang.annotation.Target;[m
+ import java.nio.file.Path;[m
+[32m+[m[32mimport java.util.HashSet;[m
+ import java.util.List;[m
+[32m+[m[32mimport java.util.Set;[m
+[32m+[m[32mimport java.util.stream.Collectors;[m
+[32m+[m
+[32m+[m[32mimport static java.util.stream.Collectors.collectingAndThen;[m
+[32m+[m[32mimport static java.util.stream.Collectors.toCollection;[m
+ [m
+ import org.apache.maven.artifact.repository.metadata.Metadata;[m
+ import org.apache.maven.artifact.repository.metadata.SnapshotVersion;[m
+[36m@@ -171,7 +177,7 @@[m [mpublic class MavenMetadataManagementControllerTest[m
+         List<SnapshotVersion> metadata2SnapshotVersions = metadata2SnapshotBefore.getVersioning().getSnapshotVersions();[m
+         // This is minus three because in this case there are no classifiers, there's just a pom and a jar,[m
+         // thus two and therefore getting the element before them would be three:[m
+[31m-        String previousLatestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 3).getVersion();[m
+[32m+[m[32m        String previousLatestTimestamp = getPreviousSnapshotVersion(metadata2SnapshotVersions).getVersion();[m
+         String latestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 1).getVersion();[m
+ [m
+         logger.debug("[testRebuildSnapshotMetadataWithBasePath] latestTimestamp {}", latestTimestamp);[m
+[36m@@ -261,6 +267,14 @@[m [mpublic class MavenMetadataManagementControllerTest[m
+         assertThat(metadataAfter.getVersioning().getLatest()).as("Incorrect metadata!").isEqualTo("3.1");[m
+     }[m
+ [m
+[32m+[m[32m    private SnapshotVersion getPreviousSnapshotVersion(List<SnapshotVersion> snapshotVersion) {[m
+[32m+[m[32m        Set<String> seenSet = new HashSet<>();[m
+[32m+[m[32m        List<SnapshotVersion> distinctSnapshotVersions = snapshotVersion.parallelStream()[m
+[32m+[m[32m                .filter(s -> seenSet.add(s.getVersion()))[m
+[32m+[m[32m                .collect(Collectors.toList());[m
+[32m+[m[32m        return distinctSnapshotVersions.get(distinctSnapshotVersions.size() - 2);[m
+[32m+[m[32m    }[m
+[32m+[m
+     @Target({ ElementType.PARAMETER, ElementType.ANNOTATION_TYPE })[m
+     @Retention(RetentionPolicy.RUNTIME)[m
+     @Documented[m
+[1mdiff --git a/strongbox-web-forms/src/main/java/org/carlspring/strongbox/forms/configuration/MavenRepositoryConfigurationForm.java b/strongbox-web-forms/src/main/java/org/carlspring/strongbox/forms/configuration/MavenRepositoryConfigurationForm.java[m
+[1mindex 808469305..1182250f0 100644[m
+[1m--- a/strongbox-web-forms/src/main/java/org/carlspring/strongbox/forms/configuration/MavenRepositoryConfigurationForm.java[m
+[1m+++ b/strongbox-web-forms/src/main/java/org/carlspring/strongbox/forms/configuration/MavenRepositoryConfigurationForm.java[m
+[36m@@ -6,6 +6,8 @@[m [mimport org.carlspring.strongbox.validation.configuration.DescribableEnumValue;[m
+ [m
+ import com.fasterxml.jackson.annotation.JsonTypeName;[m
+ [m
+[32m+[m[32mimport java.util.Set;[m
+[32m+[m
+ /**[m
+  * @author Przemyslaw Fusik[m
+  */[m
+[36m@@ -24,6 +26,8 @@[m [mpublic class MavenRepositoryConfigurationForm[m
+                           message = "The metadataExpirationStrategy can be either \"checksum\", or \"refresh\"")[m
+     private String metadataExpirationStrategy;[m
+ [m
+[32m+[m[32m    private Set<String> digestAlgorithmSet;[m
+[32m+[m
+     public boolean isIndexingEnabled()[m
+     {[m
+         return indexingEnabled;[m
+[36m@@ -61,6 +65,14 @@[m [mpublic class MavenRepositoryConfigurationForm[m
+         this.metadataExpirationStrategy = metadataExpirationStrategy;[m
+     }[m
+ [m
+[32m+[m[32m    public Set<String> getDigestAlgorithmSet() {[m
+[32m+[m[32m        return digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {[m
+[32m+[m[32m        this.digestAlgorithmSet = digestAlgorithmSet;[m
+[32m+[m[32m    }[m
+[32m+[m
+     @Override[m
+     public <T> T accept(final CustomRepositoryConfigurationFormVisitor<T> visitor)[m
+     {[m

@@ -6,9 +6,11 @@ import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryCon
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * @author sbespalov
+ * @author sainalshah
  */
 public class MavenMetadataChecksumSetup implements RepositorySetup
 {
@@ -17,8 +19,10 @@ public class MavenMetadataChecksumSetup implements RepositorySetup
     public void setup(RepositoryDto repository)
     {
         MavenRepositoryConfigurationDto mavenRepositoryConfiguration = new MavenRepositoryConfigurationDto();
-        mavenRepositoryConfiguration.setDigestAlgorithmSet(Collections.singleton("SHA-1"));
+        Set<String> digestAlgorithmSet = new HashSet<>();
+        digestAlgorithmSet.add("SHA-256");
+        digestAlgorithmSet.add("SHA-512");
+        mavenRepositoryConfiguration.setDigestAlgorithmSet(digestAlgorithmSet);
         repository.setRepositoryConfiguration(mavenRepositoryConfiguration);
     }
-    
 }

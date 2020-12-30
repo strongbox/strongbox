@@ -8,6 +8,7 @@ import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator;
 import org.carlspring.strongbox.storage.indexing.RepositoryIndexCreator.RepositoryIndexCreatorQualifier;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryTypeEnum;
+import org.carlspring.strongbox.yaml.configuration.repository.MavenRepositoryConfiguration;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -39,17 +40,28 @@ public class MavenFileSystem
     @RepositoryIndexCreatorQualifier(RepositoryTypeEnum.GROUP)
     private RepositoryIndexCreator groupRepositoryIndexCreator;
 
+    private final Repository repository;
+
     public MavenFileSystem(PropertiesBooter propertiesBooter,
                            Repository repository,
                            FileSystem storageFileSystem,
                            LayoutFileSystemProvider provider)
     {
         super(propertiesBooter, repository, storageFileSystem, provider);
+        this.repository = repository;
     }
 
     @Override
     public Set<String> getDigestAlgorithmSet()
     {
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository
+                .getRepositoryConfiguration();
+        if (mavenRepositoryConfiguration != null) {
+            Set<String> repoDigestAlgorithms = mavenRepositoryConfiguration.getDigestAlgorithmSet();
+            if (repoDigestAlgorithms != null && repoDigestAlgorithms.size() > 0) {
+                return repoDigestAlgorithms;
+            }
+        }
         return layoutProvider.getDigestAlgorithmSet();
     }
 

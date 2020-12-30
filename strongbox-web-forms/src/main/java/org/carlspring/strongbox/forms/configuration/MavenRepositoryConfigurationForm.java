@@ -6,6 +6,8 @@ import org.carlspring.strongbox.validation.configuration.DescribableEnumValue;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.Set;
+
 /**
  * @author Przemyslaw Fusik
  */
@@ -23,6 +25,8 @@ public class MavenRepositoryConfigurationForm
     @DescribableEnumValue(type = MetadataExpirationStrategyType.class,
                           message = "The metadataExpirationStrategy can be either \"checksum\", or \"refresh\"")
     private String metadataExpirationStrategy;
+
+    private Set<String> digestAlgorithmSet;
 
     public boolean isIndexingEnabled()
     {
@@ -59,6 +63,14 @@ public class MavenRepositoryConfigurationForm
     public void setMetadataExpirationStrategy(String metadataExpirationStrategy)
     {
         this.metadataExpirationStrategy = metadataExpirationStrategy;
+    }
+
+    public Set<String> getDigestAlgorithmSet() {
+        return digestAlgorithmSet;
+    }
+
+    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {
+        this.digestAlgorithmSet = digestAlgorithmSet;
     }
 
     @Override

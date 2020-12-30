@@ -72,9 +72,6 @@ configuration:
             type: Maven 2
             indexingEnabled: true
             cronExpression: "0 0 2 * * ?"
-            digestAlgorithmSet:
-              - SHA-256
-              - SHA-512
     storage-common-proxies:
       id: storage-common-proxies
       repositories:

@@ -122,9 +122,7 @@ public class ArtifactMetadataServiceImpl
             repositoryBasePath = repositoryBasePath.resolve(basePath);
         }
 
-        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager,
-                artifactEventListenerRegistry,
-                getDigestAlgorithms(repository));
+        GenerateMavenMetadataOperation operation = new GenerateMavenMetadataOperation(mavenMetadataManager, artifactEventListenerRegistry);
         operation.setBasePath(repositoryBasePath);
 
         ArtifactDirectoryLocator locator = new ArtifactDirectoryLocator();
@@ -375,17 +373,6 @@ public class ArtifactMetadataServiceImpl
     public Configuration getConfiguration()
     {
         return configurationManager.getConfiguration();
-    }
-
-    private String[] getDigestAlgorithms(Repository repository) {
-        MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
-        if (mavenRepositoryConfiguration != null) {
-            Set<String> repoDigestAlgorithms = mavenRepositoryConfiguration.getDigestAlgorithmSet();
-            if (repoDigestAlgorithms != null && repoDigestAlgorithms.size() > 0) {
-                return repoDigestAlgorithms.toArray(new String[0]);
-            }
-        }
-        return configurationManager.getConfiguration().getDigestAlgorithmSet().toArray(new String[0]);
     }
 
 }
