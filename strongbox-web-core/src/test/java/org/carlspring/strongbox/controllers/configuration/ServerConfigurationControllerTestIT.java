@@ -11,6 +11,7 @@ import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -191,6 +192,7 @@ public class ServerConfigurationControllerTestIT
         ServerSettingsForm serverSettingsForm = new ServerSettingsForm(baseUrl,
                                                                        port,
                                                                        "Strongbox-1234",
+                                                                       Collections.singleton("SHA-1"),
                                                                        corsConfigurationForm,
                                                                        smtpConfigurationForm,
                                                                        proxyConfigurationForm);
@@ -217,6 +219,7 @@ public class ServerConfigurationControllerTestIT
                .statusCode(HttpStatus.OK.value()) // check http status code
                .body("baseUrl", equalTo(baseUrl))
                .body("port", equalTo(port))
+               .body("digestAlgorithmSet", hasSize(equalTo(1)))
                .body("corsConfigurationForm.allowedOrigins", hasSize(equalTo(2)))
                .body("smtpConfigurationForm.host", equalTo(smtpConfigurationForm.getHost()))
                .body("smtpConfigurationForm.port", equalTo(smtpConfigurationForm.getPort()))

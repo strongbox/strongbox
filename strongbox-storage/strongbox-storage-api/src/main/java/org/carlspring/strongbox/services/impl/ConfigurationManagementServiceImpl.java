@@ -161,6 +161,11 @@ public class ConfigurationManagementServiceImpl
     }
 
     @Override
+    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) throws IOException {
+        modifyInLock(configuration -> configuration.setDigestAlgorithmSet(digestAlgorithmSet));
+    }
+
+    @Override
     public void setProxyConfiguration(String storageId,
                                       String repositoryId,
                                       MutableProxyConfiguration proxyConfiguration) throws IOException

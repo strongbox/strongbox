@@ -10,6 +10,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author Pablo Tirado
  */
@@ -31,6 +34,9 @@ public class ServerSettingsForm
     @Max(value = 65535, message = "The port number must be an integer between 1 and 65535.")
     @JsonProperty
     private Integer port;
+
+    @JsonProperty
+    private Set<String> digestAlgorithmSet = new HashSet<>();
 
     @Valid
     @JsonProperty
@@ -60,6 +66,7 @@ public class ServerSettingsForm
     public ServerSettingsForm(String baseUrl,
                               Integer port,
                               String instanceName,
+                              Set<String> digestAlgorithmSet,
                               CorsConfigurationForm corsConfigurationForm,
                               SmtpConfigurationForm smtpConfigurationForm,
                               ProxyConfigurationForm proxyConfigurationForm)
@@ -67,6 +74,7 @@ public class ServerSettingsForm
         this.baseUrl = baseUrl;
         this.port = port;
         this.instanceName = instanceName;
+        this.digestAlgorithmSet = digestAlgorithmSet;
         this.corsConfigurationForm = corsConfigurationForm;
         this.smtpConfigurationForm = smtpConfigurationForm;
         this.proxyConfigurationForm = proxyConfigurationForm;
@@ -90,6 +98,14 @@ public class ServerSettingsForm
     public void setPort(Integer port)
     {
         this.port = port;
+    }
+
+    public Set<String> getDigestAlgorithmSet() {
+        return digestAlgorithmSet;
+    }
+
+    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {
+        this.digestAlgorithmSet = digestAlgorithmSet;
     }
 
     public String getInstanceName()

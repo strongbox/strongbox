@@ -12,6 +12,7 @@ import org.carlspring.strongbox.storage.routing.MutableRoutingRules;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -31,6 +32,8 @@ public interface ConfigurationManagementService
     void setBaseUrl(String baseUrl) throws IOException;
 
     void setPort(int port) throws IOException;
+
+    void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) throws IOException;
 
     void setProxyConfiguration(String storageId,
                                String repositoryId,
