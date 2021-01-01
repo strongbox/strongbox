@@ -1,23 +1,36 @@
 package org.carlspring.strongbox.cron.jobs;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
+import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.MavenMetadataChecksumSetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -50,7 +63,8 @@ public class RebuildMavenMetadataCronJobTestIT
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildArtifactsMetadata(@MavenRepository(repositoryId = RMMCJTIT_SNAPSHOTS,
-                                                              policy = RepositoryPolicyEnum.SNAPSHOT)
+                                                              policy = RepositoryPolicyEnum.SNAPSHOT,
+                                                              setup=MavenMetadataChecksumSetup.class)
                                              Repository repository,
                                              @MavenTestArtifact(repositoryId = RMMCJTIT_SNAPSHOTS,
                                                                 id = "org.carlspring.strongbox:strongbox-metadata-one",
@@ -79,6 +93,8 @@ public class RebuildMavenMetadataCronJobTestIT
             {
                 try
                 {
+                    String metadataPathStr = "org/carlspring/strongbox/strongbox-metadata-one/maven-metadata.xml";
+                    RepositoryPath metadataPath = repositoryPathResolver.resolve(repository).resolve(metadataPathStr);
                     Metadata metadata = artifactMetadataService.getMetadata(storageId,
                                                                             repositoryId,
                                                                             "org/carlspring/strongbox/strongbox-metadata-one");
@@ -94,6 +110,7 @@ public class RebuildMavenMetadataCronJobTestIT
                             .as("No versioning information could be found in the metadata!").isNotNull();
                     assertThat(versioning.getVersions())
                             .as("Incorrect number of versions stored in metadata!").hasSize(1);
+                    verifyMetadataChecksums(metadataPath);
                 }
                 catch (Exception e)
                 {
@@ -116,7 +133,8 @@ public class RebuildMavenMetadataCronJobTestIT
                   ArtifactManagementTestExecutionListener.class })
     @Test
     public void testRebuildMetadataInRepository(@MavenRepository(repositoryId = TRMIR_SNAPSHOTS,
-                                                                 policy = RepositoryPolicyEnum.SNAPSHOT)
+                                                                 policy = RepositoryPolicyEnum.SNAPSHOT,
+                                                                 setup = MavenMetadataChecksumSetup.class)
                                                 Repository repository,
                                                 @MavenTestArtifact(repositoryId = TRMIR_SNAPSHOTS,
                                                                    id = "org.carlspring.strongbox:strongbox-metadata-one",
@@ -165,6 +183,10 @@ public class RebuildMavenMetadataCronJobTestIT
                     Metadata metadata2 = artifactMetadataService.getMetadata(storageId,
                                                                              repositoryId,
                                                                              "org/carlspring/strongbox/strongbox-metadata-second");
+                    String metadataPathStr1 = "org/carlspring/strongbox/strongbox-metadata-one/maven-metadata.xml";
+                    String metadataPathStr2 = "org/carlspring/strongbox/strongbox-metadata-second/maven-metadata.xml";
+                    RepositoryPath metadataPath1 = repositoryPathResolver.resolve(repository).resolve(metadataPathStr1);
+                    RepositoryPath metadataPath2 = repositoryPathResolver.resolve(repository).resolve(metadataPathStr2);
 
                     assertThat(metadata1).isNotNull();
                     assertThat(metadata2).isNotNull();
@@ -185,6 +207,7 @@ public class RebuildMavenMetadataCronJobTestIT
 
                     assertThat(versioning2.getVersions()).as("No versioning information could be found in the metadata!").isNotNull();
                     assertThat(versioning2.getVersions()).as("Incorrect number of versions stored in metadata!").hasSize(1);
+                    verifyMetadataChecksums(metadataPath1, metadataPath2);
                 }
                 catch (Exception e)
                 {
@@ -200,5 +223,32 @@ public class RebuildMavenMetadataCronJobTestIT
                          repositoryId);
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
+    }
+
+    private void verifyMetadataChecksums(RepositoryPath... paths) throws IOException, NoSuchAlgorithmException {
+        for (RepositoryPath path: paths) {
+            assertThat(path.resolveSibling(path.getFileName() + ".sha1").toFile()).doesNotExist();
+            assertThat(path.resolveSibling(path.getFileName() + ".md5").toFile()).doesNotExist();
+            String sha256Checksum = MessageDigestUtils.readChecksumFile(
+                    path.resolveSibling(path.getFileName() + ".sha256").toString());
+            String sha512Checksum = MessageDigestUtils.readChecksumFile(
+                    path.resolveSibling(path.getFileName() + ".sha512").toString());
+
+            Map<String, String> actualChecksums = new HashMap<>();
+            Map<String, String> expectedChecksums = new HashMap<>();
+            actualChecksums.put("SHA-256", sha256Checksum);
+            actualChecksums.put("SHA-512", sha512Checksum);
+            try (InputStream is = Files.newInputStream(path);
+                 MultipleDigestInputStream mdis = new MultipleDigestInputStream(is))
+            {
+                String metadataContent = IOUtils.toString(mdis, StandardCharsets.UTF_8);
+                String expectedSha256 = DigestUtils.sha256Hex(metadataContent);
+                String expectedSha512 = DigestUtils.sha512Hex(metadataContent);
+                expectedChecksums.put("SHA-256", expectedSha256);
+                expectedChecksums.put("SHA-512", expectedSha512);
+            }
+            assertThat(actualChecksums).isNotNull();
+            assertThat(actualChecksums).isEqualTo(expectedChecksums);
+        }
     }
 }
