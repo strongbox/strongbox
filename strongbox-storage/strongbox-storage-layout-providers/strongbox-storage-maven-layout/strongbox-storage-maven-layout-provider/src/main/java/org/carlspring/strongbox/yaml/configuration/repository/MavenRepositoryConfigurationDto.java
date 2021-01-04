@@ -80,11 +80,13 @@ public class MavenRepositoryConfigurationDto
         return new MavenRepositoryConfigurationData(this);
     }
 
-    public Set<String> getDigestAlgorithmSet() {
+    public Set<String> getDigestAlgorithmSet()
+    {
         return digestAlgorithmSet;
     }
 
-    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {
+    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet)
+    {
         this.digestAlgorithmSet = digestAlgorithmSet;
     }
 }

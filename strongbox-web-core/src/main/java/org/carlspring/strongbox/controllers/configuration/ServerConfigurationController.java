@@ -249,7 +249,8 @@ public class ServerConfigurationController
         configurationManagementService.setPort(serverSettingsForm.getPort());
         configurationManagementService.setInstanceName(serverSettingsForm.getInstanceName());
 
-        if (serverSettingsForm.getDigestAlgorithmSet() != null) {
+        if (serverSettingsForm.getDigestAlgorithmSet() != null)
+        {
             configurationManagementService.setDigestAlgorithmSet(serverSettingsForm.getDigestAlgorithmSet());
         }
 

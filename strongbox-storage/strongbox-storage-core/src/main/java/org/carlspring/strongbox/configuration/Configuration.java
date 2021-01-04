@@ -139,7 +139,8 @@ public class Configuration
         return port;
     }
 
-    public Set<String> getDigestAlgorithmSet() {
+    public Set<String> getDigestAlgorithmSet()
+    {
         return digestAlgorithmSet;
     }
 

@@ -69,8 +69,8 @@ public class MavenRepositoryConfigurationData
     }
 
     @Override
-    public Set<String> getDigestAlgorithmSet() {
+    public Set<String> getDigestAlgorithmSet()
+    {
         return digestAlgorithmSet;
     }
 }
-

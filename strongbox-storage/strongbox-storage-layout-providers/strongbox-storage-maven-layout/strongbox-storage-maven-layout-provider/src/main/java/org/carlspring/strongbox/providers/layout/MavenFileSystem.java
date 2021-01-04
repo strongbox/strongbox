@@ -54,11 +54,12 @@ public class MavenFileSystem
     @Override
     public Set<String> getDigestAlgorithmSet()
     {
-        MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository
-                .getRepositoryConfiguration();
-        if (mavenRepositoryConfiguration != null) {
+        MavenRepositoryConfiguration mavenRepositoryConfiguration = (MavenRepositoryConfiguration) repository.getRepositoryConfiguration();
+        if (mavenRepositoryConfiguration != null)
+        {
             Set<String> repoDigestAlgorithms = mavenRepositoryConfiguration.getDigestAlgorithmSet();
-            if (repoDigestAlgorithms != null && repoDigestAlgorithms.size() > 0) {
+            if (repoDigestAlgorithms != null && repoDigestAlgorithms.size() > 0)
+            {
                 return repoDigestAlgorithms;
             }
         }

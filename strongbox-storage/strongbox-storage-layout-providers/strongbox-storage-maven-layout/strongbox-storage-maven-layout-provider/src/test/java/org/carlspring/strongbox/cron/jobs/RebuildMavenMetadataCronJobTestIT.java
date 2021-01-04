@@ -64,7 +64,7 @@ public class RebuildMavenMetadataCronJobTestIT
     @Test
     public void testRebuildArtifactsMetadata(@MavenRepository(repositoryId = RMMCJTIT_SNAPSHOTS,
                                                               policy = RepositoryPolicyEnum.SNAPSHOT,
-                                                              setup=MavenMetadataChecksumSetup.class)
+                                                              setup = MavenMetadataChecksumSetup.class)
                                              Repository repository,
                                              @MavenTestArtifact(repositoryId = RMMCJTIT_SNAPSHOTS,
                                                                 id = "org.carlspring.strongbox:strongbox-metadata-one",
@@ -225,8 +225,11 @@ public class RebuildMavenMetadataCronJobTestIT
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
     }
 
-    private void verifyMetadataChecksums(RepositoryPath... paths) throws IOException, NoSuchAlgorithmException {
-        for (RepositoryPath path: paths) {
+    private void verifyMetadataChecksums(RepositoryPath... paths)
+            throws IOException, NoSuchAlgorithmException
+    {
+        for (RepositoryPath path : paths)
+        {
             assertThat(path.resolveSibling(path.getFileName() + ".sha1").toFile()).doesNotExist();
             assertThat(path.resolveSibling(path.getFileName() + ".md5").toFile()).doesNotExist();
             String sha256Checksum = MessageDigestUtils.readChecksumFile(

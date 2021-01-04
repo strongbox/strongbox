@@ -175,8 +175,6 @@ public class MavenMetadataManagementControllerTest
         is = client.getResource(metadataPath2Snapshot);
         Metadata metadata2SnapshotBefore = artifactMetadataService.getMetadata(is);
         List<SnapshotVersion> metadata2SnapshotVersions = metadata2SnapshotBefore.getVersioning().getSnapshotVersions();
-        // This is minus three because in this case there are no classifiers, there's just a pom and a jar,
-        // thus two and therefore getting the element before them would be three:
         String previousLatestTimestamp = getPreviousSnapshotVersion(metadata2SnapshotVersions).getVersion();
         String latestTimestamp = metadata2SnapshotVersions.get(metadata2SnapshotVersions.size() - 1).getVersion();
 
@@ -267,11 +265,12 @@ public class MavenMetadataManagementControllerTest
         assertThat(metadataAfter.getVersioning().getLatest()).as("Incorrect metadata!").isEqualTo("3.1");
     }
 
-    private SnapshotVersion getPreviousSnapshotVersion(List<SnapshotVersion> snapshotVersion) {
+    private SnapshotVersion getPreviousSnapshotVersion(List<SnapshotVersion> snapshotVersion)
+    {
         Set<String> seenSet = new HashSet<>();
         List<SnapshotVersion> distinctSnapshotVersions = snapshotVersion.parallelStream()
-                .filter(s -> seenSet.add(s.getVersion()))
-                .collect(Collectors.toList());
+                                                                        .filter(s -> seenSet.add(s.getVersion()))
+                                                                        .collect(Collectors.toList());
         return distinctSnapshotVersions.get(distinctSnapshotVersions.size() - 2);
     }
 

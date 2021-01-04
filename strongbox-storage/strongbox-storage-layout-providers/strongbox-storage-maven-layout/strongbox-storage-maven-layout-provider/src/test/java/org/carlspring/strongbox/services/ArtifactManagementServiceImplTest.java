@@ -695,17 +695,18 @@ public class ArtifactManagementServiceImplTest
             setup = MavenMetadataChecksumSetup.class) Repository repository,
                                      @MavenTestArtifact(repositoryId = TMC_SNAPSHOTS,
                                              id = "org.carlspring.strongbox:metadata-foo",
-                                             versions = {"2.0"})
+                                             versions = { "2.0" })
                                              Path artifactPath)
-            throws Exception {
+            throws Exception
+    {
         final String storageId = repository.getStorage().getId();
         final String repositoryId = repository.getId();
 
         String metadataPathStr = "org/carlspring/strongbox/metadata-foo/maven-metadata.xml";
         RepositoryPath metadataPath = repositoryPathResolver.resolve(repository).resolve(metadataPathStr);
         artifactMetadataService.rebuildMetadata(storageId,
-                repositoryId,
-                "org/carlspring/strongbox/metadata-foo");
+                                                repositoryId,
+                                                "org/carlspring/strongbox/metadata-foo");
         assertThat(metadataPath.resolveSibling(metadataPath.getFileName() + ".sha1").toFile()).doesNotExist();
         assertThat(metadataPath.resolveSibling(metadataPath.getFileName() + ".md5").toFile()).doesNotExist();
 

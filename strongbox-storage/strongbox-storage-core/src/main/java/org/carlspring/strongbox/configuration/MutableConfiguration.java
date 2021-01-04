@@ -117,11 +117,13 @@ public class MutableConfiguration
         this.port = port;
     }
 
-    public Set<String> getDigestAlgorithmSet() {
+    public Set<String> getDigestAlgorithmSet()
+    {
         return digestAlgorithmSet;
     }
-
-    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) {
+    
+    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet)
+    {
         this.digestAlgorithmSet = digestAlgorithmSet;
     }
 
