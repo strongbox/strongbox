@@ -6,6 +6,7 @@ import org.carlspring.strongbox.data.domain.DomainObject;
 
 public interface ArtifactGroup extends DomainObject
 {
+    
     String getName();
 
     Set<Artifact> getArtifacts();

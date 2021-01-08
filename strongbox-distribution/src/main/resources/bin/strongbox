@@ -60,22 +60,23 @@ JAVA_OPTS="${JAVA_OPTS} -Dstrongbox.authentication.providers.yaml=${STRONGBOX_HO
 
 JDK_VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}')
 if [[ $JDK_VERSION == 11* ]]; then
-   JAVA_OPTS="${JAVA_OPTS} -Dsun.misc.URLClassPath.disableJarChecking=true -Djdk.attach.allowAttachSelf=true
-                                --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
-                                --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
-                                --add-exports java.base/sun.nio.ch=ALL-UNNAMED
-                                --add-exports java.management.rmi/com.sun.jmx.remote.internal.rmi=ALL-UNNAMED
-                                --add-exports java.rmi/sun.rmi.registry=ALL-UNNAMED
-                                --add-exports java.rmi/sun.rmi.server=ALL-UNNAMED
-                                --add-exports java.sql/java.sql=ALL-UNNAMED
-                                --add-opens java.base/java.lang.module=ALL-UNNAMED
-                                --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
-                                --add-opens java.base/jdk.internal.ref=ALL-UNNAMED
-                                --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
-                                --add-opens java.base/jdk.internal.math=ALL-UNNAMED
-                                --add-opens java.base/jdk.internal.module=ALL-UNNAMED
-                                --add-opens java.base/jdk.internal.util.jar=ALL-UNNAMED
-                                --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED"
+   JAVA_OPTS="${JAVA_OPTS} -Dsun.misc.URLClassPath.disableJarChecking=true
+                           -Djdk.attach.allowAttachSelf=true
+                           --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
+                           --add-exports java.base/jdk.internal.ref=ALL-UNNAMED
+                           --add-exports java.base/sun.nio.ch=ALL-UNNAMED
+                           --add-exports java.management.rmi/com.sun.jmx.remote.internal.rmi=ALL-UNNAMED
+                           --add-exports java.rmi/sun.rmi.registry=ALL-UNNAMED
+                           --add-exports java.rmi/sun.rmi.server=ALL-UNNAMED
+                           --add-exports java.sql/java.sql=ALL-UNNAMED
+                           --add-opens java.base/java.lang.module=ALL-UNNAMED
+                           --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+                           --add-opens java.base/jdk.internal.ref=ALL-UNNAMED
+                           --add-opens java.base/jdk.internal.reflect=ALL-UNNAMED
+                           --add-opens java.base/jdk.internal.math=ALL-UNNAMED
+                           --add-opens java.base/jdk.internal.module=ALL-UNNAMED
+                           --add-opens java.base/jdk.internal.util.jar=ALL-UNNAMED
+                           --add-opens jdk.management/com.sun.management.internal=ALL-UNNAMED"
 fi
 
 (cd $BASEDIR && exec java -jar ${JAVA_OPTS} ./lib/strongbox-web-core-1.0-PR-62-SNAPSHOT-spring-boot.jar > $BASEDIR/logs/startup.log 2>&1 & echo "PID: $!")

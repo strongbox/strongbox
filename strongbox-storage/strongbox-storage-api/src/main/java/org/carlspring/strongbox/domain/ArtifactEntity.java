@@ -105,9 +105,11 @@ public class ArtifactEntity
     @Override
     public ArtifactCoordinates getArtifactCoordinates()
     {
-        if (artifactCoordinates instanceof ArtifactCoordinates) {
+        if (artifactCoordinates instanceof ArtifactCoordinates)
+        {
             return (ArtifactCoordinates) artifactCoordinates;
         }
+        
         return (ArtifactCoordinates) artifactCoordinates.getHierarchyChild();
     }
 
@@ -131,7 +133,9 @@ public class ArtifactEntity
     @Override
     public Map<String, String> getChecksums()
     {
-        return checksums.stream().filter(e -> !e.trim().isEmpty()).collect(Collectors.toMap(e -> e.substring(1, e.indexOf("}")), e -> e.substring(e.indexOf("}") + 1)));
+        return checksums.stream().filter(e -> !e.trim().isEmpty())
+                                 .collect(Collectors.toMap(e -> e.substring(1, e.indexOf("}")),
+                                                           e -> e.substring(e.indexOf("}") + 1)));
     }
 
     public void setChecksums(Map<String, String> checksums)

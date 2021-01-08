@@ -35,7 +35,7 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
     Logger logger = LoggerFactory.getLogger(EntityTraversalDsl.class);
 
     /**
-     * Defines pseudo `null` for properties with no value, needed because Gremlin do not support `null` values.
+     * Defines pseudo `null` for properties with no value, needed because Gremlin does not support `null` values.
      */
     Object NULL = new Object()
     {

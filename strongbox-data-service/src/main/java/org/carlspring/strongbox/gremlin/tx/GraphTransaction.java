@@ -26,10 +26,13 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
  */
 public class GraphTransaction implements Graph
 {
+
     private static final Class<SessionHolder> sessionHolderClass = SessionHolder.class;
+    
     private static final Class<GremlinTransaction> gremlinTransactionClass = GremlinTransaction.class;
 
     private final SessionFactory sessionFactory;
+
 
     public GraphTransaction(SessionFactory sessionFactory)
     {

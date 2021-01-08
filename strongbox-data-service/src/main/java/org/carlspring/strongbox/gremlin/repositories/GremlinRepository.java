@@ -32,9 +32,11 @@ public abstract class GremlinRepository<S extends Element, E extends DomainObjec
     @Inject
     @TransactionContext
     private Graph graph;
+
     @Inject
     protected Session session;
-
+    
+    
     protected EntityTraversalSource g()
     {
         return graph.traversal(EntityTraversalSource.class);
