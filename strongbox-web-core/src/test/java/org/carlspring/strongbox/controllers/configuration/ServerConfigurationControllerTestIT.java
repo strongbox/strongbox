@@ -11,6 +11,7 @@ import org.carlspring.strongbox.forms.configuration.SmtpConfigurationForm;
 import org.carlspring.strongbox.rest.common.RestAssuredBaseTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

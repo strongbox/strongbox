@@ -19,6 +19,7 @@ public enum MavenRepositoryConfigurationConverter
         configuration.setIndexingEnabled(mavenRepositoryConfigurationForm.isIndexingEnabled());
         configuration.setCronExpression(mavenRepositoryConfigurationForm.getCronExpression());
         configuration.setMetadataExpirationStrategy(mavenRepositoryConfigurationForm.getMetadataExpirationStrategy());
+        configuration.setDigestAlgorithmSet(mavenRepositoryConfigurationForm.getDigestAlgorithmSet());
 
         return configuration;
     }

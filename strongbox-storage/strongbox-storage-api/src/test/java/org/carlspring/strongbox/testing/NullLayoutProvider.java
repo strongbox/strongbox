@@ -52,7 +52,7 @@ public class NullLayoutProvider extends AbstractLayoutProvider<RawArtifactCoordi
         return new RawArtifactCoordinates(RepositoryFiles.relativizePath(repositoryPath));
     }
 
-    protected Set<String> getDigestAlgorithmSet()
+    public Set<String> getDigestAlgorithmSet()
     {
         return Stream.of(MessageDigestAlgorithms.MD5)
                      .collect(Collectors.toSet());

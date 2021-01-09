@@ -132,7 +132,9 @@ public class MavenMetadataManager
                          try (OutputStream os = new MultipleDigestOutputStream(metadataPath,
                                                                                Files.newOutputStream(metadataPath,
                                                                                                      StandardOpenOption.CREATE,
-                                                                                                     StandardOpenOption.TRUNCATE_EXISTING)))
+                                                                                                     StandardOpenOption.TRUNCATE_EXISTING),
+                                                                               metadataBasePath.getFileSystem().getDigestAlgorithmSet().toArray(new String[0]),
+                                                                               true))
                          {
                              Writer writer = WriterFactory.newXmlWriter(os);
 

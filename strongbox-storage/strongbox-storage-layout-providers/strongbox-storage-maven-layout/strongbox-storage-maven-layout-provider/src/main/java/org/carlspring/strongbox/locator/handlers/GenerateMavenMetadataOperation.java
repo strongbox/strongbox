@@ -25,7 +25,6 @@ public class GenerateMavenMetadataOperation
 
     private final ArtifactEventListenerRegistry artifactEventListenerRegistry;
 
-
     public GenerateMavenMetadataOperation(@Nonnull final MavenMetadataManager mavenMetadataManager,
                                           @Nonnull final ArtifactEventListenerRegistry artifactEventListenerRegistry)
     {

@@ -2,8 +2,10 @@ package org.carlspring.strongbox.services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.IOUtils;
+import org.carlspring.commons.io.MultipleDigestInputStream;
 import org.carlspring.strongbox.artifact.ArtifactTag;
-import org.carlspring.strongbox.artifact.MavenArtifact;
 import org.carlspring.strongbox.artifact.MavenArtifactUtils;
 import org.carlspring.strongbox.config.Maven2LayoutProviderTestConfig;
 import org.carlspring.strongbox.domain.ArtifactEntry;
@@ -16,6 +18,7 @@ import org.carlspring.strongbox.storage.ArtifactStorageException;
 import org.carlspring.strongbox.storage.metadata.MavenSnapshotManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.storage.repository.RepositoryPolicyEnum;
+import org.carlspring.strongbox.testing.MavenMetadataChecksumSetup;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenArtifactTestUtils;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
@@ -41,8 +44,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.maven.artifact.Artifact;
+import org.carlspring.strongbox.util.MessageDigestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -86,6 +89,8 @@ public class ArtifactManagementServiceImplTest
     private static final String TFD_RELEASE_WITH_TRASH = "tfd-release-with-trash";
 
     private static final String TRTS_SNAPSHOTS = "trts-snapshots";
+
+    private static final String TMC_SNAPSHOTS = "tmc-snapshots";
 
     private static final String TCRW_RELEASES_WITH_LOCK = "tcrw-releases-with-lock";
 
@@ -658,12 +663,16 @@ public class ArtifactManagementServiceImplTest
             mavenArtifactManagementService.store(repositoryPath, is);
         }
 
-        // Obtains two expected checksums
+        // Obtains four expected checksums
         String sha1Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha1")));
+        String sha256Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha256")));
+        String sha512Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".sha512")));
         String md5Checksum = new String(Files.readAllBytes(artifact.resolveSibling(artifact.getFileName()+ ".md5")));
 
         Map <String, String> expectedChecksums = new HashMap<>();
         expectedChecksums.put("SHA-1", sha1Checksum);
+        expectedChecksums.put("SHA-256", sha256Checksum);
+        expectedChecksums.put("SHA-512", sha512Checksum);
         expectedChecksums.put("MD5", md5Checksum);
 
         String path = RepositoryFiles.relativizePath(repositoryPath);
@@ -675,6 +684,51 @@ public class ArtifactManagementServiceImplTest
 
         Map<String, String> actualChecksums = artifactEntry.getChecksums();
 
+        assertThat(actualChecksums).isNotNull();
+        assertThat(actualChecksums).isEqualTo(expectedChecksums);
+    }
+
+    @ExtendWith({RepositoryManagementTestExecutionListener.class,
+            ArtifactManagementTestExecutionListener.class})
+    @Test
+    public void testMetadataChecksum(@MavenRepository(repositoryId = TMC_SNAPSHOTS,
+            setup = MavenMetadataChecksumSetup.class) Repository repository,
+                                     @MavenTestArtifact(repositoryId = TMC_SNAPSHOTS,
+                                             id = "org.carlspring.strongbox:metadata-foo",
+                                             versions = { "2.0" })
+                                             Path artifactPath)
+            throws Exception
+    {
+        final String storageId = repository.getStorage().getId();
+        final String repositoryId = repository.getId();
+
+        String metadataPathStr = "org/carlspring/strongbox/metadata-foo/maven-metadata.xml";
+        RepositoryPath metadataPath = repositoryPathResolver.resolve(repository).resolve(metadataPathStr);
+        artifactMetadataService.rebuildMetadata(storageId,
+                                                repositoryId,
+                                                "org/carlspring/strongbox/metadata-foo");
+        assertThat(metadataPath.resolveSibling(metadataPath.getFileName() + ".sha1").toFile()).doesNotExist();
+        assertThat(metadataPath.resolveSibling(metadataPath.getFileName() + ".md5").toFile()).doesNotExist();
+
+        // Obtains two actual checksums
+        String sha256Checksum = MessageDigestUtils.readChecksumFile(
+                metadataPath.resolveSibling(metadataPath.getFileName() + ".sha256").toString());
+        String sha512Checksum = MessageDigestUtils.readChecksumFile(
+                metadataPath.resolveSibling(metadataPath.getFileName() + ".sha512").toString());
+
+        Map<String, String> actualChecksums = new HashMap<>();
+        Map<String, String> expectedChecksums = new HashMap<>();
+        actualChecksums.put("SHA-256", sha256Checksum);
+        actualChecksums.put("SHA-512", sha512Checksum);
+        try (InputStream is = Files.newInputStream(metadataPath);
+             MultipleDigestInputStream mdis = new MultipleDigestInputStream(is))
+        {
+            String metadataContent = IOUtils.toString(mdis, StandardCharsets.UTF_8);
+            String expectedSha256 = DigestUtils.sha256Hex(metadataContent);
+            String expectedSha512 = DigestUtils.sha512Hex(metadataContent);
+            expectedChecksums.put("SHA-256", expectedSha256);
+            expectedChecksums.put("SHA-512", expectedSha512);
+        }
         assertThat(actualChecksums).isNotNull();
         assertThat(actualChecksums).isEqualTo(expectedChecksums);
     }

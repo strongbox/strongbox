@@ -7,6 +7,9 @@ import org.carlspring.strongbox.storage.metadata.maven.MetadataExpirationStrateg
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 /**
  * @author carlspring
  * @author Pablo Tirado
@@ -24,6 +27,8 @@ public class MavenRepositoryConfigurationDto
     private String cronExpression = "0 0 2 * * ?";
 
     private String metadataExpirationStrategy = MetadataExpirationStrategyType.CHECKSUM.describe();
+
+    private Set<String> digestAlgorithmSet = new LinkedHashSet<>();
 
     @Override
     public boolean isIndexingEnabled()
@@ -73,5 +78,15 @@ public class MavenRepositoryConfigurationDto
     public CustomRepositoryConfiguration getImmutable()
     {
         return new MavenRepositoryConfigurationData(this);
+    }
+
+    public Set<String> getDigestAlgorithmSet()
+    {
+        return digestAlgorithmSet;
+    }
+
+    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet)
+    {
+        this.digestAlgorithmSet = digestAlgorithmSet;
     }
 }
