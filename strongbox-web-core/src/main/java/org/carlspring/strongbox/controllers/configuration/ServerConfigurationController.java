@@ -249,11 +249,6 @@ public class ServerConfigurationController
         configurationManagementService.setPort(serverSettingsForm.getPort());
         configurationManagementService.setInstanceName(serverSettingsForm.getInstanceName());
 
-        if (serverSettingsForm.getDigestAlgorithmSet() != null)
-        {
-            configurationManagementService.setDigestAlgorithmSet(serverSettingsForm.getDigestAlgorithmSet());
-        }
-
         if (serverSettingsForm.getCorsConfigurationForm() != null)
         {
             configurationManagementService.setCorsAllowedOrigins(
@@ -341,7 +336,6 @@ public class ServerConfigurationController
         settings.setBaseUrl(configuration.getBaseUrl());
         settings.setInstanceName(configuration.getInstanceName());
         settings.setPort(configuration.getPort());
-        settings.setDigestAlgorithmSet(configuration.getDigestAlgorithmSet());
         settings.setCorsConfigurationForm(
                 CorsConfigurationForm.fromConfiguration(configuration.getCorsConfiguration())
         );

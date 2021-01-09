@@ -33,8 +33,6 @@ public interface ConfigurationManagementService
 
     void setPort(int port) throws IOException;
 
-    void setDigestAlgorithmSet(Set<String> digestAlgorithmSet) throws IOException;
-
     void setProxyConfiguration(String storageId,
                                String repositoryId,
                                MutableProxyConfiguration proxyConfiguration) throws IOException;

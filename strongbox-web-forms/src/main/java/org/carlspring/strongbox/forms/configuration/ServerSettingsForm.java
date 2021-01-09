@@ -35,9 +35,6 @@ public class ServerSettingsForm
     @JsonProperty
     private Integer port;
 
-    @JsonProperty
-    private Set<String> digestAlgorithmSet = new HashSet<>();
-
     @Valid
     @JsonProperty
     private CorsConfigurationForm corsConfigurationForm = new CorsConfigurationForm();
@@ -66,7 +63,6 @@ public class ServerSettingsForm
     public ServerSettingsForm(String baseUrl,
                               Integer port,
                               String instanceName,
-                              Set<String> digestAlgorithmSet,
                               CorsConfigurationForm corsConfigurationForm,
                               SmtpConfigurationForm smtpConfigurationForm,
                               ProxyConfigurationForm proxyConfigurationForm)
@@ -74,7 +70,6 @@ public class ServerSettingsForm
         this.baseUrl = baseUrl;
         this.port = port;
         this.instanceName = instanceName;
-        this.digestAlgorithmSet = digestAlgorithmSet;
         this.corsConfigurationForm = corsConfigurationForm;
         this.smtpConfigurationForm = smtpConfigurationForm;
         this.proxyConfigurationForm = proxyConfigurationForm;
@@ -98,16 +93,6 @@ public class ServerSettingsForm
     public void setPort(Integer port)
     {
         this.port = port;
-    }
-
-    public Set<String> getDigestAlgorithmSet()
-    {
-        return digestAlgorithmSet;
-    }
-
-    public void setDigestAlgorithmSet(Set<String> digestAlgorithmSet)
-    {
-        this.digestAlgorithmSet = digestAlgorithmSet;
     }
 
     public String getInstanceName()

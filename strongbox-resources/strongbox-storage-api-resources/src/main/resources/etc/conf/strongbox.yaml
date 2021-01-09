@@ -4,11 +4,6 @@ configuration:
   revision: ${strongbox.revision}
   baseUrl: http://localhost:48080/
   port: 48080
-  digestAlgorithmSet:
-    - MD5
-    - SHA-1
-    - SHA-256
-    - SHA-512
   sessionConfiguration:
     timeoutSeconds: 3600
   remoteRepositoriesConfiguration:
