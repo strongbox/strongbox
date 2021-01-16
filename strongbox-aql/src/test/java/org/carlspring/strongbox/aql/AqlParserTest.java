@@ -1,15 +1,10 @@
 package org.carlspring.strongbox.aql;
 
 import org.carlspring.strongbox.aql.grammar.AqlQueryParser;
-import org.carlspring.strongbox.data.criteria.OQueryTemplate;
-import org.carlspring.strongbox.data.criteria.Predicate;
-import org.carlspring.strongbox.data.criteria.QueryParserException;
-import org.carlspring.strongbox.data.criteria.Selector;
+import org.carlspring.strongbox.data.criteria.*;
 import org.carlspring.strongbox.domain.ArtifactEntry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.google.common.collect.ImmutableMap;
 import org.javatuples.Pair;
@@ -23,7 +18,6 @@ public class AqlParserTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(AqlParserTest.class);
-
 
     @Test
     public void testLayoutSpecificKeywords()
@@ -75,13 +69,9 @@ public class AqlParserTest
     public void testValidDoubleQuotedQuerySpecificChars()
     {
         String query = "repository: \"releases#1\"";
-
         AqlQueryParser aqlParser = new AqlQueryParser(query);
-
         aqlParser.parseQuery();
-
         logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
-
         assertThat(aqlParser.hasErrors()).isFalse();
     }
 
@@ -89,13 +79,9 @@ public class AqlParserTest
     public void testValidSingleQuotedQuerySpecificChars()
     {
         String query = "repository: 'releases#1'";
-
         AqlQueryParser aqlParser = new AqlQueryParser(query);
-
         aqlParser.parseQuery();
-
         logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
-
         assertThat(aqlParser.hasErrors()).isFalse();
     }
 
@@ -103,7 +89,6 @@ public class AqlParserTest
     public void testInvalidUnquotedStringQuery()
     {
         String query = "repository: releases#1";
-
         AqlQueryParser aqlParser = new AqlQueryParser(query);
         Map<Pair<Integer, Integer>, String> errorMap = null;
         try
@@ -130,13 +115,9 @@ public class AqlParserTest
     public void testValidUnquotedStringQuery()
     {
         String query = "repository: releases_1";
-
         AqlQueryParser aqlParser = new AqlQueryParser(query);
-
         aqlParser.parseQuery();
-
         logger.debug("Query [{}] parse tree:\n[{}]", query, aqlParser);
-
         assertThat(aqlParser.hasErrors()).isFalse();
     }
 
