@@ -18,9 +18,9 @@ public class ArtifactCoordinatesHierarchyAdapter
         extends EntityUpwardHierarchyAdapter<GenericArtifactCoordinates, ArtifactCoodrinatesNodeAdapter>
 {
 
-    public ArtifactCoordinatesHierarchyAdapter(Set<ArtifactCoodrinatesNodeAdapter> artifactArapters)
+    public ArtifactCoordinatesHierarchyAdapter(Set<ArtifactCoodrinatesNodeAdapter> artifactAdapters)
     {
-        super(artifactArapters, 1);
+        super(artifactAdapters, 1);
     }
 
     @Override
