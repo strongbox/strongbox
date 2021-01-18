@@ -27,7 +27,8 @@ import org.carlspring.strongbox.gremlin.dsl.__;
  * 
  * @author sbespalov
  */
-public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & EntityHierarchyNode, A extends EntityUpwardHierarchyNodeAdapter<E>>
+public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & EntityHierarchyNode,
+                                                   A extends EntityUpwardHierarchyNodeAdapter<E>>
         implements VertexEntityTraversalAdapter<E>
 {
 
