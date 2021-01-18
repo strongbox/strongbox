@@ -77,7 +77,8 @@ public abstract class EntityUpwardHierarchyAdapter<E extends DomainObject & Enti
         return fold(Optional.empty());
     }
     
-    public EntityTraversal<Vertex, E> fold(Optional<Class<? extends E>> targetClass) {
+    public EntityTraversal<Vertex, E> fold(Optional<Class<? extends E>> targetClass)
+    {
         //Fold current vertex starting from root node adapter 
         Optional<EntityTraversal<Vertex, E>> upwardTraversal = fold(targetClass,
                                                                     Collections.singleton((A) getRootAdapter()).iterator(),
