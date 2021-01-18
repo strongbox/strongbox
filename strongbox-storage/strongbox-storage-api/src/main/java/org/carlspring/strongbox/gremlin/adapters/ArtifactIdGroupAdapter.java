@@ -73,7 +73,8 @@ public class ArtifactIdGroupAdapter implements VertexEntityTraversalAdapter<Arti
     private ArtifactIdGroup map(Traverser<Map<String, Object>> t)
     {
         ArtifactIdGroupEntity result = new ArtifactIdGroupEntity(extractObject(String.class, t.get().get("storageId")),
-                extractObject(String.class, t.get().get("repositoryId")), extractObject(String.class, t.get().get("name")));
+                                                                 extractObject(String.class, t.get().get("repositoryId")),
+                                                                 extractObject(String.class, t.get().get("name")));
         result.setNativeId(extractObject(Long.class, t.get().get("id")));
         result.setUuid(extractObject(String.class, t.get().get("uuid")));
         Collection<Artifact> artifacts = (Collection<Artifact>) t.get().get("artifacts");
