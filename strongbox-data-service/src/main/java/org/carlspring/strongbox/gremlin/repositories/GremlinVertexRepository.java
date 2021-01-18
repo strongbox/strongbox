@@ -45,6 +45,9 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
         return save(this::g, entity);
     }
 
+    /**
+     * Start gremlin traversal from specified entity vertex.
+     */
     @Override
     public EntityTraversal<Vertex, Vertex> start(E entity,
                                                  Supplier<EntityTraversalSource> g)
@@ -57,6 +60,9 @@ public abstract class GremlinVertexRepository<E extends DomainObject> extends Gr
         return g.get().V();
     }
 
+    /**
+     * Start gremlin traversal using {@link EntityTraversalSource}.
+     */
     @Override
     protected EntityTraversal<Vertex, Vertex> start(Supplier<EntityTraversalSource> g)
     {
