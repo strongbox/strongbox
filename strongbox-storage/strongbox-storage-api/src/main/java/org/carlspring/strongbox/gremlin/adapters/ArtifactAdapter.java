@@ -231,14 +231,6 @@ public class ArtifactAdapter implements VertexEntityTraversalAdapter<Artifact>
     public EntityTraversal<Vertex, Element> cascade()
     {
         return __.<Vertex>aggregate("x")
-                //TODO: remove ArtifactAoordinates
-//                 .optional(__.outE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES)
-//                             .inV()
-//                             .where(__.inE(Edges.ARTIFACT_HAS_ARTIFACT_COORDINATES).count().is(1))
-//                             .aggregate("x")
-//                             .inE(Edges.ARTIFACT_COORDINATES_INHERIT_GENERIC_ARTIFACT_COORDINATES)
-//                             .outV()
-//                             .aggregate("x"))
                  .select("x")
                  .unfold();
     }
