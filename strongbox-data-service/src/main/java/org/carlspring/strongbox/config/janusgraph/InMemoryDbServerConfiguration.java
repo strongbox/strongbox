@@ -25,9 +25,9 @@ public class InMemoryDbServerConfiguration implements Condition
 {
 
     @Bean
-    JanusGraphServer embeddedDbServer(JanusGraphConfiguration janusGraphConfiguration)
+    JanusGraphServer embeddedDbServer(DelegatingIdBlockQueueSupplier idBlockQueueSupplier, JanusGraphConfiguration janusGraphConfiguration)
     {
-        return new InMemoryJanusGraphServer(janusGraphConfiguration);
+        return new InMemoryJanusGraphServer(janusGraphConfiguration, idBlockQueueSupplier);
     }
 
     @Bean

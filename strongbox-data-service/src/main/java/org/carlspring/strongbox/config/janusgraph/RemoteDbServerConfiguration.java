@@ -25,9 +25,9 @@ public class RemoteDbServerConfiguration implements Condition
 {
 
     @Bean
-    JanusGraphServer embeddedDbServer(JanusGraphConfiguration janusGraphConfiguration)
+    JanusGraphServer embeddedDbServer(DelegatingIdBlockQueueSupplier idBlockQueueSupplier, JanusGraphConfiguration janusGraphConfiguration)
     {
-        return new JanusGraphWithRemoteCassandra(janusGraphConfiguration);
+        return new JanusGraphWithRemoteCassandra(janusGraphConfiguration, idBlockQueueSupplier);
     }
 
     @Bean

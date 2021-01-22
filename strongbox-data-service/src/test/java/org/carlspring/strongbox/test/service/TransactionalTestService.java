@@ -28,16 +28,9 @@ public class TransactionalTestService
     }
 
     @Transactional
-    public Object createVertexWithCommit()
+    public Long createVertexWithCommit()
     {
-        GraphTraversalSource t = traversal();
-
-        return t.addV(VERTEX_LABEL).next().id();
-    }
-
-    private EntityTraversalSource traversal()
-    {
-        return graph.traversal(EntityTraversalSource.class);
+        return createVertex(traversal());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -53,6 +46,17 @@ public class TransactionalTestService
         createVertexWithNestedCommit();
 
         throw new RuntimeException();
+    }
+
+    protected Long createVertex(GraphTraversalSource t)
+    {
+        Long vertexId = (Long) t.addV(VERTEX_LABEL).next().id();
+        return ((vertexId << 5) >> 9)/16;
+    }
+
+    private EntityTraversalSource traversal()
+    {
+        return graph.traversal(EntityTraversalSource.class);
     }
 
 }

@@ -13,11 +13,10 @@ import org.apache.tinkerpop.gremlin.structure.Transaction;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.tinkerpop.gremlin.structure.io.Io;
 import org.apache.tinkerpop.gremlin.structure.io.Io.Builder;
+import org.carlspring.strongbox.repositories.TransactionalIdBlockQueueSuppiler;
 import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
 import org.opencypher.gremlin.neo4j.ogm.transaction.GremlinTransaction;
 import org.springframework.data.neo4j.transaction.SessionHolder;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 /**
  * Exposes current thread bound {@link Graph} transaction.
@@ -31,10 +30,10 @@ public class GraphTransaction implements Graph
 
     private static final Class<GremlinTransaction> gremlinTransactionClass = GremlinTransaction.class;
 
-    private final SessionFactory sessionFactory;
+    private final TransactionalIdBlockQueueSuppiler sessionFactory;
 
 
-    public GraphTransaction(SessionFactory sessionFactory)
+    public GraphTransaction(TransactionalIdBlockQueueSuppiler sessionFactory)
     {
         this.sessionFactory = sessionFactory;
     }
@@ -129,9 +128,7 @@ public class GraphTransaction implements Graph
 
     private Graph getCurrent()
     {
-        return Optional.ofNullable(TransactionSynchronizationManager.getResource(sessionFactory))
-                       .map(sessionHolderClass::cast)
-                       .map(SessionHolder::getSession)
+        return Optional.ofNullable(sessionFactory.get())
                        .map(Session::getTransaction)
                        .map(gremlinTransactionClass::cast)
                        .map(GremlinTransaction::getNativeTransaction)

@@ -1,6 +1,7 @@
 package org.carlspring.strongbox.config;
 
 import org.carlspring.strongbox.config.hazelcast.HazelcastConfiguration;
+import org.carlspring.strongbox.config.janusgraph.CommonDbServerConfiguration;
 import org.carlspring.strongbox.config.janusgraph.EmbeddedDbServerConfiguration;
 import org.carlspring.strongbox.config.janusgraph.InMemoryDbServerConfiguration;
 import org.carlspring.strongbox.config.janusgraph.RemoteDbServerConfiguration;
@@ -36,9 +37,7 @@ import com.hazelcast.spring.cache.HazelcastCacheManager;
 @EnableTransactionManagement(proxyTargetClass = true, order = DataServiceConfig.TRANSACTIONAL_INTERCEPTOR_ORDER)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @ComponentScan({ "org.carlspring.strongbox.data" })
-@Import({ EmbeddedDbServerConfiguration.class,
-          InMemoryDbServerConfiguration.class,
-          RemoteDbServerConfiguration.class,
+@Import({ CommonDbServerConfiguration.class,
           GremlinServerConfig.class,
           RepositoriesConfig.class,
           EntityTraversalAdaptersConfig.class,

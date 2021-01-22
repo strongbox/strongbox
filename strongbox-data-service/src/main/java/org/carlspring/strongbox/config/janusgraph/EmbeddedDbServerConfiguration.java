@@ -48,7 +48,8 @@ public class EmbeddedDbServerConfiguration implements Condition
     public static final String PATH_STRONGBOX_DB = "META-INF/org/carlsparing/strongbox/db";
 
     @Bean
-    JanusGraphServer embeddedDbServer(CassandraEmbeddedConfiguration cassandraConfiguration,
+    JanusGraphServer embeddedDbServer(DelegatingIdBlockQueueSupplier idBlockQueueSupplier,
+                                      CassandraEmbeddedConfiguration cassandraConfiguration,
                                       JanusGraphConfiguration janusGraphConfiguration)
     {
 
@@ -59,7 +60,7 @@ public class EmbeddedDbServerConfiguration implements Condition
             logger.info(String.format("Storage extracted to [%s].", cassandraConfiguration.getStorageRoot()));
         }
 
-        return new JanusGraphWithEmbeddedCassandra(cassandraConfiguration, janusGraphConfiguration);
+        return new JanusGraphWithEmbeddedCassandra(cassandraConfiguration, janusGraphConfiguration, idBlockQueueSupplier);
     }
 
     public JarFile getDbSchemaClasspathLocation()
