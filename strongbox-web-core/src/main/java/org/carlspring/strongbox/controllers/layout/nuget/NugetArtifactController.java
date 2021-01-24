@@ -361,7 +361,8 @@ public class NugetArtifactController
         if (searchTerm != null && !searchTerm.trim().isEmpty())
         {
             artifactId = searchTerm;
-        } else if (filter != null && !filter.trim().isEmpty())
+        }
+        else if (filter != null && !filter.trim().isEmpty())
         {
            NugetODataFilterQueryParser t = new NugetODataFilterQueryParser(filter);
            Predicate rootPredicate = t.parseQuery().getPredicate();
