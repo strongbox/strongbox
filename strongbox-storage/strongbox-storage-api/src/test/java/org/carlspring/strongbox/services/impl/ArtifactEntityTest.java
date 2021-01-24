@@ -326,9 +326,7 @@ public class ArtifactEntityTest
 
         artifactEntries.forEach(artifactEntry -> {
             logger.debug("Found artifact {}", artifactEntry);
-            assertThat(((RawArtifactCoordinates) artifactEntry.getArtifactCoordinates())
-                                                                                        .getPath()
-                                                                                        .startsWith(groupId + "/")).isTrue();
+            assertThat(((RawArtifactCoordinates) artifactEntry.getArtifactCoordinates()).getPath().startsWith(groupId + "/")).isTrue();
         });
     }
 
