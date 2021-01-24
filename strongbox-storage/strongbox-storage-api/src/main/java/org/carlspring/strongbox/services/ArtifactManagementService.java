@@ -80,8 +80,7 @@ public class ArtifactManagementService
 
     @Inject
     protected RepositoryPathResolver repositoryPathResolver;
-    
-    //@Transactional
+
     public long validateAndStore(RepositoryPath repositoryPath,
                                  InputStream is)
         throws IOException,
@@ -92,7 +91,6 @@ public class ArtifactManagementService
         return doStore(repositoryPath, is);
     }
 
-    //@Transactional
     public long store(RepositoryPath repositoryPath,
                       InputStream is)
         throws IOException
@@ -113,7 +111,7 @@ public class ArtifactManagementService
         }
         catch (IOException e)
         {
-           throw e; 
+           throw e;
         }
         catch (Exception e)
         {
@@ -144,7 +142,7 @@ public class ArtifactManagementService
         {
             artifactEventListenerRegistry.dispatchArtifactUploadingEvent(repositoryPath);
         }
-        
+
         long totalAmountOfBytes = IOUtils.copy(is, os);
 
         URI repositoryPathId = repositoryPath.toUri();
@@ -166,7 +164,7 @@ public class ArtifactManagementService
                 validateUploadedChecksumAgainstCache(checksumValue, repositoryPathId);
             }
         }
-        
+
         return totalAmountOfBytes;
     }
 
@@ -265,7 +263,7 @@ public class ArtifactManagementService
         {
             return true;
         }
-        
+
         ArtifactCoordinates coordinates = RepositoryFiles.readCoordinates(path);
         logger.info("Validate artifact with coordinates [{}]", coordinates);
 
@@ -321,7 +319,7 @@ public class ArtifactManagementService
         }
 
         try
-        {           
+        {
             RepositoryFiles.delete(repositoryPath, force);
         }
         catch (IOException e)
