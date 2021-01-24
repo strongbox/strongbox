@@ -597,8 +597,8 @@ public class ArtifactManagementServiceImplTest
         // re-fetch the artifact without classifier
         // and confirm it still has the last version tag
         artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
-                                                             repositoryId,
-                                                             artifactPath);
+                                                                 repositoryId,
+                                                                 artifactPath);
         assertThat(artifactEntry.getTagSet()).isNotNull();
         assertThat(artifactEntry.getTagSet()).hasSize(1);
         assertThat(artifactEntry.getTagSet().iterator().next().getName()).isEqualTo(ArtifactTag.LAST_VERSION);
