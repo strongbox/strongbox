@@ -94,7 +94,8 @@ public class FetchChangesFeedCronJobTestIT
 
         await().atMost(EVENT_TIMEOUT_SECONDS, TimeUnit.SECONDS).untilTrue(receivedExpectedEvent());
 
-        List<Artifact> artifactEntryList = artifactRepository.findByPathLike(repository.getStorage().getId(), repository.getId(),
+        List<Artifact> artifactEntryList = artifactRepository.findByPathLike(repository.getStorage().getId(),
+                                                                             repository.getId(),
                                                                              "MiniMVC");
         assertThat(artifactEntryList).hasSize(1);
 
