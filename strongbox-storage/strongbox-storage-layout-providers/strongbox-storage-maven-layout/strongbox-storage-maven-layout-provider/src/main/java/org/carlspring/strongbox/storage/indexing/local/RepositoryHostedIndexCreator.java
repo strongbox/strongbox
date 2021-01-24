@@ -176,8 +176,7 @@ public class RepositoryHostedIndexCreator
         for (final Artifact neighbour : group)
         {
             final MavenArtifactCoordinates neighbourCoordinates = (MavenArtifactCoordinates) neighbour.getArtifactCoordinates();
-            pomExists |= ("pom".equals(neighbourCoordinates.getExtension()) &&
-                    neighbourCoordinates.getClassifier() == null);
+            pomExists |= ("pom".equals(neighbourCoordinates.getExtension()) && neighbourCoordinates.getClassifier() == null);
             if (Objects.equals(coordinates.getExtension(), neighbourCoordinates.getExtension()))
             {
                 javadocExists |= "javadoc".equals(neighbourCoordinates.getClassifier());
