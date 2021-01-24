@@ -63,8 +63,8 @@ public class NugetRemoteRepositoryTest
 
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates("NHibernate", "4.0.4.4000");
         Artifact artifactEntry = artifactEntityRepository.findOneArtifact(repository.getStorage().getId(),
-                                                                                repository.getId(),
-                                                                                coordinates.buildPath());
+                                                                          repository.getId(),
+                                                                          coordinates.buildPath());
         Optional<Artifact> optionalArtifactEntry = Optional.ofNullable(artifactEntry);
 
         assertThat(optionalArtifactEntry).isPresent();
