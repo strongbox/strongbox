@@ -111,8 +111,7 @@ public class RepositoryHostedIndexCreator
         final List<ArtifactContext> artifactContexts = new ArrayList<>();
         for (final ArtifactIdGroup repositoryArtifactIdGroupEntry : repositoryArtifactIdGroupEntries)
         {
-            final Map<String, List<Artifact>> groupedByVersion = groupArtifactEntriesByVersion(
-                                                                                               repositoryArtifactIdGroupEntry);
+            final Map<String, List<Artifact>> groupedByVersion = groupArtifactEntriesByVersion(repositoryArtifactIdGroupEntry);
             for (final Map.Entry<String, List<Artifact>> sameVersionArtifactEntries : groupedByVersion.entrySet())
             {
                 for (final Artifact artifactEntry : sameVersionArtifactEntries.getValue())
