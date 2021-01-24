@@ -194,12 +194,12 @@ public class RepositoryHostedIndexCreator
         final String filename = Paths.get(artifactEntry.getArtifactPath()).getFileName().toString();
 
         if (filename.equals("maven-metadata.xml")
-                // || filename.endsWith( "-javadoc.jar" )
-                // || filename.endsWith( "-javadocs.jar" )
-                // || filename.endsWith( "-sources.jar" )
-                || filename.endsWith(".properties")
-                // || filename.endsWith( ".xml" ) // NEXUS-3029
-                || filename.endsWith(".asc") || filename.endsWith(".md5") || filename.endsWith(".sha1"))
+            // || filename.endsWith( "-javadoc.jar" )
+            // || filename.endsWith( "-javadocs.jar" )
+            // || filename.endsWith( "-sources.jar" )
+            || filename.endsWith(".properties")
+            // || filename.endsWith( ".xml" ) // NEXUS-3029
+            || filename.endsWith(".asc") || filename.endsWith(".md5") || filename.endsWith(".sha1"))
         {
             return false;
         }

@@ -61,7 +61,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     private static final String REPOSITORY_RELEASES_3 = "nuget-test-releases-nact-3";
 
     @Inject
-    private ArtifactRepository artifactEntityRepository;
+    private ArtifactRepository artifactRepository;
 
     @Override
     @BeforeEach
@@ -477,7 +477,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
                .assertThat()
                .body("feed.entry[0].title", equalTo(packageId));
 
-        List<Artifact> artifactEntryList = artifactEntityRepository.findByPathLike("storage-common-proxies",
+        List<Artifact> artifactEntryList = artifactRepository.findByPathLike("storage-common-proxies",
                                                                                    "nuget.org",
                                                                                    String.format("%s/%s", packageId, packageVersion));
         assertThat(artifactEntryList).isNotEmpty();

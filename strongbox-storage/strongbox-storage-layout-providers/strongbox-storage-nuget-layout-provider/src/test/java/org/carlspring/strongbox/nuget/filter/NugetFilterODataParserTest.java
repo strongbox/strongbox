@@ -46,14 +46,13 @@ public class NugetFilterODataParserTest
 {
 
     private static final String REPOSITORY_RELEASES_1 = "nfodpt-releases-1";
-    
+
     private static final String REPOSITORY_RELEASES_2 = "nfodpt-releases-2";
-    
+
     private static final String REPOSITORY_RELEASES_3 = "nfodpt-releases-3";
-    
+
     private static final String REPOSITORY_RELEASES_4 = "nfodpt-releases-4";
-    
-    //@PersistenceContext
+
     private EntityManager entityManager;
 
 
@@ -92,11 +91,11 @@ public class NugetFilterODataParserTest
         selector.select("COUNT(*)");
 
         QueryTemplate<Long, ArtifactEntity> queryTemplate = new OQueryTemplate<>(entityManager);
-        
+
         assertThat(((OQueryTemplate<Long, ArtifactEntity>) queryTemplate).calculateQueryString(selector)).isEqualTo("SELECT COUNT(*) FROM ArtifactEntry WHERE " +
                                                                                                                    "artifactCoordinates.coordinates.id.toLowerCase() = :id_0 AND tagSet CONTAINS (name = :name_1) AND " +
                                                                                                                    "artifactCoordinates.coordinates.version = :version_1 AND storageId = :storageId_1 AND repositoryId = :repositoryId_2 LIMIT 1000");
-        
+
         Map<String, Object> parameterMap = ((OQueryTemplate<Long, ArtifactEntity>) queryTemplate).exposeParameterMap(selector.getPredicate());
 
         assertThat(parameterMap.get("id_0")).isEqualTo("org.carlspring.strongbox.nuget.test.nfpt");

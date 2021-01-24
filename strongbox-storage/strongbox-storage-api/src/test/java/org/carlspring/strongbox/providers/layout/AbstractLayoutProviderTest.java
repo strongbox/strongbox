@@ -53,7 +53,7 @@ class AbstractLayoutProviderTest
 
     @Inject
     private PropertiesBooter propertiesBooter;
-    
+
     @Spy
     @Inject
     private ArtifactIdGroupService artifactGroupService;
@@ -61,12 +61,12 @@ class AbstractLayoutProviderTest
     @Spy
     @Inject
     private ArtifactIdGroupRepository artifactIdGroupRepository;
-    
+
     @InjectMocks
     private AbstractLayoutProvider layoutProvider = Mockito.spy(AbstractLayoutProvider.class);
 
     private LayoutArtifactCoordinatesEntity artifactCoordinates = Mockito.spy(LayoutArtifactCoordinatesEntity.class);
-    
+
     private StorageFileSystemProviderTest storageFileSystemProvider = Mockito.spy(new StorageFileSystemProviderTest(FileSystems.getDefault().provider()));
 
     private static final Path REPOSITORY_BASEDIR = Paths.get("target/strongbox-vault", "storages", "storage0", "releases");
@@ -90,7 +90,7 @@ class AbstractLayoutProviderTest
         HashMap<RepositoryFileAttributeType, Object> artifactAttributes = new HashMap<>();
         artifactAttributes.put(RepositoryFileAttributeType.ARTIFACT, Boolean.TRUE);
         artifactAttributes.put(RepositoryFileAttributeType.COORDINATES, artifactCoordinates);
-        
+
         repositoryFileSystem = new LayoutFileSystem(propertiesBooter, new RepositoryData(repository), FileSystems.getDefault(), storageFileSystemProvider)
         {
             @Override
@@ -99,8 +99,6 @@ class AbstractLayoutProviderTest
                 throw new UnsupportedOperationException();
             }
         };
-
-        //artifactGroupService = ctx.getBean(ArtifactIdGroupService.class);
 
         MockitoAnnotations.initMocks(this);
         Mockito.doReturn("abs-lay-prov-test").when(artifactCoordinates).getId();
@@ -136,10 +134,10 @@ class AbstractLayoutProviderTest
         assertThat(repositoryArtifactIdGroup.getStorageId()).isEqualTo(("storage0"));
         assertThat(repositoryArtifactIdGroup.getClass()).isEqualTo((ArtifactIdGroupEntity.class));
     }
-    
+
     private class StorageFileSystemProviderTest extends LayoutFileSystemProvider
     {
-        
+
         public StorageFileSystemProviderTest(FileSystemProvider target)
         {
             super(target);
@@ -150,13 +148,13 @@ class AbstractLayoutProviderTest
         {
             return layoutProvider;
         }
-        
+
         @Override
         protected Map<RepositoryFileAttributeType, Object> getRepositoryFileAttributes(RepositoryPath repositoryRelativePath,
                                                                                        RepositoryFileAttributeType... attributeTypes)
         {
             return null;
         }
-        
+
     }
 }

@@ -146,7 +146,7 @@ public class MavenArtifactControllerTest
                                                                              "metadata-foo" + ":" +
                                                                              "3.2");
     @Inject
-    private ArtifactRepository artifactEntityRepository;
+    private ArtifactRepository artifactRepository;
 
     private MavenArtifactDeployer defaultMavenArtifactDeployer;
 
@@ -1259,7 +1259,7 @@ public class MavenArtifactControllerTest
                .then()
                .statusCode(HttpStatus.OK.value());
 
-        org.carlspring.strongbox.domain.Artifact artifactEntry = artifactEntityRepository.findOneArtifact("storage-common-proxies",
+        org.carlspring.strongbox.domain.Artifact artifactEntry = artifactRepository.findOneArtifact("storage-common-proxies",
                                                                                                           "carlspring",
                                                                                                           artifactPath);
         assertThat(artifactEntry).isNotNull();

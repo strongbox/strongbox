@@ -15,14 +15,14 @@ public class ArtifactSearchServiceImpl
         implements ArtifactSearchService
 {
 
-    private SearchProvider orientDbSearchProvider;
+    private SearchProvider searchProvider;
 
 
     @Override
     public SearchResults search(SearchRequest searchRequest)
             throws SearchException
     {
-        return orientDbSearchProvider.search(searchRequest);
+        return searchProvider.search(searchRequest);
     }
 
     @Override

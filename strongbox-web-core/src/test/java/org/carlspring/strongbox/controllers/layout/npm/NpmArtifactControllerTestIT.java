@@ -51,7 +51,7 @@ public class NpmArtifactControllerTestIT
     private static final String REMOTE_URL = "https://registry.npmjs.org/";
 
     @Inject
-    private ArtifactRepository artifactEntityRepository;
+    private ArtifactRepository artifactRepository;
 
     @Override
     @BeforeEach
@@ -126,7 +126,7 @@ public class NpmArtifactControllerTestIT
                .body("name", equalTo("react"))
                .body("versions.size()", greaterThan(0));
 
-        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+        Artifact artifactEntry = artifactRepository.findOneArtifact(storageId,
                                                                           repositoryId,
                                                                           coordinates.buildPath());
         assertThat(artifactEntry).isNotNull();
@@ -154,7 +154,7 @@ public class NpmArtifactControllerTestIT
                .and()
                .body("objects.package.name", hasItem("restonnode"));
 
-        Artifact artifactEntry = artifactEntityRepository.findOneArtifact(storageId,
+        Artifact artifactEntry = artifactRepository.findOneArtifact(storageId,
                                                                           repositoryId,
                                                                           "restonnode/restonnode/1.0.2/restonnode-1.0.2.tgz");
 

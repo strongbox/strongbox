@@ -145,7 +145,6 @@ public class NpmArtifactController
         RepositoryProvider provider = repositoryProviderRegistry.getProvider(repository.getType());
 
         RepositorySearchRequest predicate = new RepositorySearchRequest(text, Collections.singleton("tgz"));
-        //predicate.and(Predicate.of(ExpOperator.CONTAINS.of("tagSet.name", ArtifactTag.LAST_VERSION)));
         Paginator paginator = new Paginator();
         paginator.setLimit(20);
         List<Path> searchResult = provider.search(storageId, repositoryId, predicate, paginator);
