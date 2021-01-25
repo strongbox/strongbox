@@ -68,6 +68,9 @@ public class MavenSearchControllerTest
                                Path a3)
             throws Exception
     {
+        // TODO: constant replaced with string just to fix compilation errors
+        // and leave the test how it was implemented, this should be revisited
+        // after we'll have proper JG search engine
         testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",
                      "OrientDbSearchProvider.ALIAS");
     }
