@@ -104,7 +104,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void shouldUpdateFullLdapConfiguration()      
+    public void shouldUpdateFullLdapConfiguration()
     {
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
 
@@ -200,7 +200,6 @@ public class LdapAuthenticatorConfigurationControllerTest
                .body("errors[0]['messages'][0]", equalTo("must be a valid URI"));
     }
 
-    @Disabled
     @WithMockUser(authorities = "ADMIN")
     @Test
     public void ldapConfigurationTestShouldFailWithInvalidConfiguration()
