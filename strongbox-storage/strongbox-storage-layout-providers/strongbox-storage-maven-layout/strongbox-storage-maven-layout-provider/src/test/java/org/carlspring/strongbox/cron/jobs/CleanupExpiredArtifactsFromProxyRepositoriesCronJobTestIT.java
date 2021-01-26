@@ -62,7 +62,6 @@ public class CleanupExpiredArtifactsFromProxyRepositoriesCronJobTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    @Disabled
     void expiredArtifactsCleanupCronJobShouldCleanupDatabaseAndStorage(
             @Remote(url = CENTRAL_URL)
             @MavenRepository(storageId = STORAGE_ID,

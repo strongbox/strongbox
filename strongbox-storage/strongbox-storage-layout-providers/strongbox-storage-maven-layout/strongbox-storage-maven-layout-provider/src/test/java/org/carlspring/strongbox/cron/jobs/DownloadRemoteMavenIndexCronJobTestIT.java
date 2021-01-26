@@ -79,7 +79,6 @@ public class DownloadRemoteMavenIndexCronJobTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    @Disabled
     public void testDownloadRemoteIndexAndExecuteSearch(@MavenRepository(repositoryId = REPOSITORY_RELEASES,
                                                                          setup = MavenIndexedRepositorySetup.class)
                                                         Repository repository,

@@ -30,9 +30,7 @@ import org.springframework.core.io.Resource;
 
 /**
  * @author sbespalov
- *
  */
-@Disabled
 public class ParallelDownloadRemoteArtifactTest
         extends MockedRestArtifactResolverTestBase
         implements ArtifactResolverContext

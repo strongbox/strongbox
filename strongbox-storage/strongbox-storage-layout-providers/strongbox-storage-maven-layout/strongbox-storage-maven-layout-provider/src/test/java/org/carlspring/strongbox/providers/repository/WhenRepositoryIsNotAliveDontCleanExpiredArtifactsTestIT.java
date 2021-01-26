@@ -44,7 +44,6 @@ public class WhenRepositoryIsNotAliveDontCleanExpiredArtifactsTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    @Disabled
     public void expiredArtifactsCleanerShouldNotCleanupDatabaseAndStorageWhenRepositoryIsNotAlive(@Remote(url = REMOTE_URL)
                                                                                                   @MavenRepository(storageId = STORAGE_ID,
                                                                                                                    repositoryId = REPOSITORY_ID,
