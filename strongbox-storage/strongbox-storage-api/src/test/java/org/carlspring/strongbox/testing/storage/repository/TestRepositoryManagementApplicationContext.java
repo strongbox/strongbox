@@ -46,7 +46,7 @@ public class TestRepositoryManagementApplicationContext extends AnnotationConfig
         implements TestRepositoryManagementContext
 {
 
-    private static final long REPOSITORY_LOCK_TIMEOUT = 8000;
+    private static final long REPOSITORY_LOCK_TIMEOUT = 10000;
 
     private static final Logger logger = LoggerFactory.getLogger(TestRepositoryManagementApplicationContext.class);
 

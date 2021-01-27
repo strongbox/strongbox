@@ -1,12 +1,22 @@
 package org.carlspring.strongbox.providers.repository;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
+
+import java.nio.file.Path;
+import java.util.Optional;
+
+import javax.inject.Inject;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.carlspring.strongbox.config.Maven2LayoutProviderCronTasksTestConfig;
 import org.carlspring.strongbox.data.CacheManagerTestExecutionListener;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.providers.io.RepositoryFiles;
 import org.carlspring.strongbox.providers.io.RepositoryPathResolver;
-import org.carlspring.strongbox.services.ArtifactEntryService;
+import org.carlspring.strongbox.repositories.ArtifactRepository;
 import org.carlspring.strongbox.storage.metadata.MavenMetadataManager;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.MavenIndexedRepositorySetup;
@@ -14,13 +24,6 @@ import org.carlspring.strongbox.testing.artifact.ArtifactResolutionServiceHelper
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
-
-import javax.inject.Inject;
-import java.nio.file.Path;
-import java.util.Optional;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -28,8 +31,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.parallel.ExecutionMode.CONCURRENT;
 
 /**
  * @author carlspring
@@ -54,7 +55,7 @@ public class MavenProxyRepositoryProviderTestIT
     private static final String CENTRAL_URL = "https://repo1.maven.org/maven2/";
 
     @Inject
-    private ArtifactEntryService artifactEntryService;
+    private ArtifactRepository artifactEntityRepository;
 
     @Inject
     private MavenMetadataManager mavenMetadataManager;
@@ -160,18 +161,19 @@ public class MavenProxyRepositoryProviderTestIT
         String repositoryId = proxyRepository.getId();
         String path = "org/carlspring/properties-injector/1.6/properties-injector-1.6.jar";
 
-        Optional<ArtifactEntry> artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
-                                                                                                         repositoryId,
-                                                                                                         path));
+        Artifact artifact = artifactEntityRepository.findOneArtifact(storageId,
+                                                                     repositoryId,
+                                                                     path);
+        Optional<Artifact> artifactEntry = Optional.ofNullable(artifact);
         assertThat(artifactEntry).isEqualTo(Optional.empty());
 
         artifactResolutionServiceHelper.assertStreamNotNull(storageId,
                                                             repositoryId,
                                                             path);
 
-        artifactEntry = Optional.ofNullable(artifactEntryService.findOneArtifact(storageId,
-                                                                                 repositoryId,
-                                                                                 path));
+        artifactEntry = Optional.ofNullable(artifactEntityRepository.findOneArtifact(storageId,
+                                                                                     repositoryId,
+                                                                                     path));
         assertThat(artifactEntry).isNotEqualTo(Optional.empty());
     }
 

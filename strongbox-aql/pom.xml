@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>1.0-PR-62-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-aql</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-PR-62-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: AQL</name>
@@ -84,6 +84,7 @@
                         <artifactId>groovy-all</artifactId>
                         <version>${version.groovy}</version>
                         <scope>runtime</scope>
+                        <type>pom</type>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -136,12 +137,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-api</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-all</artifactId>
-            <version>${version.groovy}</version>
         </dependency>
 
         <dependency>

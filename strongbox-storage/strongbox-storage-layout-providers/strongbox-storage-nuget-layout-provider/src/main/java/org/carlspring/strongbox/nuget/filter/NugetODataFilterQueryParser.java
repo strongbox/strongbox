@@ -5,14 +5,14 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Parser;
 import org.carlspring.strongbox.data.criteria.QueryParser;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.ArtifactEntity;
 import org.carlspring.strongbox.nuget.filter.NugetODataFilterParser.FilterContext;
 
 /**
  * @author sbespalov
  *
  */
-public class NugetODataFilterQueryParser extends QueryParser<FilterContext, ArtifactEntry, NugetODataFilterVisitorImpl>
+public class NugetODataFilterQueryParser extends QueryParser<FilterContext, ArtifactEntity, NugetODataFilterVisitorImpl>
 {
 
     public NugetODataFilterQueryParser(String query)

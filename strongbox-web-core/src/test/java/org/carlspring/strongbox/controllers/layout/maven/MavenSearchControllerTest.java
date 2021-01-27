@@ -1,21 +1,21 @@
 package org.carlspring.strongbox.controllers.layout.maven;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.file.Path;
+
 import org.carlspring.strongbox.config.IntegrationTest;
-import org.carlspring.strongbox.providers.search.OrientDbSearchProvider;
 import org.carlspring.strongbox.rest.common.MavenRestAssuredBaseTest;
 import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.artifact.ArtifactManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.artifact.MavenTestArtifact;
 import org.carlspring.strongbox.testing.repository.MavenRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
-
-import java.nio.file.Path;
-
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.MediaType;
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 /**
@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Pablo Tirado
  */
 @IntegrationTest
+@Disabled("See https://github.com/strongbox/strongbox/issues/1678")
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {
@@ -67,8 +68,11 @@ public class MavenSearchControllerTest
                                Path a3)
             throws Exception
     {
+        // TODO: constant replaced with string just to fix compilation errors
+        // and leave the test how it was implemented, this should be revisited
+        // after we'll have proper JG search engine
         testSearches("groupId=org.carlspring.strongbox.searches;artifactId=test-project;",
-                     OrientDbSearchProvider.ALIAS);
+                     "OrientDbSearchProvider.ALIAS");
     }
 
     private void testSearches(String query,

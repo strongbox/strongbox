@@ -104,7 +104,7 @@ public class NpmArtifactGenerator
     {
         Files.createDirectories(basePath);
 
-        packagePath = basePath.resolve(coordinates.toPath());
+        packagePath = basePath.resolve(coordinates.buildPath());
 
         Files.createDirectories(packagePath.getParent());
 
@@ -290,7 +290,7 @@ public class NpmArtifactGenerator
             jGenerator.writeFieldName("_attachments");
 
             jGenerator.writeStartObject();
-            jGenerator.writeFieldName(coordinates.toPath());
+            jGenerator.writeFieldName(coordinates.buildPath());
 
             jGenerator.writeStartObject();
             jGenerator.writeStringField("content_type", MediaType.APPLICATION_OCTET_STREAM_VALUE);

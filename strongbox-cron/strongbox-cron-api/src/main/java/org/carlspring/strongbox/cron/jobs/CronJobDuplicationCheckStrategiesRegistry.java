@@ -21,9 +21,10 @@ public class CronJobDuplicationCheckStrategiesRegistry
     {
         duplicationStrategies = cronJobsRegistry.get()
                                                 .stream()
-                                                .collect(Collectors.toMap(clazz -> clazz.getName(),
+                                                .collect(Collectors.toMap(Class::getName,
                                                                           ThrowingFunction.unchecked(
-                                                                                  clazz -> clazz.newInstance()
+                                                                                  clazz -> clazz.getDeclaredConstructor()
+                                                                                                .newInstance()
                                                                                                 .getDuplicationStrategies())));
     }
 
@@ -31,4 +32,5 @@ public class CronJobDuplicationCheckStrategiesRegistry
     {
         return duplicationStrategies.get(jobClass);
     }
+
 }

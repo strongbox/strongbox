@@ -133,7 +133,7 @@ public class PypiArtifactGenerator
                                  long byteSize)
             throws IOException
     {
-        String packagePath = coordinates.toPath();
+        String packagePath = coordinates.buildPath();
 
         Path fullPath = basedir.resolve(packagePath);
 

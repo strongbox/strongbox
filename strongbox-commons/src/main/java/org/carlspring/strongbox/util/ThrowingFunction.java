@@ -6,11 +6,11 @@ import java.util.function.Function;
  * @author Dawid Antecki
  */
 @FunctionalInterface
-public interface ThrowingFunction<T, R, E extends Throwable>
+public interface ThrowingFunction<T, R>
 {
-    R apply(T t) throws E;
+    R apply(T t) throws Throwable;
 
-    static <T, R, E extends Throwable> Function<T, R> unchecked(ThrowingFunction<T, R, E> function)
+    static <T, R> Function<T, R> unchecked(ThrowingFunction<T, R> function)
     {
         return t ->
         {

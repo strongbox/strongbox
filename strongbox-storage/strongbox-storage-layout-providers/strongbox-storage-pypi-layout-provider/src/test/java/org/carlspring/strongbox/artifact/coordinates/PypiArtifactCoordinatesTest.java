@@ -254,6 +254,6 @@ public class PypiArtifactCoordinatesTest
                                                    parsedCoordinates.get(1),
                                                    packageExamples.get(currentIndex));
 
-        assertThat(coordsParsed.toString()).isEqualTo(expectedPackagePath);
+        assertThat(coordsParsed.buildPath()).isEqualTo(expectedPackagePath);
     }
 }

@@ -1,19 +1,20 @@
 package org.carlspring.strongbox.artifact.coordinates;
 
-import javax.persistence.Entity;
-
-import java.util.Map;
-import java.util.Optional;
+import org.carlspring.strongbox.db.schema.Vertices;
+import org.carlspring.strongbox.domain.LayoutArtifactCoordinatesEntity;
+import org.neo4j.ogm.annotation.NodeEntity;
 
 /**
  * @author carlspring
  */
-@Entity
+@NodeEntity(Vertices.RAW_ARTIFACT_COORDINATES)
+@ArtifactCoordinatesLayout(name = RawArtifactCoordinates.LAYOUT_NAME, alias = RawArtifactCoordinates.LAYOUT_ALIAS)
 public class RawArtifactCoordinates
-        extends AbstractArtifactCoordinates<RawArtifactCoordinates, RawArtifactCoordinates>
+        extends LayoutArtifactCoordinatesEntity<RawArtifactCoordinates, RawArtifactCoordinates>
 {
 
-    public static final String LAYOUT_NAME = "Null Layout";
+    public static final String LAYOUT_NAME = "Raw";
+    public static final String LAYOUT_ALIAS = LAYOUT_NAME;
     private static final String PATH = "path";
 
     public RawArtifactCoordinates()
@@ -23,22 +24,26 @@ public class RawArtifactCoordinates
 
     public RawArtifactCoordinates(String path)
     {
-        this();
         setCoordinate(PATH, path);
     }
 
     @Override
     public String getId()
     {
-        return getPath();
+        return getCoordinate(PATH);
     }
 
-    @Override
     public void setId(String id)
     {
         setCoordinate(PATH, id);
     }
 
+    @ArtifactLayoutCoordinate
+    public String getPath() 
+    {
+        return getId();
+    }
+    
     /**
      * WARNING: Unsurprisingly, this is null.
      * @return  null
@@ -61,25 +66,9 @@ public class RawArtifactCoordinates
     }
 
     @Override
-    public Map<String, String> dropVersion()
+    public String convertToPath(RawArtifactCoordinates artifactCoordinates)
     {
-        return getCoordinates();
-    }
-    
-    @Override
-    public String toPath()
-    {
-        return Optional.ofNullable(getCoordinate(PATH)).orElse("");
+        return artifactCoordinates.getId();
     }
 
-    @Override
-    public String toString()
-    {
-        final StringBuilder sb = new StringBuilder("NullArtifactCoordinates{");
-        sb.append("objectId='").append(objectId).append('\'');
-        sb.append(", uuid='").append(uuid).append('\'');
-        sb.append(", entityVersion=").append(entityVersion);
-        sb.append('}');
-        return sb.toString();
-    }
 }

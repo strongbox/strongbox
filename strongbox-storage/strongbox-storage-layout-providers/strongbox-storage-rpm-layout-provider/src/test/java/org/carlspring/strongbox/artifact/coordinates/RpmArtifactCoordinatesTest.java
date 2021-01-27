@@ -78,7 +78,7 @@ class RpmArtifactCoordinatesTest
     {
         RpmArtifactCoordinates actualCoord = RpmArtifactCoordinates.parse(packageExamples.get(repetitionInfo.getCurrentRepetition() - 1));
 
-        assertEquals(packageExamples.get(repetitionInfo.getCurrentRepetition() - 1), actualCoord.toPath());
+        assertEquals(packageExamples.get(repetitionInfo.getCurrentRepetition() - 1), actualCoord.buildPath());
     }
 
     @RepeatedTest(16)

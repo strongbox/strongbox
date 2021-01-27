@@ -158,7 +158,7 @@ public class NugetArtifactGenerator
             throws IOException, NoSuchAlgorithmException, JAXBException, NugetFormatException
     {
         NugetArtifactCoordinates coordinates = new NugetArtifactCoordinates(id, version, packaging);
-        Path fullPath = basePath.resolve(coordinates.toPath()).normalize().toAbsolutePath();
+        Path fullPath = basePath.resolve(coordinates.buildPath()).normalize().toAbsolutePath();
         Files.createDirectories(fullPath.getParent());
 
         SemanticVersion semanticVersion = SemanticVersion.parse(version);
@@ -366,7 +366,7 @@ public class NugetArtifactGenerator
 
         NugetArtifactCoordinates nac = new NugetArtifactCoordinates(packageId, packageVersion, "nuspec");
         Path basePath = Paths.get(getBasedir()).normalize().toAbsolutePath();
-        Path nuspecPath = basePath.resolve(nac.toPath()).normalize().toAbsolutePath();
+        Path nuspecPath = basePath.resolve(nac.buildPath()).normalize().toAbsolutePath();
         Files.createDirectories(nuspecPath.getParent());
 
         try (OutputStream fileOutputStream = Files.newOutputStream(nuspecPath))

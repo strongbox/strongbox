@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.providers.repository;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Date;
-
 import org.carlspring.strongbox.artifact.AsyncArtifactEntryHandler;
-import org.carlspring.strongbox.domain.ArtifactEntry;
+import org.carlspring.strongbox.domain.Artifact;
 import org.carlspring.strongbox.event.artifact.ArtifactEventTypeEnum;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
+import java.io.IOException;
+import java.nio.file.Files;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,12 +21,12 @@ public class ArtifactUpdatedEventHandler extends AsyncArtifactEntryHandler
     }
 
     @Override
-    protected ArtifactEntry handleEvent(RepositoryPath repositoryPath) throws IOException
+    protected Artifact handleEvent(RepositoryPath repositoryPath) throws IOException
     {
-        ArtifactEntry artifactEntry = repositoryPath.getArtifactEntry();
-        artifactEntry.setLastUpdated(new Date());
-        
         long size = Files.size(repositoryPath);
+
+        Artifact artifactEntry = repositoryPath.getArtifactEntry();
+        artifactEntry.setLastUpdated(LocalDateTimeInstance.now());
         artifactEntry.setSizeInBytes(size);
         
         return artifactEntry;

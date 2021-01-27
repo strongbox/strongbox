@@ -245,6 +245,9 @@ public class RepositoryGroupIndexCreatorSearchTest
             repositoryIndexingContextAssert.onSearchQuery(q).hitTotalTimes(1);
         }
 
+        repositoryPath = repositoryPathResolver.resolve(repository.getStorage().getId(),
+                                                        repository.getId(),
+                                                        "org/carlspring/properties-injector/1.7/properties-injector-1.7.jar");
         artifactManagementService.validateAndStore(repositoryPath, jarArtifact.getInputStream());
         hostedRepositoryIndexCreator.apply(repository);
         try (RepositoryIndexingContextAssert repositoryIndexingContextAssert = new RepositoryIndexingContextAssert(

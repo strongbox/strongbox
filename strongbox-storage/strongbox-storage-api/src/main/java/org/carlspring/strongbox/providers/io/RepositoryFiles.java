@@ -1,9 +1,5 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
-import org.carlspring.strongbox.domain.ArtifactEntry;
-import org.carlspring.strongbox.domain.RemoteArtifactEntry;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -15,6 +11,10 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import org.carlspring.strongbox.artifact.coordinates.ArtifactCoordinates;
+import org.carlspring.strongbox.domain.Artifact;
+import org.carlspring.strongbox.storage.repository.Repository;
 
 /**
  * This utility class contains common methods to work with {@link RepositoryPath}
@@ -170,7 +170,7 @@ public abstract class RepositoryFiles
         {
             ArtifactCoordinates c = RepositoryFiles.readCoordinates(p);
             
-            return c.toResource();
+            return c.buildResource();
         }
         
         return relativizeUri(p);
@@ -179,21 +179,14 @@ public abstract class RepositoryFiles
     public static boolean artifactExists(RepositoryPath repositoryPath)
         throws IOException
     {
-        return !artifactDoesNotExist(repositoryPath);
-    }
-    
-    public static boolean artifactDoesNotExist(RepositoryPath repositoryPath)
-        throws IOException
-    {
-        if (RepositoryFiles.isArtifact(repositoryPath))
+        Repository repository = repositoryPath.getRepository();
+        if (repository.isGroupRepository() || !isArtifact(repositoryPath))
         {
-            ArtifactEntry e = repositoryPath.getArtifactEntry();
-            return e == null || e instanceof RemoteArtifactEntry && !((RemoteArtifactEntry) e).getIsCached();
+            return Files.exists(repositoryPath);
         }
-        else
-        {
-            return !Files.exists(repositoryPath);
-        }
+
+        Artifact artifactEntry = repositoryPath.getArtifactEntry();
+        return artifactEntry != null && Boolean.TRUE.equals(artifactEntry.getArtifactFileExists()); 
     }
 
     public static void deleteTrash(RepositoryPath repositoryPath)

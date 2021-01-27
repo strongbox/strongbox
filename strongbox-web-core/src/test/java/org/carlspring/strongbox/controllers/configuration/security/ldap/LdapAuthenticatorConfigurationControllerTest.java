@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.*;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @Inject
     private LdapAuthenticationConfigurationManager ldapAuthenticationConfigurationManager;
+
 
     @Override
     @BeforeEach
@@ -102,7 +104,7 @@ public class LdapAuthenticatorConfigurationControllerTest
 
     @WithMockUser(authorities = "ADMIN")
     @Test
-    public void shouldUpdateFullLdapConfiguration()      
+    public void shouldUpdateFullLdapConfiguration()
     {
         LdapConfiguration configuration = ldapAuthenticationConfigurationManager.getConfiguration();
 
@@ -434,6 +436,7 @@ public class LdapAuthenticatorConfigurationControllerTest
         form.setConfiguration(configuration);
         form.getConfiguration().setManagerDn("uid=admin,ou=system");
         form.getConfiguration().setManagerPassword("secret");
+
         return form;
     }
 

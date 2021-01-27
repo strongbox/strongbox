@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -13,17 +13,21 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.carlspring.strongbox.data.CacheName;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.users.domain.UserData;
 import org.carlspring.strongbox.users.domain.Users;
-import org.carlspring.strongbox.users.dto.User;
 import org.carlspring.strongbox.users.dto.UserDto;
 import org.carlspring.strongbox.users.dto.UsersDto;
 import org.carlspring.strongbox.users.security.SecurityTokenProvider;
 import org.carlspring.strongbox.users.service.UserService;
+import org.carlspring.strongbox.util.LocalDateTimeInstance;
+
 import org.jose4j.lang.JoseException;
 import org.springframework.cache.annotation.CacheEvict;
 
@@ -69,7 +73,9 @@ public class InMemoryUserService implements UserService
 
         try
         {
-            return Optional.ofNullable(userMap.get(username)).map(UserData::new).orElse(null);
+            return Optional.ofNullable(userMap.get(username))
+                           .map(UserData::new)
+                           .orElse(null);
         }
         finally
         {
@@ -113,14 +119,18 @@ public class InMemoryUserService implements UserService
             {
                 userDto.setPassword(user.getPassword());
             }
+
             userDto.setUsername(user.getUsername());
             userDto.setEnabled(user.isEnabled());
-            userDto.setRoles(user.getRoles());
+            userDto.setRoles(user.getRoles()
+                                 .stream()
+                                 .map(SecurityRole::getRoleName)
+                                 .collect(Collectors.toSet()));
             userDto.setSecurityTokenKey(user.getSecurityTokenKey());
-            userDto.setLastUpdate(new Date());
+            userDto.setLastUpdate(LocalDateTimeInstance.now());
 
             users.putIfAbsent(user.getUsername(), userDto);
-            
+
             return userDto;
         });
     }

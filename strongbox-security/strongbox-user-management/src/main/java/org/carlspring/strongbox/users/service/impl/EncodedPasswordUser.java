@@ -1,11 +1,13 @@
 package org.carlspring.strongbox.users.service.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.carlspring.strongbox.users.dto.User;
+import org.carlspring.strongbox.domain.User;
+import org.carlspring.strongbox.domain.SecurityRole;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -25,6 +27,12 @@ public class EncodedPasswordUser implements User
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Override
+    public String getUuid()
+    {
+        return getUsername();
+    }
+    
     public String getUsername()
     {
         return user.getUsername();
@@ -40,7 +48,7 @@ public class EncodedPasswordUser implements User
                        .orElse(password);
     }
 
-    public Set<String> getRoles()
+    public Set<SecurityRole> getRoles()
     {
         return user.getRoles();
     }
@@ -50,14 +58,14 @@ public class EncodedPasswordUser implements User
         return user.getSecurityTokenKey();
     }
 
-    public boolean isEnabled()
+    public Boolean isEnabled()
     {
         return user.isEnabled();
     }
 
-    public Date getLastUpdate()
+    public LocalDateTime getLastUpdated()
     {
-        return user.getLastUpdate();
+        return user.getLastUpdated();
     }
 
     public String getSourceId()

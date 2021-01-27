@@ -1,13 +1,14 @@
 package org.carlspring.strongbox.event;
 
+import java.util.Optional;
+import java.util.concurrent.Executor;
+
+import javax.servlet.ServletContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.core.task.SyncTaskExecutor;
-
-import javax.servlet.ServletContext;
-import java.util.Optional;
-import java.util.concurrent.Executor;
 
 public class EventExecutorFactoryBean implements FactoryBean<Executor>
 {
@@ -40,7 +41,7 @@ public class EventExecutorFactoryBean implements FactoryBean<Executor>
         Executor result;
         if ((result = lookupJettyExecutor()) != null)
         {
-            return result;
+            return new DelayedExecutor(result);
         }
         return null;
     }

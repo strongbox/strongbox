@@ -38,6 +38,6 @@ public class P2ArtifactCoordinatesTest
     public void testToPath()
     {
         P2ArtifactCoordinates artifactCoordinates = new P2ArtifactCoordinates(ID, VERSION, CLASSIFIER);
-        assertThat(artifactCoordinates.toPath()).isEqualTo(PATH);
+        assertThat(artifactCoordinates.buildPath()).isEqualTo(PATH);
     }
 }

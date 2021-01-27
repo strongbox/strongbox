@@ -1,8 +1,8 @@
 package org.carlspring.strongbox.providers.io;
 
-import org.carlspring.strongbox.domain.ArtifactEntry;
-
 import java.nio.file.Path;
+
+import org.carlspring.strongbox.domain.Artifact;
 
 /**
  * @author sbespalov
@@ -17,10 +17,10 @@ public class RootRepositoryPath extends RepositoryPath
         super(target, fileSystem);
     }
 
-    public RepositoryPath resolve(ArtifactEntry artifactEntry)
+    public RepositoryPath resolve(Artifact artifactEntry)
     {
         RepositoryPath result = super.resolve(artifactEntry.getArtifactPath());
-        result.artifactEntry = artifactEntry;
+        result.artifact = artifactEntry;
         return result;
     }
 

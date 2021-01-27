@@ -1,6 +1,6 @@
 package org.carlspring.strongbox.data.criteria;
 
-import org.carlspring.strongbox.data.domain.GenericEntity;
+import org.carlspring.strongbox.data.domain.DomainObject;
 
 /**
  * This class represent a final and ready to perform Query with target
@@ -9,7 +9,7 @@ import org.carlspring.strongbox.data.domain.GenericEntity;
  * @author sbespalov
  *
  */
-public class Selector<T extends GenericEntity>
+public class Selector<T extends DomainObject>
 {
 
     private Class<T> targetClass;

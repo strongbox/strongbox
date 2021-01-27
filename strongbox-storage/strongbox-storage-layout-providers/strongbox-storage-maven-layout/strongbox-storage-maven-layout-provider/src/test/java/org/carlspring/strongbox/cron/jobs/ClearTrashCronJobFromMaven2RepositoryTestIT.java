@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -49,6 +50,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
+    @Disabled("See https://github.com/strongbox/strongbox/issues/1973")
     public void testRemoveTrashInRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1)
                                             @RepositoryAttributes(allowsForceDeletion = true, trashEnabled = true)
                                             Repository repository1,
