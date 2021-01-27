@@ -75,7 +75,7 @@ public class ConfigurableProviderManagerTest
     }
 
     @Test
-    @Disabled
+    @Disabled("See https://github.com/strongbox/strongbox/issues/1802")
     public void testExternalUserShouldBeReplacedWhenExpired()
     {
         // Given: cached external user

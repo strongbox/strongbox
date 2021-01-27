@@ -24,7 +24,7 @@ import org.springframework.http.MediaType;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Disabled
+@Disabled("See https://github.com/strongbox/strongbox/issues/1678")
 public class MavenSearchControllerTest
         extends MavenRestAssuredBaseTest
 {

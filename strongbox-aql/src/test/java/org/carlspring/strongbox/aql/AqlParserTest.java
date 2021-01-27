@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Disabled
+@Disabled("See https://github.com/strongbox/strongbox/issues/1678")
 public class AqlParserTest
 {
 

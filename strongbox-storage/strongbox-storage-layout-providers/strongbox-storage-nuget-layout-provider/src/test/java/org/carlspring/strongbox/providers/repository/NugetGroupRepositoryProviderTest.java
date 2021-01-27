@@ -55,7 +55,7 @@ public class NugetGroupRepositoryProviderTest
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
     @Test
-    @Disabled
+    @Disabled("See https://github.com/strongbox/strongbox/issues/1678")
     public void testGroupSearch(@NugetRepository(repositoryId = REPOSITORY_RELEASES_1)
                                 Repository repository1,
                                 @NugetTestArtifact(repositoryId = REPOSITORY_RELEASES_1,

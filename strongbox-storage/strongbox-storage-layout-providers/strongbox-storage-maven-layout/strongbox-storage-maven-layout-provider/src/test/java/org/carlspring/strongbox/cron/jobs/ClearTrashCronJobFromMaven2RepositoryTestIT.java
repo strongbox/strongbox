@@ -50,7 +50,7 @@ public class ClearTrashCronJobFromMaven2RepositoryTestIT
     @Test
     @ExtendWith({ RepositoryManagementTestExecutionListener.class,
                   ArtifactManagementTestExecutionListener.class })
-    @Disabled
+    @Disabled("See https://github.com/strongbox/strongbox/issues/1973")
     public void testRemoveTrashInRepository(@MavenRepository(repositoryId = REPOSITORY_RELEASES_1)
                                             @RepositoryAttributes(allowsForceDeletion = true, trashEnabled = true)
                                             Repository repository1,

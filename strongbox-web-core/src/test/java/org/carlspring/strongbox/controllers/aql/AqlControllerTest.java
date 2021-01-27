@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.hasSize;
  * @author Pablo Tirado
  */
 @IntegrationTest
-@Disabled
+@Disabled("See https://github.com/strongbox/strongbox/issues/1678")
 public class AqlControllerTest
         extends MavenRestAssuredBaseTest
 {
