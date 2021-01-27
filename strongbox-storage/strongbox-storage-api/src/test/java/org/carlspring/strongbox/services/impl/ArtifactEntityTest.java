@@ -148,57 +148,6 @@ public class ArtifactEntityTest
         assertThat(artifactEntry.getCreated()).isEqualTo(creationDate);
     }
 
-    @Disabled
-    @Test
-    public void cascadeUpdateShouldWork(TestInfo testInfo)
-    {
-        final String groupId = getGroupId(GROUP_ID, testInfo);
-
-        ArtifactCoordinates jarCoordinates = createArtifactCoordinates(groupId, ARTIFACT_ID + "123", "1.2.3", "jar");
-        ArtifactCoordinates pomCoordinates = createArtifactCoordinates(groupId, ARTIFACT_ID + "123", "1.2.3", "pom");
-
-        Optional<Artifact> artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                                                REPOSITORY_ID,
-                                                                                                                jarCoordinates.buildPath()));
-
-        assertThat(artifactEntryOptional).isPresent();
-
-        Artifact artifactEntry = artifactEntryOptional.get();
-        assertThat(artifactEntry.getArtifactCoordinates()).isNotNull();
-        assertThat(artifactEntry.getArtifactCoordinates().buildPath()).isEqualTo(jarCoordinates.buildPath());
-
-        // Simple field update
-        artifactEntry.setRepositoryId(REPOSITORY_ID + "abc");
-        assertThatThrownBy(() -> save(artifactEntry)).isInstanceOf(IllegalStateException.class)
-                                                     .hasMessage("Can't change the uuid, [storage0-aestabc-org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/jar]->[storage0-aest-org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/jar].");
-
-        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                             REPOSITORY_ID,
-                                                                                             jarCoordinates.buildPath()));
-        assertThat(artifactEntryOptional).isNotPresent();
-
-        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                             REPOSITORY_ID + "abc",
-                                                                                             jarCoordinates.buildPath()));
-        assertThat(artifactEntryOptional).isPresent();
-
-        // Cascade field update
-        RawArtifactCoordinates nullArtifactCoordinates = (RawArtifactCoordinates) artifactEntry.getArtifactCoordinates();
-        nullArtifactCoordinates.setId(pomCoordinates.buildPath());
-        assertThatThrownBy(() -> save(artifactEntry)).isInstanceOf(IllegalStateException.class)
-                                                     .hasMessage("Can't change the uuid, [org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/jar]->[org.carlspring.strongbox.aest.cascadeUpdateShouldWork/coordinates-test123/1.2.3/pom].");
-
-        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                             REPOSITORY_ID + "abc",
-                                                                                             jarCoordinates.buildPath()));
-        assertThat(artifactEntryOptional).isPresent();
-
-        artifactEntryOptional = Optional.ofNullable(artifactEntityRepository.findOneArtifact(STORAGE_ID,
-                                                                                             REPOSITORY_ID + "abc",
-                                                                                             pomCoordinates.buildPath()));
-        assertThat(artifactEntryOptional).isNotPresent();
-    }
-
     private Artifact save(Artifact artifactEntry)
     {
         return artifactEntityRepository.save(artifactEntry);
