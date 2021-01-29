@@ -189,8 +189,8 @@ public class LoggingManagementController
     }
 
     @ApiOperation(value = "Used to stream logging file.")
-    @GetMapping(value = "/stream", produces = { org.carlspring.strongbox.net.MediaType.TEXT_EVENT_STREAM_UTF8_VALUE,
-                                                org.carlspring.strongbox.net.MediaType.TEXT_PLAIN_UTF8_VALUE })
+    @GetMapping(value = "/stream", produces = { MediaType.TEXT_EVENT_STREAM_VALUE,
+                                                  org.carlspring.strongbox.net.MediaType.TEXT_PLAIN_UTF8_VALUE })
     public SseEmitter logFileStream()
             throws IOException
     {
@@ -198,8 +198,7 @@ public class LoggingManagementController
         Resource logFileResource = getLogFileResource();
         if (logFileResource == null)
         {
-            sseEmitter.completeWithError(
-                    new IllegalStateException("Missing 'logging.file' or 'logging.path' properties"));
+            sseEmitter.completeWithError(new IllegalStateException("Missing '" +LogFile.FILE_NAME_PROPERTY+ "' or '" + LogFile.FILE_PATH_PROPERTY + "' properties"));
             return sseEmitter;
         }
 
@@ -214,7 +213,7 @@ public class LoggingManagementController
     }
 
     /**
-     * @see LogFileWebEndpoint#getLogFileResource()
+     * @see LogFileWebEndpoint#logFile()
      */
     private Resource getLogFileResource()
     {
@@ -222,12 +221,15 @@ public class LoggingManagementController
         {
             return new FileSystemResource(logFileWebEndpointProperties.get().getExternalFile());
         }
+
         LogFile logFile = LogFile.get(environment);
+
         if (logFile == null)
         {
-            logger.debug("Missing 'logging.file' or 'logging.path' properties");
+            logger.debug("Missing '" +LogFile.FILE_NAME_PROPERTY+ "' or '" + LogFile.FILE_PATH_PROPERTY + "' properties");
             return null;
         }
+
         return new FileSystemResource(logFile.toString());
     }
 

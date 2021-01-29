@@ -13,7 +13,7 @@
     <springProperty scope="context" name="console" source="logging.console.enabled" defaultValue="true"/>
 
     <springProperty scope="context" name="file" source="logging.file.enabled" defaultValue="true"/>
-    <springProperty scope="context" name="loggingFile" source="logging.file" defaultValue="strongbox-vault/logs/strongbox.log"/>
+    <springProperty scope="context" name="loggingFile" source="logging.file.name" defaultValue="strongbox-vault/logs/strongbox.log"/>
     <springProperty scope="context" name="fileSizeSingle" source="logging.file.size.single" defaultValue="128MB"/>
     <springProperty scope="context" name="fileSizeTotal" source="logging.file.size.total" defaultValue="1GB"/>
     <springProperty scope="context" name="fileHisotry" source="logging.file.history" defaultValue="31"/>

@@ -211,8 +211,7 @@ public class LoggingManagementControllerTest
         pureMockMvc.perform(asyncDispatch(mvcResult))
                    .andDo(MockMvcResultHandlers.log())
                    .andExpect(status().isOk())
-                   .andExpect(
-                           content().contentType(org.carlspring.strongbox.net.MediaType.TEXT_EVENT_STREAM_UTF8_VALUE));
+                   .andExpect(content().contentType(MediaType.TEXT_EVENT_STREAM_VALUE));
 
         final String response = mvcResult.getResponse().getContentAsString();
 
