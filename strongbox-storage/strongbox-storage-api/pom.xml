@@ -8,12 +8,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-PR-62-SNAPSHOT</version>
+        <version>1.0-issues-1649-steve-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-storage-api</artifactId>
-    <version>1.0-PR-62-SNAPSHOT</version>
+    <version>1.0-issues-1649-steve-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: Storage [API]</name>
@@ -82,53 +82,53 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-configuration</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-event-api</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-core</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-data-service</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-client</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-security-api</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-maven-metadata-api</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-common-resources</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-api-resources</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-core</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 

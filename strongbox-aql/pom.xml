@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-PR-62-SNAPSHOT</version>
+        <version>1.0-issues-1649-steve-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-aql</artifactId>
-    <version>1.0-PR-62-SNAPSHOT</version>
+    <version>1.0-issues-1649-steve-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: AQL</name>
@@ -62,22 +62,22 @@
                     <dependency>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-storage-maven-layout-provider</artifactId>
-                        <version>${project.version}</version>
+                        <version>1.0-issues-1649-steve-SNAPSHOT</version>
                     </dependency>
                     <dependency>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-storage-nuget-layout-provider</artifactId>
-                        <version>${project.version}</version>
+                        <version>1.0-issues-1649-steve-SNAPSHOT</version>
                     </dependency>
                     <dependency>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-storage-npm-layout-provider</artifactId>
-                        <version>${project.version}</version>
+                        <version>1.0-issues-1649-steve-SNAPSHOT</version>
                     </dependency>
                     <dependency>
                         <groupId>${project.groupId}</groupId>
                         <artifactId>strongbox-commons</artifactId>
-                        <version>${project.version}</version>
+                        <version>1.0-issues-1649-steve-SNAPSHOT</version>
                     </dependency>
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
@@ -131,12 +131,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-data-service</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-storage-api</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
 
         <dependency>

@@ -8,12 +8,12 @@
     <parent>
         <groupId>org.carlspring.strongbox</groupId>
         <artifactId>strongbox-parent</artifactId>
-        <version>1.0-PR-62-SNAPSHOT</version>
+        <version>1.0-issues-1649-steve-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <artifactId>strongbox-distribution</artifactId>
-    <version>1.0-PR-62-SNAPSHOT</version>
+    <version>1.0-issues-1649-steve-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Strongbox: Distribution</name>
@@ -361,7 +361,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-web-core</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
             <classifier>spring-boot</classifier>
         </dependency>
     </dependencies>

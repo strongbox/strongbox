@@ -6,14 +6,14 @@
     <parent>
         <artifactId>strongbox-parent</artifactId>
         <groupId>org.carlspring.strongbox</groupId>
-        <version>1.0-PR-62-SNAPSHOT</version>
+        <version>1.0-issues-1649-steve-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>strongbox-user-management</artifactId>
-    <version>1.0-PR-62-SNAPSHOT</version>
+    <version>1.0-issues-1649-steve-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Strongbox: User Management</name>
@@ -85,18 +85,18 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-authentication-api</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-data-service</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-testing-core</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
 
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>strongbox-security-api</artifactId>
-            <version>${project.version}</version>
+            <version>1.0-issues-1649-steve-SNAPSHOT</version>
         </dependency>
 
 
