@@ -2,6 +2,7 @@ package org.carlspring.strongbox.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import org.carlspring.strongbox.users.userdetails.StrongboxUserDetails;
 import org.carlspring.strongbox.util.LocalDateTimeInstance;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -41,6 +43,7 @@ import org.springframework.test.context.TestPropertySource;
                                    "users.external.cache.seconds=3600",
                                    "strongbox.users.config.yaml=classpath:/etc/conf/eudst-strongbox-security-users.yaml" })
 @ContextConfiguration(classes = TestConfig.class)
+@Execution(SAME_THREAD)
 public class ConfigurableProviderManagerTest
 {
 
