@@ -22,7 +22,7 @@ public enum UserFormToUserDtoConverter
         user.setUsername(userForm.getUsername());
         user.setPassword(userForm.getPassword());
         user.setEnabled(userForm.isEnabled());
-        user.setRoles(userForm.getRoles());
+        user.setRoleNames(userForm.getRoles());
         user.setSecurityTokenKey(userForm.getSecurityTokenKey());
 
         return user;

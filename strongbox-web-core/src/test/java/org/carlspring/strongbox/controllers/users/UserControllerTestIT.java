@@ -439,7 +439,7 @@ public class UserControllerTestIT
         user.setUsername(username);
         user.setPassword(newPassword);
         user.setSecurityTokenKey("some-security-token");
-        user.setRoles(ImmutableSet.of(SystemRole.UI_MANAGER.name()));
+        user.setRoleNames(ImmutableSet.of(SystemRole.UI_MANAGER.name()));
         userService.save(user);
 
         UserForm admin = buildUser(username, newPassword);

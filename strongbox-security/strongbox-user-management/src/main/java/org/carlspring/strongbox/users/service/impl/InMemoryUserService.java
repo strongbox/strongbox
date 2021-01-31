@@ -122,10 +122,7 @@ public class InMemoryUserService implements UserService
 
             userDto.setUsername(user.getUsername());
             userDto.setEnabled(user.isEnabled());
-            userDto.setRoles(user.getRoles()
-                                 .stream()
-                                 .map(SecurityRole::getRoleName)
-                                 .collect(Collectors.toSet()));
+            userDto.setRoles(user.getRoles());
             userDto.setSecurityTokenKey(user.getSecurityTokenKey());
             userDto.setLastUpdate(LocalDateTimeInstance.now());
 

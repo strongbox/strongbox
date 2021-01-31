@@ -197,7 +197,7 @@ public class LoginControllerTest
         UserDto cacheEvictionTestUser = new UserDto();
         cacheEvictionTestUser.setUsername("admin-cache-eviction-test");
         cacheEvictionTestUser.setPassword("password");
-        cacheEvictionTestUser.setRoles(ImmutableSet.of("ADMIN"));
+        cacheEvictionTestUser.setRoleNames(ImmutableSet.of("ADMIN"));
         cacheEvictionTestUser.setEnabled(true);
         cacheEvictionTestUser.setSecurityTokenKey("admin-cache-eviction-test-secret");
         userService.save(new EncodedPasswordUser(cacheEvictionTestUser, passwordEncoder));

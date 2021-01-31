@@ -2,6 +2,7 @@ package org.carlspring.strongbox.users.dto;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import org.carlspring.strongbox.domain.SecurityRole;
 import org.carlspring.strongbox.domain.SecurityRoleEntity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * @author mtodorov
@@ -29,7 +31,6 @@ public class UserDto
 
     private String securityTokenKey;
 
-    @JsonIgnore
     private LocalDateTime lastUpdate;
 
     private String sourceId;
@@ -63,6 +64,7 @@ public class UserDto
     }
 
     @Override
+    @JsonIgnore
     public Set<SecurityRole> getRoles()
     {
         return roles != null ? roles.stream()
@@ -71,11 +73,28 @@ public class UserDto
                              : new HashSet<>();
     }
 
-    public void setRoles(Set<String> roles)
+    public void setRoles(Set<SecurityRole> roles)
+    {
+        if (roles == null)
+        {
+            this.roles = new HashSet<>();
+            return;
+        }
+        this.roles = roles.stream().map(SecurityRole::getRoleName).collect(Collectors.toSet());
+    }
+
+    public void setRoleNames(Set<String> roles)
     {
         this.roles = roles != null ? new HashSet<>(roles) : new HashSet<>();
     }
 
+    @JsonProperty("roles")
+    public Set<String> getRoleNames()
+    {
+        return Collections.unmodifiableSet(roles);
+    }
+
+    
     public void addRole(String role)
     {
         roles.add(role);
@@ -119,6 +138,7 @@ public class UserDto
     }
 
     @Override
+    @JsonIgnore
     public LocalDateTime getLastUpdated()
     {
         return lastUpdate;
@@ -130,6 +150,7 @@ public class UserDto
     }
 
     @Override
+    @JsonIgnore
     public String getSourceId()
     {
         return sourceId;

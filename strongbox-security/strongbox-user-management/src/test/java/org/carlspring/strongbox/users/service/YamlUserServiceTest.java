@@ -206,7 +206,7 @@ public class YamlUserServiceTest
         userUpdate.setPassword("another-password");
         userUpdate.setSecurityTokenKey("after");
         userUpdate.setEnabled(false);
-        userUpdate.setRoles(new HashSet<>(Arrays.asList("a", "b")));
+        userUpdate.setRoleNames(new HashSet<>(Arrays.asList("a", "b")));
 
         userService.updateAccountDetailsByUsername(userUpdate);
 
