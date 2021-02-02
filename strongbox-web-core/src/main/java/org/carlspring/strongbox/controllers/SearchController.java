@@ -45,7 +45,7 @@ public class SearchController
      * @throws ParseException
      */
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @GetMapping(consumes = { MediaType.APPLICATION_OCTET_STREAM_VALUE,
                              MediaType.TEXT_PLAIN_VALUE },

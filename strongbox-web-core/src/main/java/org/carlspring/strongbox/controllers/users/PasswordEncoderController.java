@@ -38,7 +38,7 @@ public class PasswordEncoderController
     private PasswordEncoder passwordEncoder;
 
     @ApiOperation(value = "Encodes submitted raw password")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "Returns encoded password"))
+    @ApiResponses(value = @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Returns encoded password"))
     @PostMapping(consumes = { MediaType.APPLICATION_JSON_VALUE },
                  produces = { MediaType.APPLICATION_JSON_VALUE,
                               MediaType.TEXT_PLAIN_VALUE })

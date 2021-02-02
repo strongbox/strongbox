@@ -57,7 +57,7 @@ public class FormDataController
 
 
     @ApiOperation(value = "Used to retrieve all assignable user roles and privileges")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "Collection of all assignable user roles and privileges") })
     @PreAuthorize("hasAuthority('CREATE_USER') or hasAuthority('UPDATE_USER')")
     @GetMapping(value = "/userFields",
@@ -70,7 +70,7 @@ public class FormDataController
     }
 
     @ApiOperation(value = "Used to retrieve collection of storage form data")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Collection of storage form data") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Collection of storage form data") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE') or hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @GetMapping(value = "/storageFields", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getStorageFields()
@@ -93,7 +93,7 @@ public class FormDataController
     }
 
     @ApiOperation(value = "Used to retrieve storage names")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Storage names") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Storage names") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @GetMapping(value = "/storageNames", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getStorageNames(@ApiParam(value = "Storage name filter")
@@ -113,7 +113,7 @@ public class FormDataController
     }
 
     @ApiOperation(value = "Returns a list of repository names")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "List of repository names") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "List of repository names") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/repositoryNames", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRepositoryNames(@ApiParam(value = "Search for repository names in a specific storageId")
@@ -172,7 +172,7 @@ public class FormDataController
     }
 
     @ApiOperation(value = "Returns a list of repository names in group repositories")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "List of repository names") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "List of repository names") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/repositoryNamesInGroupRepositories", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRepositoryNamesInGroup(

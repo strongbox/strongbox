@@ -45,9 +45,9 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Update number of pool connections pool for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Number of pool connections for proxy repository was updated successfully."),
-                            @ApiResponse(code = 400, message = "The proxy repository has no associated remote repository."),
-                            @ApiResponse(code = 404, message = "The (storage/repository) does not exist!") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Number of pool connections for proxy repository was updated successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = "The proxy repository has no associated remote repository."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The (storage/repository) does not exist!") })
     @PutMapping(value = "{storageId}/{repositoryId}/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -76,11 +76,11 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Get proxy repository pool stats")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "Proxy repository pool stats where retrieved."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Repository doesn't have remote repository!"),
-                            @ApiResponse(code = 404,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND,
                                     message = "The (storage/repository) does not exist!") })
     @GetMapping(value = "{storageId}/{repositoryId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -103,9 +103,9 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Update default number of connections for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "Default number of connections for proxy repository was updated successfully."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not update default number of connections for proxy repository.") })
     @PutMapping(value = "default/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -120,9 +120,9 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Get default number of connections for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "Default number of connections was retrieved."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not get default number of connections for proxy repository.") })
     @GetMapping(value = "default-number",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -134,9 +134,9 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Update max number of connections for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "Max number of connections for proxy repository was updated successfully."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not update max number of connections for proxy repository.") })
     @PutMapping(value = "max/{numberOfConnections}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -151,9 +151,9 @@ public class HttpConnectionPoolConfigurationManagementController
     }
 
     @ApiOperation(value = "Get max number of connections for proxy repository")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "Max number of connections for proxy repository was retrieved."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not get max number of connections for proxy repository.") })
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })

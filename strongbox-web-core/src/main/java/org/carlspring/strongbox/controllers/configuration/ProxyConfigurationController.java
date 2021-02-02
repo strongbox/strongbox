@@ -46,9 +46,9 @@ public class ProxyConfigurationController
     }
 
     @ApiOperation(value = "Updates the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE),
-                            @ApiResponse(code = 400, message = FAILED_UPDATE_FORM_ERROR),
-                            @ApiResponse(code = 500, message = FAILED_UPDATE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_UPDATE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_UPDATE_FORM_ERROR),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = FAILED_UPDATE) })
     @PreAuthorize("hasAuthority('CONFIGURATION_SET_GLOBAL_PROXY_CFG')")
     @PutMapping(value = "",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -88,8 +88,8 @@ public class ProxyConfigurationController
     }
 
     @ApiOperation(value = "Returns the proxy configuration for a repository, if one is specified, or, otherwise, the global proxy settings.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 404, message = NOT_FOUND_PROXY_CFG) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = ""),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_PROXY_CFG) })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_GLOBAL_PROXY_CFG')")
     @GetMapping(value = "",
                 produces = MediaType.APPLICATION_JSON_VALUE)

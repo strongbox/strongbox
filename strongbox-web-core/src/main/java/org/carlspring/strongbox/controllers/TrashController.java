@@ -38,11 +38,11 @@ public class TrashController
     private RepositoryManagementService repositoryManagementService;
 
     @ApiOperation(value = "Used to delete the trash for a specified repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "The trash for ${storageId}:${repositoryId}' was removed successfully."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not delete the trash for a specified storageId/repositoryId."),
-                            @ApiResponse(code = 404,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND,
                                          message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_TRASH')")
     @DeleteMapping(value = "{storageId}/{repositoryId}",
@@ -75,9 +75,9 @@ public class TrashController
     }
 
     @ApiOperation(value = "Used to delete the trash for all repositories.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "The trash for all repositories was successfully removed."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not delete the trash for all repositories.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_ALL_TRASHES')")
     @DeleteMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -105,11 +105,11 @@ public class TrashController
     }
 
     @ApiOperation(value = "Used to undelete the trash for a path under a specified repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not restore the trash for the specified repository."),
-                            @ApiResponse(code = 404,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND,
                                          message = "The specified (storageId/repositoryId/path) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @PostMapping("{storageId}/{repositoryId}/{path:.+}")
@@ -150,11 +150,11 @@ public class TrashController
     }
 
     @ApiOperation(value = "Used to undelete the trash for a specified repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "The trash for '${storageId}:${repositoryId}' was restored successfully."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not restore the trash for a specified repository."),
-                            @ApiResponse(code = 404,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND,
                                          message = "The specified (storageId/repositoryId) does not exist!") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_TRASH')")
     @PutMapping(value = "{storageId}/{repositoryId}",
@@ -184,9 +184,9 @@ public class TrashController
     }
 
     @ApiOperation(value = "Used to undelete the trash for all repositories.")
-    @ApiResponses(value = { @ApiResponse(code = 200,
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK,
                                          message = "The trash for all repositories was successfully restored."),
-                            @ApiResponse(code = 400,
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST,
                                          message = "Could not restore the trash for all repositories.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_UNDELETE_ALL_TRASHES')")
     @PostMapping(produces = { MediaType.TEXT_PLAIN_VALUE,

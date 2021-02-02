@@ -102,7 +102,7 @@ public class UserController
     private PasswordEncoder passwordEncoder;
     
     @ApiOperation(value = "Used to retrieve all users")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_USERS) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GET_USERS) })
     @PreAuthorize("hasAuthority('VIEW_USER')")
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     @ResponseBody
@@ -119,8 +119,8 @@ public class UserController
     }
 
     @ApiOperation(value = "Used to retrieve a user")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_USER),
-                            @ApiResponse(code = 404, message = NOT_FOUND_USER) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GET_USER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('VIEW_USER')")
     @GetMapping(value = "{username}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -151,8 +151,8 @@ public class UserController
     }
 
     @ApiOperation(value = "Used to create a new user")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_CREATE_USER),
-                            @ApiResponse(code = 400, message = FAILED_CREATE_USER) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_CREATE_USER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_CREATE_USER) })
     @PreAuthorize("hasAuthority('CREATE_USER')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -174,9 +174,9 @@ public class UserController
     }
 
     @ApiOperation(value = "Used to update an existing user")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_USER),
-                            @ApiResponse(code = 400, message = FAILED_UPDATE_USER),
-                            @ApiResponse(code = 403, message = USER_DELETE_FORBIDDEN) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_UPDATE_USER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_UPDATE_USER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_FORBIDDEN, message = USER_DELETE_FORBIDDEN) })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @PutMapping(value = "{username}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -214,10 +214,10 @@ public class UserController
     }
 
     @ApiOperation(value = "Deletes a user from a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE_USER),
-                            @ApiResponse(code = 400, message = FAILED_DELETE_USER),
-                            @ApiResponse(code = 403, message = USER_DELETE_FORBIDDEN),
-                            @ApiResponse(code = 404, message = NOT_FOUND_USER) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_DELETE_USER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_DELETE_USER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_FORBIDDEN, message = USER_DELETE_FORBIDDEN),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('DELETE_USER')")
     @DeleteMapping(value = "{username}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -256,9 +256,9 @@ public class UserController
     }
 
     @ApiOperation(value = "Generate new security token for specified user.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GENERATE_SECURITY_TOKEN),
-                            @ApiResponse(code = 400, message = FAILED_GENERATE_SECURITY_TOKEN),
-                            @ApiResponse(code = 404, message = NOT_FOUND_USER) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GENERATE_SECURITY_TOKEN),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_GENERATE_SECURITY_TOKEN),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_USER) })
     @PreAuthorize("hasAuthority('UPDATE_USER')")
     @GetMapping(value = "{username}/generate-security-token",
                 produces = { MediaType.TEXT_PLAIN_VALUE,

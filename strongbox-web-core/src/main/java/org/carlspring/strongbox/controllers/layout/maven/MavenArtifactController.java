@@ -59,10 +59,10 @@ public class MavenArtifactController
     }
 
     @ApiOperation(value = "Used to retrieve an artifact")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 404, message = "Requested path not found."),
-                            @ApiResponse(code = 500, message = "Server error."),
-                            @ApiResponse(code = 503, message = "Repository currently not in service.")})
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = ""),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "Requested path not found."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "Server error."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_SERVICE_UNAVAILABLE, message = "Repository currently not in service.")})
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @RequestMapping(value = { "/{storageId}/{repositoryId}/{artifactPath:.+}" }, method = {RequestMethod.GET, RequestMethod.HEAD})
     public void download(@RepositoryMapping Repository repository,
@@ -83,8 +83,8 @@ public class MavenArtifactController
     }
 
     @ApiOperation(value = "Used to deploy an artifact")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The artifact was deployed successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(value = "{storageId}/{repositoryId}/{artifactPath:.+}")
     public ResponseEntity upload(@RepositoryMapping Repository repository,
@@ -110,9 +110,9 @@ public class MavenArtifactController
     }
 
     @ApiOperation(value = "Copies a path from one repository to another.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The path was copied successfully."),
-                            @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The source/destination storageId/repositoryId/path does not exist!") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The path was copied successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = "Bad request."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The source/destination storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_COPY')")
     @PostMapping(value = "/copy/{path:.+}")
     public ResponseEntity copy(
@@ -163,9 +163,9 @@ public class MavenArtifactController
     }
 
     @ApiOperation(value = "Deletes a path from a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deleted."),
-                            @ApiResponse(code = 400, message = "Bad request."),
-                            @ApiResponse(code = 404, message = "The specified storageId/repositoryId/path does not exist!") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The artifact was deleted."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = "Bad request."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The specified storageId/repositoryId/path does not exist!") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DELETE')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}/{artifactPath:.+}")
     public ResponseEntity delete(@RepositoryMapping Repository repository,

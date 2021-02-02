@@ -92,8 +92,8 @@ public class StoragesConfigurationController
     }
 
     @ApiOperation(value = "Adds a storage.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was created successfully."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The storage was created successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = MediaType.APPLICATION_JSON_VALUE)
@@ -125,8 +125,8 @@ public class StoragesConfigurationController
     }
 
     @ApiOperation(value = "Updates a storage.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was updated successfully."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The storage was updated successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_STORAGE')")
     @PutMapping(value = "{storageId}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -165,7 +165,7 @@ public class StoragesConfigurationController
 
     @JsonView(Views.ShortStorage.class)
     @ApiOperation(value = "Retrieve the basic info about storages.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorages()
@@ -178,8 +178,8 @@ public class StoragesConfigurationController
 
     @JsonView(Views.LongStorage.class)
     @ApiOperation(value = "Retrieve the configuration of a storage.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 404, message = "The storage ${storageId} was not found.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = ""),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The storage ${storageId} was not found.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_STORAGE_CONFIGURATION')")
     @GetMapping(value = "/{storageId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getStorageResponseEntity(@ApiParam(value = "The storageId", required = true)
@@ -198,9 +198,9 @@ public class StoragesConfigurationController
     }
 
     @ApiOperation(value = "Deletes a storage.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The storage was removed successfully."),
-                            @ApiResponse(code = 404, message = "The storage ${storageId} was not found!"),
-                            @ApiResponse(code = 500, message = "Failed to remove storage ${storageId}!") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The storage was removed successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The storage ${storageId} was not found!"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "Failed to remove storage ${storageId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_STORAGE_CONFIGURATION')")
     @DeleteMapping(value = "/{storageId}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -238,9 +238,9 @@ public class StoragesConfigurationController
     }
 
     @ApiOperation(value = "Adds or updates a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully."),
-                            @ApiResponse(code = 404, message = "The repository ${repositoryId} was not found!"),
-                            @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The repository was updated successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The repository ${repositoryId} was not found!"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_ADD_UPDATE_REPOSITORY')")
     @PutMapping(value = "/{storageId}/{repositoryId}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -292,8 +292,8 @@ public class StoragesConfigurationController
     }
 
     @ApiOperation(value = "Returns the configuration of a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was updated successfully.", response = RepositoryDto.class),
-                            @ApiResponse(code = 404, message = "The repository ${storageId}:${repositoryId} was not found!") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The repository was updated successfully.", response = RepositoryDto.class),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The repository ${storageId}:${repositoryId} was not found!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW_REPOSITORY')")
     @GetMapping(value = "/{storageId}/{repositoryId}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
@@ -303,9 +303,9 @@ public class StoragesConfigurationController
     }
 
     @ApiOperation(value = "Deletes a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The repository was deleted successfully."),
-                            @ApiResponse(code = 404, message = "The repository ${storageId}:${repositoryId} was not found!"),
-                            @ApiResponse(code = 500, message = "Failed to remove the repository ${repositoryId}!") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The repository was deleted successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The repository ${storageId}:${repositoryId} was not found!"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "Failed to remove the repository ${repositoryId}!") })
     @PreAuthorize("hasAuthority('CONFIGURATION_DELETE_REPOSITORY')")
     @DeleteMapping(value = "/{storageId}/{repositoryId}",
                    produces = MediaType.APPLICATION_JSON_VALUE)

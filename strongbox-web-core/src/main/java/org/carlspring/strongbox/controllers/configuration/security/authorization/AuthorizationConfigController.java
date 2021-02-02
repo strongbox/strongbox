@@ -83,8 +83,8 @@ public class AuthorizationConfigController
 
 
     @ApiOperation(value = "Used to add new roles")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD_ROLE),
-                            @ApiResponse(code = 400, message = FAILED_ADD_ROLE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_ADD_ROLE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_ADD_ROLE) })
     @PostMapping(value = "/role",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
@@ -105,8 +105,8 @@ public class AuthorizationConfigController
     }
 
     @ApiOperation(value = "Retrieves the strongbox-authorization.yaml configuration file.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIG),
-                            @ApiResponse(code = 500, message = FAILED_GET_CONFIG) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GET_CONFIG),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = FAILED_GET_CONFIG) })
     @GetMapping(produces = { APPLICATION_YAML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAuthorizationConfig(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -115,8 +115,8 @@ public class AuthorizationConfigController
     }
 
     @ApiOperation(value = "Deletes a role by name.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE_ROLE),
-                            @ApiResponse(code = 400, message = FAILED_DELETE_ROLE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_DELETE_ROLE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_DELETE_ROLE) })
     @DeleteMapping(value = "/role/{name}",
                    produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity deleteRole(@ApiParam(value = "The name of the role", required = true)
@@ -151,8 +151,8 @@ public class AuthorizationConfigController
     }
 
     @ApiOperation(value = "Used to assign privileges to the anonymous user")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ASSIGN_PRIVILEGES),
-                            @ApiResponse(code = 400, message = FAILED_ASSIGN_PRIVILEGES) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_ASSIGN_PRIVILEGES),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_ASSIGN_PRIVILEGES) })
     @PostMapping(value = "/anonymous/privileges",
                  consumes = MediaType.APPLICATION_JSON_VALUE,
                  produces = { MediaType.TEXT_PLAIN_VALUE, MediaType.APPLICATION_JSON_VALUE })

@@ -33,7 +33,7 @@ public class AqlController extends BaseController
     private AqlSearchService aqlSearchService;
 
     @ApiOperation(value = "Used to search for artifacts.", response = SearchResults.class)
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "OK") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "OK") })
     @PreAuthorize("hasAuthority('SEARCH_ARTIFACTS')")
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity search(@ApiParam(value = "Search query", required = true) @RequestParam(name = "query", required = true) String query)

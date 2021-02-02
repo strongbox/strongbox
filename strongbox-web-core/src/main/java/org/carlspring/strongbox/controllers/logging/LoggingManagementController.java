@@ -94,8 +94,8 @@ public class LoggingManagementController
     }
 
     @ApiOperation(value = "Used to download log data.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The log file was retrieved successfully."),
-                            @ApiResponse(code = 400, message = "Could not download log data.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The log file was retrieved successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = "Could not download log data.") })
     @GetMapping(value = "/download/{path:.+}",
                 produces = { MediaType.APPLICATION_OCTET_STREAM_VALUE, // forces browser to actually download the file
                              MediaType.TEXT_PLAIN_VALUE,               // plain text / json upon errors
@@ -132,8 +132,8 @@ public class LoggingManagementController
     }
 
     @ApiOperation(value = "Used to get logs directory.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The logs directory was retrieved successfully."),
-                            @ApiResponse(code = 500, message = "Server error.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The logs directory was retrieved successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "Server error.") })
     @GetMapping(value = { "/browse/{path:.+}" },
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,

@@ -55,8 +55,8 @@ public class ArtifactCoordinateValidatorsManagementController
     
     
     @ApiOperation(value = "Enumerates all version validators of the requested repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_LIST),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_LIST),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/{storageId}/{repositoryId}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listArtifactCoordinatesForRepository(@RepositoryMapping Repository repository)
@@ -70,8 +70,8 @@ public class ArtifactCoordinateValidatorsManagementController
     }
 
     @ApiOperation(value = "Adds version validator type to the requested repository")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_ADD),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @PutMapping(value = "/{storageId}/{repositoryId}/{alias}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -87,8 +87,8 @@ public class ArtifactCoordinateValidatorsManagementController
         return getSuccessfulResponseEntity(SUCCESSFUL_ADD, acceptHeader);
     }
 
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_DELETE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @DeleteMapping(value = "/{storageId}/{repositoryId}/{alias}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
@@ -111,8 +111,8 @@ public class ArtifactCoordinateValidatorsManagementController
     }
 
     @ApiOperation(value = "Returns a list of all the available artifact coordinate validators in the registry")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_LIST),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_LIST),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/validators",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listArtifactCoordinateValidators()
@@ -123,8 +123,8 @@ public class ArtifactCoordinateValidatorsManagementController
     }
 
     @ApiOperation(value = "Returns a list of artifact coordinate validators supported for a given layout provider")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_LIST),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY_MESSAGE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_LIST),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_REPOSITORY_MESSAGE) })
     @GetMapping(value = "/validators/{layoutProvider}",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity listArtifactCoordinateValidatorsForLayoutProvider(@PathVariable String layoutProvider,

@@ -55,8 +55,8 @@ public class BrowseController
     private volatile DirectoryListingService directoryListingService;
     
     @ApiOperation(value = "List configured storages.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The list was returned."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.TEXT_HTML_VALUE,
@@ -92,9 +92,9 @@ public class BrowseController
     }
 
     @ApiOperation(value = "List configured repositories for a storage.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
-                            @ApiResponse(code = 404, message = "The requested storage was not found."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The list was returned."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The requested storage was not found."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @GetMapping(value="/{storageId}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -136,9 +136,9 @@ public class BrowseController
     }
 
     @ApiOperation(value = "List the contents for a repository.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
-                            @ApiResponse(code = 404, message = "The requested storage, repository, or path was not found."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The list was returned."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = "The requested storage, repository, or path was not found."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @GetMapping(value = { "{storageId}/{repositoryId}/{path:.+}" },
                 produces = { MediaType.TEXT_PLAIN_VALUE,

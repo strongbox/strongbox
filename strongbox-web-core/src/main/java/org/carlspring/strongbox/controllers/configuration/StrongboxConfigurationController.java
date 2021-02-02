@@ -34,8 +34,8 @@ public class StrongboxConfigurationController
     }
 
     @ApiOperation(value = "Upload a strongbox.yaml and reload the server's configuration.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The configuration was updated successfully."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The configuration was updated successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_UPLOAD')")
     @PutMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE,
@@ -55,8 +55,8 @@ public class StrongboxConfigurationController
     }
 
     @ApiOperation(value = "Retrieves the strongbox.yaml configuration file.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = ""),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('CONFIGURATION_VIEW')")
     @GetMapping(produces = { APPLICATION_YAML_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })

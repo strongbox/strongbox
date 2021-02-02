@@ -42,8 +42,8 @@ public class EnvironmentInfoController
     private UserService userService;
 
     @ApiOperation(value = "List all the environment variables, system properties and JVM arguments.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The list was returned."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getEnvironmentInfo()
     {

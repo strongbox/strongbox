@@ -58,9 +58,9 @@ public class LoginController
     private JwtClaimsProvider jwtClaimsProvider;
 
     @ApiOperation(value = "Returns the JWT authentication token for provided username and password")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Returns generated JWT token"),
-                            @ApiResponse(code = 401, message = "Invalid credentials"),
-                            @ApiResponse(code = 500, message = "org.springframework.security.core.Authentication " +
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Returns generated JWT token"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_UNAUTHORIZED, message = "Invalid credentials"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "org.springframework.security.core.Authentication " +
                                                                "fetched by the strongbox security implementation " +
                                                                "is not supported") })
     @PreAuthorize("hasAuthority('UI_LOGIN')")
@@ -70,9 +70,9 @@ public class LoginController
     }
     
     @ApiOperation(value = "Returns the JWT authentication token for provided username and password")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Returns generated JWT token"),
-                            @ApiResponse(code = 401, message = "Invalid credentials"),
-                            @ApiResponse(code = 500, message = "org.springframework.security.core.Authentication " +
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Returns generated JWT token"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_UNAUTHORIZED, message = "Invalid credentials"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "org.springframework.security.core.Authentication " +
                                                                "fetched by the strongbox security implementation " +
                                                                "is not supported") })
     @PreAuthorize("hasAuthority('UI_LOGIN')")

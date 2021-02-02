@@ -51,7 +51,7 @@ public class AuthenticatorsConfigController
     private ConfigurableProviderManager providerManager;
 
     @ApiOperation(value = "Enumerates ordered collection of authenticators with order number and name")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The list was returned successfully.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The list was returned successfully.") })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public AuthenticationItems list()
     {
@@ -59,8 +59,8 @@ public class AuthenticatorsConfigController
     }
 
     @ApiOperation(value = "Reorders authenticators by their names")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
-                            @ApiResponse(code = 400, message = FAILED_REORDER) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_REORDER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_REORDER) })
     @PutMapping(path = "/reorder/{first}/{second}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -80,8 +80,8 @@ public class AuthenticatorsConfigController
     }
 
     @ApiOperation(value = "Reorders authenticators by their indexes")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REORDER),
-                            @ApiResponse(code = 400, message = FAILED_REORDER) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_REORDER),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_REORDER) })
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity update(@RequestBody AuthenticationItems authenticationItems,
                                  @RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -98,8 +98,8 @@ public class AuthenticatorsConfigController
     }
     
     @ApiOperation(value = "Reloads authenticators registry")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_RELOAD),
-                            @ApiResponse(code = 500, message = FAILED_RELOAD) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_RELOAD),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = FAILED_RELOAD) })
     @PutMapping(path = "/reload",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })

@@ -51,7 +51,7 @@ public class CorsConfigurationController
     private ConfigurationManagementService configurationManagementService;
 
     @ApiOperation(value = "Returns allowed origins")
-    @ApiResponses(value = @ApiResponse(code = 200, message = "Allowed origins."))
+    @ApiResponses(value = @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Allowed origins."))
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getAllowedOrigins()
@@ -73,8 +73,8 @@ public class CorsConfigurationController
                   notes = "In the request body, put an array of all allowed origins like this example: " +
                           "allowedOrigins: [\"http://example-a.com/\",\"http://example-b.com/foo/bar\"] " +
                           "You can always provide [\"*\"] to allow all origins.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = CorsConfigurationController.SUCCESSFUL_UPDATE),
-                            @ApiResponse(code = 400, message = CorsConfigurationController.FAILED_UPDATE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = CorsConfigurationController.SUCCESSFUL_UPDATE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = CorsConfigurationController.FAILED_UPDATE) })
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })

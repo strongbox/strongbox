@@ -59,8 +59,8 @@ public class RoutingConfigurationController
     }
 
     @ApiOperation(value = "Returns routing rule for uuid.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok."),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Everything went ok."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_REPOSITORY) })
     @GetMapping(value = "{uuid}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -78,7 +78,7 @@ public class RoutingConfigurationController
     }
 
     @ApiOperation(value = "Returns routing rules.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Everything went ok.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Everything went ok.") })
     @GetMapping(produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity getRoutingRules()
@@ -88,9 +88,9 @@ public class RoutingConfigurationController
     }
 
     @ApiOperation(value = "Adds a routing rule.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_ADD_ROUTING_RULE),
-                            @ApiResponse(code = 400, message = FAILED_ADD_ROUTING_RULE_FORM_ERRORS),
-                            @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_ADD_ROUTING_RULE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_ADD_ROUTING_RULE_FORM_ERRORS),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = FAILED_ADD_ROUTING_RULE) })
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -110,8 +110,8 @@ public class RoutingConfigurationController
     }
 
     @ApiOperation(value = "Removes routing rule having provided uuid.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_REMOVE_ROUTING_RULE),
-                            @ApiResponse(code = 404, message = FAILED_ADD_ROUTING_RULE) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_REMOVE_ROUTING_RULE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = FAILED_ADD_ROUTING_RULE) })
     @DeleteMapping(value = "/{uuid}",
                    produces = { MediaType.TEXT_PLAIN_VALUE,
                                 MediaType.APPLICATION_JSON_VALUE })
@@ -124,9 +124,9 @@ public class RoutingConfigurationController
     }
 
     @ApiOperation(value = "Updates routing rule at the specified index.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = FAILED_UPDATE_ROUTING_RULE),
-                            @ApiResponse(code = 400, message = FAILED_UPDATE_ROUTING_RULE_FORM_ERROR),
-                            @ApiResponse(code = 404, message = NOT_FOUND_REPOSITORY) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = FAILED_UPDATE_ROUTING_RULE),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_UPDATE_ROUTING_RULE_FORM_ERROR),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_REPOSITORY) })
     @PutMapping(value = "/{uuid}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,

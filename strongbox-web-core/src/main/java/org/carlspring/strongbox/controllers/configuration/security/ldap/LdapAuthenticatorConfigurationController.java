@@ -57,7 +57,7 @@ public class LdapAuthenticatorConfigurationController
     private LdapAuthenticationConfigurationManager ldapAuthenticationManager;
     
     @ApiOperation(value = "Tests LDAP configuration settings")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration test has passed.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "LDAP configuration test has passed.") })
     @PutMapping(value = "/test", produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity testLdapConfiguration(@RequestBody @Validated LdapConfigurationTestForm form,
                                                 BindingResult bindingResult,
@@ -87,7 +87,7 @@ public class LdapAuthenticatorConfigurationController
     }
 
     @ApiOperation(value = "Update the LDAP configuration settings")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "LDAP configuration updated successfully.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "LDAP configuration updated successfully.") })
     @PutMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity putLdapConfiguration(@RequestBody @Validated LdapConfiguration configuration,
                                                BindingResult bindingResult,
@@ -111,7 +111,7 @@ public class LdapAuthenticatorConfigurationController
     }
 
     @ApiOperation(value = "Returns LDAP configuration")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The LDAP configuration.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The LDAP configuration.") })
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE })
     public LdapConfiguration getLdapConfiguration(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
     {

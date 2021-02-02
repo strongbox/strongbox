@@ -37,8 +37,8 @@ public class MavenMetadataManagementController
     private ArtifactMetadataService artifactMetadataService;
 
     @ApiOperation(value = "Used to rebuild the metadata for a given path.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The metadata was successfully rebuilt!"),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The metadata was successfully rebuilt!"),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_REBUILD_METADATA')")
     @PostMapping(produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity rebuild(@ApiParam(value = "The storageId", required = true)
@@ -74,8 +74,8 @@ public class MavenMetadataManagementController
     }
 
     @ApiOperation(value = "Used to delete metadata entries for an artifact")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "Successfully removed metadata entry."),
-                            @ApiResponse(code = 500, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "Successfully removed metadata entry."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('MANAGEMENT_DELETE_METADATA')")
     @DeleteMapping(value = "{storageId}/{repositoryId}/{path:.+}",
                    produces = MediaType.TEXT_PLAIN_VALUE)

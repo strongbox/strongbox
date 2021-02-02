@@ -29,8 +29,8 @@ public class RawArtifactController
 {
 
     @ApiOperation(value = "Used to deploy an artifact")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = "The artifact was deployed successfully."),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = "The artifact was deployed successfully."),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_DEPLOY')")
     @PutMapping(value = "{storageId}/{repositoryId}/{path:.+}")
     public ResponseEntity upload(@RepositoryMapping Repository repository,
@@ -56,8 +56,8 @@ public class RawArtifactController
     }
 
     @ApiOperation(value = "Used to retrieve an artifact")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = ""),
-                            @ApiResponse(code = 400, message = "An error occurred.") })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = ""),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = "An error occurred.") })
     @PreAuthorize("hasAuthority('ARTIFACTS_RESOLVE')")
     @GetMapping(value = { "{storageId}/{repositoryId}/{path:.+}" })
     public void download(@RepositoryMapping Repository repository,

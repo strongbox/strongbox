@@ -92,8 +92,8 @@ public class CronTaskController
 
 
     @ApiOperation(value = "Used to save a new cron task job")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_SAVE_CONFIGURATION),
-                            @ApiResponse(code = 400, message = FAILED_SAVE_CONFIGURATION) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_SAVE_CONFIGURATION),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_SAVE_CONFIGURATION) })
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -129,8 +129,8 @@ public class CronTaskController
     }
 
     @ApiOperation(value = "Used to update an existing configuration")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPDATE_CONFIGURATION),
-                            @ApiResponse(code = 400, message = FAILED_UPDATE_CONFIGURATION) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_UPDATE_CONFIGURATION),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_UPDATE_CONFIGURATION) })
     @PutMapping(value = "/{UUID}",
                 consumes = MediaType.APPLICATION_JSON_VALUE,
                 produces = { MediaType.TEXT_PLAIN_VALUE,
@@ -170,8 +170,8 @@ public class CronTaskController
     }
 
     @ApiOperation(value = "Used to delete the configuration")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_DELETE_CONFIGURATION),
-                            @ApiResponse(code = 400, message = FAILED_DELETE_CONFIGURATION) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_DELETE_CONFIGURATION),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_DELETE_CONFIGURATION) })
     @DeleteMapping(value = "{UUID}",
             produces = { MediaType.TEXT_PLAIN_VALUE,
                          MediaType.APPLICATION_JSON_VALUE })
@@ -210,8 +210,8 @@ public class CronTaskController
     }
 
     @ApiOperation(value = "Lists all of the cron task types and the field types of those tasks.")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATION),
-                            @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATION) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GET_CONFIGURATION),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_CONFIGURATION) })
     @GetMapping(value = "/types/list",
                 produces = { MediaType.APPLICATION_JSON_VALUE })
     public ResponseEntity listCronJobs()
@@ -220,8 +220,8 @@ public class CronTaskController
     }
 
     @ApiOperation(value = "Used to get the configuration on given cron task UUID")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATION),
-                            @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATION) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GET_CONFIGURATION),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_CONFIGURATION) })
     @GetMapping(value = "/{UUID}",
                 produces = { MediaType.APPLICATION_JSON_VALUE,
                              APPLICATION_YAML_VALUE })
@@ -238,8 +238,8 @@ public class CronTaskController
     }
 
     @ApiOperation(value = "Used to get list of all the configurations")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_CONFIGURATIONS),
-                            @ApiResponse(code = 404, message = NOT_FOUND_CONFIGURATIONS) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GET_CONFIGURATIONS),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_NOT_FOUND, message = NOT_FOUND_CONFIGURATIONS) })
     @GetMapping(produces = { MediaType.APPLICATION_JSON_VALUE,
                              APPLICATION_YAML_VALUE })
     public ResponseEntity getConfigurations(@RequestHeader(HttpHeaders.ACCEPT) String acceptHeader)
@@ -254,8 +254,8 @@ public class CronTaskController
     }
 
     @ApiOperation(value = "Used to upload groovy script for groovy cron task")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_UPLOAD_GROOVY_SCRIPT),
-                            @ApiResponse(code = 400, message = FAILED_UPLOAD_GROOVY_SCRIPT) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_UPLOAD_GROOVY_SCRIPT),
+                            @ApiResponse(code = org.apache.http.HttpStatus.SC_BAD_REQUEST, message = FAILED_UPLOAD_GROOVY_SCRIPT) })
     @PutMapping(value = "/cron/groovy/{UUID}",
                 produces = { MediaType.TEXT_PLAIN_VALUE,
                              MediaType.APPLICATION_JSON_VALUE })
@@ -301,7 +301,7 @@ public class CronTaskController
     }
 
     @ApiOperation(value = "Used to get all groovy scripts names")
-    @ApiResponses(value = { @ApiResponse(code = 200, message = SUCCESSFUL_GET_GROOVY_SCRIPTS) })
+    @ApiResponses(value = { @ApiResponse(code = org.apache.http.HttpStatus.SC_OK, message = SUCCESSFUL_GET_GROOVY_SCRIPTS) })
     @GetMapping(value = "/groovy/names",
                 produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getGroovyScriptsName()
