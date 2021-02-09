@@ -67,7 +67,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,beans,metrics,trace,scheduledtasks,threaddump,loggers
+        include: health,info,beans,metrics,trace,scheduledtasks,threaddump,loggers,startup
       base-path: /api/monitoring
 cacheManagerConfiguration:
   groupConfig:

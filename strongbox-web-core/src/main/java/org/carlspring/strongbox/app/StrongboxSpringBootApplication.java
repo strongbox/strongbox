@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.data.neo4j.Neo4jDataAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.context.metrics.buffering.BufferingApplicationStartup;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Import;
 
@@ -36,9 +37,11 @@ public class StrongboxSpringBootApplication
 
             System.setProperty(JanusGraphDbProfile.PROPERTY_PROFILE, JanusGraphDbProfile.PROFILE_EMBEDDED);
         }
-
-        applicationContext = SpringApplication.run(StrongboxSpringBootApplication.class, args);
-        applicationContext.start();
+        
+        SpringApplication application = new SpringApplication(StrongboxSpringBootApplication.class); 
+        application.setApplicationStartup(new BufferingApplicationStartup(1500));
+        applicationContext = application.run(args);
+        //applicationContext.start();
     }
 
     public static void restart()

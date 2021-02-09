@@ -7,7 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.hazelcast.config.*;
-import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
+import com.hazelcast.config.security.RealmConfig;
+//import com.hazelcast.config.EvictionConfig.MaxSizePolicy;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,7 @@ public class HazelcastConfiguration
     public MapConfig authenticationCacheConfig(String name)
     {
         return new MapConfig().setName(name).setNearCacheConfig(new NearCacheConfig().setCacheLocalEntries(authenticationsCacheCacheLocalEntries)
-                                                                                     .setEvictionConfig(new EvictionConfig().setMaximumSizePolicy(authenticationsCacheEvictionConfigMaxSizePolicy)
+                                                                                     .setEvictionConfig(new EvictionConfig().setMaxSizePolicy(authenticationsCacheEvictionConfigMaxSizePolicy)
                                                                                                                             .setSize(authenticationsCacheEvictionConfigSize))
                                                                                      .setInvalidateOnChange(authenticationsCacheInvalidateOnChange)
                                                                                      .setTimeToLiveSeconds(authenticationsCacheInvalidateInterval));
@@ -49,7 +50,7 @@ public class HazelcastConfiguration
     public int remoteRepositoryAlivenessMaxSizeLimit;
 
     @Value("${cacheManagerConfiguration.caches.remoteRepositoryAliveness.maxSizePolicy:FREE_HEAP_SIZE}")
-    public MaxSizeConfig.MaxSizePolicy remoteRepositoryAlivenessMaxSizePolicy;
+    public MaxSizePolicy remoteRepositoryAlivenessMaxSizePolicy;
 
     @Value("${cacheManagerConfiguration.caches.remoteRepositoryAliveness.evictionPolicy:LFU}")
     public EvictionPolicy remoteRepositoryAlivenessEvictionPolicy;
@@ -58,19 +59,19 @@ public class HazelcastConfiguration
     public int tagsMaxSizeLimit;
 
     @Value("${cacheManagerConfiguration.caches.tags.maxSizePolicy:FREE_HEAP_SIZE}")
-    public MaxSizeConfig.MaxSizePolicy tagsMaxSizePolicy;
+    public MaxSizePolicy tagsMaxSizePolicy;
 
     @Value("${cacheManagerConfiguration.caches.tags.evictionPolicy:LFU}")
     public EvictionPolicy tagsEvictionPolicy;
 
     public static MapConfig newDefaultMapConfig(String name,
                                                 int maxSize,
-                                                MaxSizeConfig.MaxSizePolicy maxSizePolicy,
+                                                MaxSizePolicy maxSizePolicy,
                                                 EvictionPolicy evictionPolicy)
     {
         return new MapConfig().setName(name)
-                              .setMaxSizeConfig(new MaxSizeConfig(maxSize, maxSizePolicy))
-                              .setEvictionPolicy(evictionPolicy);
+                              .setEvictionConfig(new EvictionConfig().setEvictionPolicy(evictionPolicy)
+                                                                     .setMaxSizePolicy(maxSizePolicy));
     }
 
     @Bean
@@ -128,7 +129,10 @@ public class HazelcastConfiguration
                                                                             tagsMaxSizePolicy,
                                                                             tagsEvictionPolicy))
                                           .addMapConfig(authenticationCacheConfig(CacheName.User.AUTHENTICATIONS));
-        config.setGroupConfig(new GroupConfig(groupConfigName, groupConfigPassword));
+        //config.setGroupConfig(new GroupConfig(groupConfigName, groupConfigPassword));
+        config.setSecurityConfig(new SecurityConfig().setClientRealmConfig(groupConfigName, new RealmConfig().setUsernamePasswordIdentityConfig(groupConfigName, groupConfigPassword)));
+        config.setClusterName(groupConfigName);
+        
         config.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(enableMulticastConfig);
 
         if (enableMulticastConfig)
