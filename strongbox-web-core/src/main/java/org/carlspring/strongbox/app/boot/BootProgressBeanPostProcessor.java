@@ -2,11 +2,10 @@ package org.carlspring.strongbox.app.boot;
 
 import org.carlspring.strongbox.web.DirectoryTraversalFilter;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import javax.annotation.Nullable;
 import javax.servlet.ServletRegistration;
-import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.locks.LockSupport;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -17,40 +16,38 @@ import io.reactivex.subjects.Subject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
 import org.springframework.boot.web.server.WebServer;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ApplicationEventMulticaster;
-import org.springframework.context.event.ApplicationListenerMethodAdapter;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.context.SmartLifecycle;
 import org.springframework.core.annotation.Order;
-import org.springframework.lang.Nullable;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.stereotype.Component;
 import static org.springframework.core.Ordered.HIGHEST_PRECEDENCE;
 
+/**
+ * <p>
+ * This bean is responsible for bringing up a temporary web server which allows clients to connect and only view the
+ * static assets as well as receive preliminary status report via the /api/ping endpoint (via EventSource).
+ * </p>
+ * <p>
+ * Requirements:
+ *  <li>Must start as soon as possible.</li>
+ *  <li>Must stop BEFORE {@link org.springframework.boot.web.servlet.context.WebServerStartStopLifecycle} which will start the real web server.</li>
+ *  <li>Must emit boot progress via /api/ping</li>
+ * </p>
+ */
 @Component
 @Order(HIGHEST_PRECEDENCE)
 public class BootProgressBeanPostProcessor
-        implements BeanPostProcessor, BeanNameAware, ApplicationContextAware
+        implements BeanPostProcessor, SmartLifecycle
 {
 
     private static final Logger logger = LoggerFactory.getLogger(BootProgressBeanPostProcessor.class);
 
-    private static Subject<String> progress;
-
-    private ApplicationContext applicationContext;
-
-    private volatile String beanName;
-
-    private volatile WebServer webServer;
+    private final Subject<String> progress = BehaviorSubject.create();
+    private WebServer webServer;
+    private boolean beanIsRunning;
 
     //@formatter:off
     private static final Map<String, String> displayMessages = Stream.of(new String[][]{
@@ -73,89 +70,51 @@ public class BootProgressBeanPostProcessor
     }).collect(Collectors.toMap(p -> p[0], p -> p[1]));
     //@formatter:on
 
-    public static Observable<String> getProgressObservable()
+    /**
+     * Counter-intuitive, but since we need the web server to stop exactly before {@link org.springframework.boot.web.servlet.context.WebServerStartStopLifecycle}
+     * we are forced to use {@link SmartLifecycle#start}.
+     */
+    @Override
+    public void start()
     {
-        return progress.observeOn(Schedulers.single()).subscribeOn(Schedulers.io()).onTerminateDetach();
+        stopWebServer();
+        beanIsRunning = true;
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext)
+    public void stop()
     {
-        this.applicationContext = applicationContext;
+        beanIsRunning = false;
     }
 
     @Override
-    public void setBeanName(String beanName)
+    public boolean isRunning()
     {
-        this.beanName = beanName;
+        return beanIsRunning;
     }
 
-    @EventListener
-    public void onApplicationEvent(ContextRefreshedEvent event)
+    /**
+     * The phase should be lower then {@link org.springframework.boot.web.servlet.context.WebServerStartStopLifecycle#getPhase()}
+     */
+    @Override
+    public int getPhase()
     {
-        DefaultListableBeanFactory factory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
-        factory.destroySingleton(beanName);
+        return Integer.MAX_VALUE - 2;
     }
 
-    @PostConstruct
-    public void startup() {
-        progress = BehaviorSubject.create();
-    }
-
-    @PreDestroy
-    public void destroy()
-            throws InterruptedException
-    {
-        logger.debug("Notifying clients Strongbox has booted.");
-        progress.onComplete();
-        progress = null;
-
-        stopServer();
-        removeEventListener();
-    }
-
-    private void stopServer()
-            throws InterruptedException
-    {
-        // Slightly delay stopping the server to leave enough time for existing responses to complete.
-        // Fixes
-        //   curl: (18) transfer closed with outstanding read data remaining
-        //   err_incomplete_chunked_encoding
-        // NB: This needs to be in sync with the UI.
-        Thread.sleep(1000);
-
-        logger.debug("Stopping server {}", webServer.toString());
-        webServer.stop();
-
-        webServer = null;
-    }
-
-    private void removeEventListener()
-    {
-        logger.debug("Removing registered {} event listener", BootProgressBeanPostProcessor.class);
-
-        Collection<ApplicationListener<?>> listeners = ((AbstractApplicationContext) applicationContext).getApplicationListeners();
-
-        ApplicationListener<?> applicationListener = listeners.stream()
-                                                              .filter(listener -> listener instanceof ApplicationListenerMethodAdapter &&
-                                                                                  ((ApplicationListenerMethodAdapter) listener)
-                                                                                          .toString()
-                                                                                          .contains(BootProgressBeanPostProcessor.class.getSimpleName()))
-                                                              .findFirst()
-                                                              .get();
-
-        ApplicationEventMulticaster applicationEventMulticaster = applicationContext.getBean(
-                AbstractApplicationContext.APPLICATION_EVENT_MULTICASTER_BEAN_NAME, ApplicationEventMulticaster.class);
-        applicationEventMulticaster.removeApplicationListener(applicationListener);
-    }
-
-    @Nullable
-    public Object postProcessBeforeInitialization(Object bean, String beanName)
+    /**
+     * We are hooking into the postProcessBeforeInitialization in order to track the boot progress and emit messages
+     * to connected clients.
+     */
+    @Override
+    public Object postProcessBeforeInitialization(Object bean,
+                                                  String beanName)
             throws BeansException
     {
         logger.trace("Found bean: {}", beanName);
 
-        if(displayMessages.containsKey(beanName) || beanName.contains(DefaultAuthenticationEventPublisher.class.getName()))
+        if (displayMessages.containsKey(beanName) ||
+            beanName.contains(DefaultAuthenticationEventPublisher.class.getName()))
         {
             String displayMessage = displayMessages.getOrDefault(beanName, displayMessages.get("fallback"));
             progress.onNext(displayMessage);
@@ -164,42 +123,76 @@ public class BootProgressBeanPostProcessor
         return bean;
     }
 
+    /**
+     * <p>Might look unnecessary, but this allows us to get an {@link JettyServletWebServerFactory} instance
+     * after it has been properly populated/configured with all settings (i.e. correct port) and then
+     * use it as a base to start the temporary server.</p>
+     * <p>Removing this will likely result in a default {@link JettyServletWebServerFactory} instance working at port 8080</p>
+     */
     @Override
     @Nullable
-    public Object postProcessAfterInitialization(Object bean, String beanName)
+    public Object postProcessAfterInitialization(Object bean,
+                                                 String beanName)
             throws BeansException
     {
         if (bean instanceof JettyServletWebServerFactory)
         {
-            return startServer((JettyServletWebServerFactory) bean);
+            startWebServer((JettyServletWebServerFactory) bean);
         }
-        else
-        {
-            return bean;
-        }
+        
+        return bean;
     }
 
-    private JettyServletWebServerFactory startServer(JettyServletWebServerFactory factory)
+    private Observable<String> getProgressObservable()
     {
-        logger.debug("Eagerly starting web server {}", factory.toString());
+        return progress.observeOn(Schedulers.single()).subscribeOn(Schedulers.io()).onTerminateDetach();
+    }
 
+    private boolean isWebServerRunning()
+    {
+        return webServer != null;
+    }
+
+    private void startWebServer(JettyServletWebServerFactory factory)
+    {
+        if (isWebServerRunning())
+        {
+            return;
+        }
+        
+        logger.info("Eagerly starting temporary web server {}", factory.toString());
         webServer = factory.getWebServer(context -> {
-            ServletRegistration.Dynamic defaultServlet = context.addServlet(DefaultBootServlet.class.getName(),
-                                                                            DefaultBootServlet.class);
-            defaultServlet.addMapping("/");
+            ServletRegistration.Dynamic defaultServlet = context.addServlet("default", new BootProgressServlet(getProgressObservable()));
+            defaultServlet.addMapping("/", BootProgressServlet.pingRequestURI);
             defaultServlet.setLoadOnStartup(1);
-
-            ServletRegistration.Dynamic bootProgressServlet = context.addServlet(BootProgressServlet.class.getName(),
-                                                                                 BootProgressServlet.class);
-            bootProgressServlet.addMapping("/api/ping");
-            bootProgressServlet.setAsyncSupported(true);
+            defaultServlet.setAsyncSupported(true);
 
             context.addFilter(DirectoryTraversalFilter.class.getName(), DirectoryTraversalFilter.class);
         });
 
         webServer.start();
+    }
 
-        return factory;
+    private void stopWebServer()
+    {
+        if (!isWebServerRunning())
+        {
+            return;
+        }
+        
+        logger.info("Notifying clients Strongbox has booted.");
+        progress.onComplete();
+
+        // Slightly delay stopping the server to leave enough time for existing responses to complete.
+        // Fixes
+        //   curl: (18) transfer closed with outstanding read data remaining
+        //   err_incomplete_chunked_encoding
+        // NB: This needs to be in sync with the UI.
+        LockSupport.parkUntil(System.currentTimeMillis() + 1000);
+
+        logger.info("Stopping temporary server {}", webServer.toString());
+        webServer.stop();
+        webServer = null;
     }
 
 }
