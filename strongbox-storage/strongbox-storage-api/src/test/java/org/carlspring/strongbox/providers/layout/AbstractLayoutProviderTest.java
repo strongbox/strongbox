@@ -25,20 +25,17 @@ import org.carlspring.strongbox.providers.io.LayoutFileSystem;
 import org.carlspring.strongbox.providers.io.RepositoryFileAttributeType;
 import org.carlspring.strongbox.providers.io.RepositoryPath;
 import org.carlspring.strongbox.repositories.ArtifactIdGroupRepository;
-import org.carlspring.strongbox.services.ArtifactIdGroupService;
 import org.carlspring.strongbox.storage.StorageDto;
 import org.carlspring.strongbox.storage.repository.RepositoryData;
 import org.carlspring.strongbox.storage.repository.RepositoryDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.util.ReflectionTestUtils;
 
 /**
  * @author Przemyslaw Fusik
@@ -54,15 +51,9 @@ class AbstractLayoutProviderTest
     @Inject
     private PropertiesBooter propertiesBooter;
 
-    @Spy
-    @Inject
-    private ArtifactIdGroupService artifactGroupService;
-
-    @Spy
     @Inject
     private ArtifactIdGroupRepository artifactIdGroupRepository;
 
-    @InjectMocks
     private AbstractLayoutProvider layoutProvider = Mockito.spy(AbstractLayoutProvider.class);
 
     private LayoutArtifactCoordinatesEntity artifactCoordinates = Mockito.spy(LayoutArtifactCoordinatesEntity.class);
@@ -100,7 +91,8 @@ class AbstractLayoutProviderTest
             }
         };
 
-        MockitoAnnotations.initMocks(this);
+        ReflectionTestUtils.setField(layoutProvider, "artifactIdGroupRepository", artifactIdGroupRepository);
+        
         Mockito.doReturn("abs-lay-prov-test").when(artifactCoordinates).getId();
         Mockito.doReturn(artifactCoordinates).when(layoutProvider).getArtifactCoordinates(any(RepositoryPath.class));
         Mockito.doReturn(artifactAttributes).when(storageFileSystemProvider).getRepositoryFileAttributes(any(RepositoryPath.class), any());

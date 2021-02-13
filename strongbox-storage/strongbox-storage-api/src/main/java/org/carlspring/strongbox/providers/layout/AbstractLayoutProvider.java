@@ -247,8 +247,8 @@ public abstract class AbstractLayoutProvider<T extends LayoutArtifactCoordinates
         Storage storage = repository.getStorage();
         ArtifactCoordinates c = RepositoryFiles.readCoordinates(path);
         Optional<ArtifactIdGroup> artifactIdGroup = artifactIdGroupRepository.findAllArtifactsInGroup(storage.getId(),
-                                                                                                       repository.getId(),
-                                                                                                       c.getId());
+                                                                                                      repository.getId(),
+                                                                                                      c.getId());
         
         return artifactIdGroup.map(ArtifactGroup.class::cast).map(Collections::singleton).orElse(Collections.emptySet());
     }
