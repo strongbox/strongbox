@@ -156,7 +156,9 @@ public interface EntityTraversalDsl<S, E> extends GraphTraversal.Admin<S, E>
                                       __.<Vertex>unfold()
                                         .sideEffect(entity::applyUnfold)
                                         .sideEffect(EntityTraversalUtils::fetched))
-                              .map(unfoldTraversal);
+                              .sideEffect(t -> EntityTraversalUtils.debug("saved", t))
+                              .map(unfoldTraversal)
+                              .sideEffect(t -> EntityTraversalUtils.debug("unfolded", t));
     }
 
     /**
