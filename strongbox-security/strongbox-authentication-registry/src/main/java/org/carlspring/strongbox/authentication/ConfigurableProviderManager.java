@@ -140,7 +140,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
                 continue;
             }
             
-            logger.info("Fetched external user details: username=[{}], sourceId=[{}]", externalUser.getUsername(), sourceId);
+            logger.debug("Fetched external user details: username=[{}], sourceId=[{}]", externalUser.getUsername(), sourceId);
             try
             {
                 return Optional.of(strongboxUserManager.cacheExternalUserDetails(sourceId, externalUser));
