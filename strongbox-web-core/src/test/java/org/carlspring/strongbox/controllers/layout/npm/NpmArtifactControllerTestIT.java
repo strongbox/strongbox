@@ -106,7 +106,6 @@ public class NpmArtifactControllerTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    @Disabled("See https://github.com/strongbox/strongbox/issues/1972")
     public void testViewArtifactViaProxy(@Remote(url = REMOTE_URL)
                                          @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                          Repository proxyRepository)
@@ -135,7 +134,6 @@ public class NpmArtifactControllerTestIT
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
-    @Disabled("See https://github.com/strongbox/strongbox/issues/1972")
     public void testSearchArtifactViaProxy(@Remote(url = REMOTE_URL)
                                            @NpmRepository(repositoryId = REPOSITORY_PROXY)
                                            Repository proxyRepository)

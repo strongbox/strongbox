@@ -46,6 +46,8 @@ import org.springframework.stereotype.Component;
 public class DatabaseUserService implements UserService
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseUserService.class);
+    
     @Inject
     private SecurityTokenProvider tokenProvider;
     
@@ -151,6 +153,7 @@ public class DatabaseUserService implements UserService
 
     public void expireUser(String username, boolean clearSourceId)
     {
+        logger.debug("Expire user: username=[{}]", username);
         UserEntity externalUserEntry = findByUsername(username);
         externalUserEntry.setLastUpdated(LocalDateTime.ofInstant(Instant.ofEpochMilli(0), ZoneId.systemDefault()));
 

@@ -102,10 +102,7 @@ public class UserAdapter implements VertexEntityTraversalAdapter<User>
 
             userRoleTraversal = userRoleTraversal.addE(Edges.USER_HAS_SECURITY_ROLES)
                                                  .from(__.<Vertex, Vertex>select(storedUserId).unfold())
-                                                 .inV();
-
-            userRoleTraversal = userRoleTraversal.inE(Edges.USER_HAS_SECURITY_ROLES).outV();
-
+                                                 .outV();
         }
 
         unfoldTraversal = unfoldTraversal.map(unfoldUser(entity))

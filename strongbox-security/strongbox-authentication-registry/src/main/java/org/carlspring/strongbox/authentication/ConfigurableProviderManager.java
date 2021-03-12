@@ -111,7 +111,11 @@ public class ConfigurableProviderManager extends ProviderManager implements User
     private Optional<User> loadUserDetails(String username)
     {
         Optional<User> optionalUser = Optional.ofNullable(strongboxUserManager.findByUsername(username)).filter(this::isInternalOrValidExternalUser);
-        if (optionalUser.isPresent()) {
+        if (optionalUser.isPresent()) 
+        {
+            User user = optionalUser.get();
+            logger.debug("Found valid user details: username-[{}], sourceId=[{}]", user.getUsername(), user.getSourceId());
+            
             return optionalUser;
         }
         
@@ -120,6 +124,7 @@ public class ConfigurableProviderManager extends ProviderManager implements User
 
     protected Optional<User> loadExternalUserDetails(String username)
     {
+        logger.info("Load external user details: username=[{}]", username);
         for (Entry<String, UserDetailsService> userDetailsServiceEntry : userProviderMap.entrySet())
         {
             String sourceId = userDetailsServiceEntry.getKey();
@@ -134,7 +139,8 @@ public class ConfigurableProviderManager extends ProviderManager implements User
             {
                 continue;
             }
-        
+            
+            logger.debug("Fetched external user details: username=[{}], sourceId=[{}]", externalUser.getUsername(), sourceId);
             try
             {
                 return Optional.of(strongboxUserManager.cacheExternalUserDetails(sourceId, externalUser));
