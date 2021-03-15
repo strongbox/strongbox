@@ -459,6 +459,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     }
 
     @Test
+    @Disabled("see https://github.com/strongbox/strongbox/issues/1960")
     public void testRemoteProxyGroup()
     {
         final String packageId = "NHibernate";
@@ -498,6 +499,7 @@ public class NugetArtifactControllerTest extends NugetRestAssuredBaseTest
     }
 
     @Test
+    @Disabled("see https://github.com/strongbox/strongbox/issues/1960")
     public void testRemoteLastVersion()
     {
         String url = getContextBaseUrl() + "/storages/public/nuget-group/FindPackagesById()?id=NHibernate&$orderby=Version";
