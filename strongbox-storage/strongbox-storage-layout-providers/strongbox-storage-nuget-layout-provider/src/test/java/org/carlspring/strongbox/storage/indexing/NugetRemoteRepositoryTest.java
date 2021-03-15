@@ -19,6 +19,7 @@ import org.carlspring.strongbox.storage.repository.Repository;
 import org.carlspring.strongbox.testing.repository.NugetRepository;
 import org.carlspring.strongbox.testing.storage.repository.RepositoryManagementTestExecutionListener;
 import org.carlspring.strongbox.testing.storage.repository.TestRepository.Remote;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.parallel.Execution;
@@ -49,6 +50,7 @@ public class NugetRemoteRepositoryTest
 
     @ExtendWith(RepositoryManagementTestExecutionListener.class)
     @Test
+    @Disabled("see https://github.com/strongbox/strongbox/issues/1960")
     public void testRepositoryIndexFetching(@Remote(url = REMOTE_URL)
                                             @NugetRepository(repositoryId = REPOSITORY_PROXY)
                                             Repository repository)

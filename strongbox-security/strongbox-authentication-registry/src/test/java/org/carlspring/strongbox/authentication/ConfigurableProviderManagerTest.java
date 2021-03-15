@@ -24,7 +24,6 @@ import org.carlspring.strongbox.users.userdetails.SpringSecurityUser;
 import org.carlspring.strongbox.users.userdetails.StrongboxExternalUsersCacheManager;
 import org.carlspring.strongbox.users.userdetails.StrongboxUserDetails;
 import org.carlspring.strongbox.util.LocalDateTimeInstance;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Execution;
 import org.springframework.boot.test.context.SpringBootTest;
