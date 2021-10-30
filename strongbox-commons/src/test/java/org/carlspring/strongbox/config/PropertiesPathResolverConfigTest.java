@@ -9,7 +9,7 @@ import static org.carlspring.strongbox.config.PropertiesPathResolverConfig.Prope
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class PropertiesPathResolverConfigTest
+public class PropertiesPathResolverConfigTest()
 {
     private static final String CURRENT_DIR = System.getProperty("user.dir");
     private static final String CUSTOM_PATH_PROP = "strongbox.scary-t.file";
