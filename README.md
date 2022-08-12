@@ -84,7 +84,7 @@ We'd like to invite you to:
 * Check out our [Hackfests](https://strongbox.github.io/hackfests/index.html) pages.
 * [Get the project to build](https://strongbox.github.io/developer-guide/building-the-code.html).
 * Have a look at our pre-selected issues for [![GitHub issues by-label][hacktoberfest-badge]][hacktoberfest-link].
-* Join our [chat channel](https://chat.carlspring.org/]) to discuss things and get help started.
+* Join our [chat channel](https://chat.carlspring.org/channel/community) to discuss things and get help started.
 
 # Sponsors
 
