@@ -5,8 +5,7 @@ package org.carlspring.strongbox.configuration;
  *
  * @author Alex Oreshkevich
  */
-public class ConfigurationException
-        extends RuntimeException
+public class ConfigurationException extends RuntimeException
 {
 
     /**
@@ -36,8 +35,7 @@ public class ConfigurationException
      *                unknown.)
      * @since 1.4
      */
-    public ConfigurationException(String message,
-                                  Throwable cause)
+    public ConfigurationException(String message,Throwable cause)
     {
         super(message, cause);
     }
