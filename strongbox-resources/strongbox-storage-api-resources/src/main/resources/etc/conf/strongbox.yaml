@@ -2,7 +2,7 @@ strongbox:
   configuration:
     database:
       embedded: false
-      contactPoints: [ "1.2.3.4:9042", "2.3.4.5:9042" ]
+      contactPoints: [ "1.2.3.4:9042", "2.3.4.6:9042" ]
 configuration:
   instanceName: strongbox
   version: ${project.version}
