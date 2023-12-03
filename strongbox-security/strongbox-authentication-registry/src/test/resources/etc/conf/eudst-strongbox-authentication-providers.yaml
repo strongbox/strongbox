@@ -1,0 +1,5 @@
+strongbox:
+  authentication:
+    yamlUserDetailService:
+      order: 0
+      enabled: true

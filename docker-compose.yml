@@ -1,0 +1,44 @@
+version: '3'
+services:
+  strongbox-from-web-core:
+    image: strongboxci/alpine:jdk8-mvn3.6
+    command:
+      - /bin/bash
+      - -c
+      - |
+         echo ""
+         echo "[NOTICE]   This will take at least 2 to 5 minutes to start depending on your machine and connection!"
+         echo ""
+         echo "           Open http://localhost:48080/storages to browse the repository contents."
+         echo ""
+         sleep 5
+         mkdir -p /workspace/.m2/repositories
+         mvn clean install -DskipTests
+         cd strongbox-web-core
+         mvn spring-boot:run
+    ports:
+      - 48080:48080
+    volumes:
+      - $HOME/.m2/repository:/home/jenkins/.m2/repository
+      - ./:/workspace
+    working_dir: /workspace
+  openldap:
+    image: osixia/openldap:1.4.0
+    ports:
+      - 53389:389
+    environment:
+      - LDAP_BACKEND=mdb
+      # cn=admin,dc=carlspring,dc=com
+      - LDAP_ADMIN_PASSWORD=password
+      - LDAP_READONLY_USER=false
+      - LDAP_DOMAIN=carlspring.com
+      # Check http://www.openldap.org/doc/admin24/slapdconf2.html for increased level of logging
+      - LDAP_LOG_LEVEL=256
+      - LDAP_ORGANISATION=Strongbox
+      - LDAP_RFC2307BIS_SCHEMA=true
+      - LDAP_TLS=false
+    volumes:
+      # Manually map files which need to be imported to allow for importing from multi-modules.
+      - ./strongbox-testing/strongbox-testing-core/src/main/resources/ldap/00-strongbox-base.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/00-strongbox-base.ldif
+      - ./strongbox-security/strongbox-authentication-providers/strongbox-ldap-authentication-provider/src/test/resources/ldap/10-issue-1840.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/10-issue-1840.ldif
+    command: --copy-service --loglevel trace

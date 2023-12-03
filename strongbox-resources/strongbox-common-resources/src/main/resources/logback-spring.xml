@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+<configuration scan="true" scanPeriod="30 seconds" debug="false">
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <!-- reset all previous level configurations of all j.u.l. loggers -->
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <springProperty scope="context" name="loggingDir" source="logging.dir" defaultValue="strongbox-vault/logs"/>
+    <springProperty scope="context" name="debug" source="logging.debug" defaultValue="false"/>
+    
+    <springProperty scope="context" name="console" source="logging.console.enabled" defaultValue="true"/>
+    
+    <springProperty scope="context" name="file" source="logging.file.enabled" defaultValue="true"/>
+    <springProperty scope="context" name="loggingFile" source="logging.file" defaultValue="strongbox-vault/logs/strongbox.log"/>
+    <springProperty scope="context" name="fileSizeSingle" source="logging.file.size.single" defaultValue="128MB"/>
+    <springProperty scope="context" name="fileSizeTotal" source="logging.file.size.total" defaultValue="1GB"/>
+    <springProperty scope="context" name="fileHisotry" source="logging.file.history" defaultValue="31"/>
+
+    <if condition="${console:-true}">
+    <then>
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
+            <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
+    
+            <encoder>
+                <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+            </encoder>
+        </appender>
+        <root>
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </then>
+    </if>
+    
+    <if condition="${file:-true}">
+    <then>
+        <appender name="FILE"
+            class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <filter class="org.carlspring.strongbox.log.CronTaskContextDeclineFilter"/>
+            <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
+            
+            <file>${loggingFile}</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                <fileNamePattern>${loggingDir}/strongbox-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                <maxFileSize>${fileSizeSingle}</maxFileSize>
+                <maxHistory>${fileHistory}</maxHistory>
+                <totalSizeCap>${fileSizeTotal}</totalSizeCap>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="CRON-JOB-FILE" class="ch.qos.logback.classic.sift.SiftingAppender">
+    
+            <discriminator
+                class="ch.qos.logback.classic.sift.MDCBasedDiscriminator">
+                <key>strongbox-cron-context-name</key>
+                <defaultValue>strongbox-empty-cron-job</defaultValue>
+            </discriminator>
+            <sift>
+                <appender name="CRON-JOB-CONTEXT-SIFT-FILE-APPENDER"
+                    class="ch.qos.logback.core.rolling.RollingFileAppender">
+                    <filter class="org.carlspring.strongbox.log.CronTaskContextAcceptFilter"/>
+                    <filter class="org.carlspring.strongbox.log.JaninoClassLoaderLogDeclineFilter"/>
+                    
+                    <file>${loggingDir}/${strongbox-cron-context-name}/${strongbox-cron-context-name}.log</file>
+                    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+                        <fileNamePattern>${loggingDir}/${strongbox-cron-context-name}/${strongbox-cron-context-name}-%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+                        <maxFileSize>${fileSizeSingle}</maxFileSize>
+                        <maxHistory>${fileHistory}</maxHistory>
+                        <totalSizeCap>${fileSizeTotal}</totalSizeCap>
+                    </rollingPolicy>
+    
+                    <encoder>
+                        <charset>UTF-8</charset>
+                        <pattern>%d{HH:mm:ss.SSS dd-MM-yyyy} | %-5.5p | %-20.20t | %-50.50logger{50} | %m%n</pattern>
+                    </encoder>
+                </appender>
+            </sift>
+        </appender>
+        <root>
+            <appender-ref ref="FILE"/>
+            <appender-ref ref="CRON-JOB-FILE"/>
+        </root>
+    </then>
+    </if>
+
+    <if condition="${debug:-false}">
+    <then>
+        <!-- ApacheDS: Used for testing -->
+        <logger name="org.apache.directory" level="ERROR"/>
+        <logger name="org.apache.mina" level="ERROR"/>
+        <logger name="JdbmTable" level="ERROR"/>
+        <logger name="JdbmIndex" level="ERROR"/>
+        <logger name="LOG_CHANGES" level="ERROR"/>
+        <!-- ApacheDS -->
+    
+        <!-- Strongbox packages -->
+        <logger name="org.carlspring.strongbox" level="DEBUG"/>
+        <logger name="org.carlspring.strongbox.security.authentication" level="DEBUG"/>
+        <logger name="org.carlspring.strongbox.security.vote" level="DEBUG"/>
+        <logger name="org.carlspring.strongbox.data" level="WARN"/>
+        <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
+        <logger name="org.carlspring.strongbox.data.criteria" level="DEBUG"/>
+        <logger name="org.carlspring.strongbox.data.server" level="DEBUG"/>
+        <!-- Strongbox packages -->
+    
+        <!-- Third-party packages -->
+        <logger name="ch.qos.logback" level="ERROR"/>
+    
+        <logger name="com.orientechnologies.orient" level="ERROR"/>
+    
+        <logger name="org.apache.commons.beanutils" level="ERROR"/>
+        <logger name="org.apache.http" level="ERROR"/>
+    
+        <logger name="org.glassfish.jersey" level="ERROR"/>
+    
+        <logger name="org.quartz" level="INFO"/>
+    
+        <logger name="org.reflections" level="ERROR"/>
+    
+        <logger name="org.springframework" level="ERROR"/>
+        <logger name="org.springframework.web" level="DEBUG"/>
+        
+        <logger name="com.hazelcast" level="INFO"/>
+        
+        <logger name="org.springframework.cache" level="TRACE"/>
+        
+        <logger name ="org.eclipse.jetty" level="INFO" />
+        <logger name ="jndi"  level="INFO" />
+        
+        <logger name ="liquibase.parser.core.xml"  level="INFO" />
+        <logger name ="javax.xml.bind" level="INFO" />
+        <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="DEBUG" />
+        <!-- Third-party packages -->
+        
+        <root level="DEBUG"/>
+    </then>
+    <else>
+        <!-- Strongbox packages -->
+        <logger name="org.carlspring.strongbox" level="INFO"/>
+        <logger name="org.carlspring.strongbox.security.authentication" level="INFO"/>
+        <logger name="org.carlspring.strongbox.security.vote" level="INFO"/>
+        <logger name="org.carlspring.strongbox.data" level="WARN"/>
+        <logger name="org.carlspring.strongbox.data.tx" level="WARN"/>
+        <logger name="org.carlspring.strongbox.data.criteria" level="INFO"/>
+        <logger name="org.carlspring.strongbox.data.server" level="INFO"/>
+        <!-- Strongbox packages -->
+    
+        <!-- Third-party packages -->
+        <logger name="liquibase" level="WARN"/>
+    
+        <logger name="ch.qos.logback" level="ERROR"/>
+    
+        <logger name="com.orientechnologies.orient" level="ERROR"/>
+    
+        <logger name="org.apache.commons.beanutils" level="ERROR"/>
+        <logger name="org.apache.http" level="ERROR"/>
+    
+        <logger name="org.glassfish.jersey" level="ERROR"/>
+    
+        <logger name="org.quartz" level="INFO"/>
+    
+        <logger name="org.reflections" level="ERROR"/>
+    
+        <logger name="org.springframework" level="ERROR"/>
+        <logger name="org.springframework.web" level="INFO"/>
+    
+        <logger name ="org.eclipse.jetty" level="INFO" />
+        <logger name ="jndi"  level="INFO" />
+
+        <logger name ="liquibase.parser.core.xml"  level="INFO" />
+        <logger name ="javax.xml.bind" level="INFO" />
+        <logger name="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" level="INFO" />
+        <!-- Third-party packages -->
+        
+        <root level="INFO"/>
+    </else>    
+    </if>
+
+</configuration>

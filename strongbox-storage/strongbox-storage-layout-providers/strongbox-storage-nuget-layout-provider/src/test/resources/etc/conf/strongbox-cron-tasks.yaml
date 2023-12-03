@@ -1,0 +1,14 @@
+cronTasksConfiguration:
+  cronTaskConfigurations:
+    - uuid: 463ff872-b7b2-4cb9-aff9-37b3baed4f14
+      name: Clear Each Repository's Trash Cron Job
+      jobClass: org.carlspring.strongbox.cron.jobs.ClearRepositoryTrashCronJob
+      cronExpression: 0 0 1 * * ?
+      oneTimeExecution: false
+      immediateExecution: false
+    - uuid: 9dd9a6ef-d953-4ce0-be3d-3031fcfd993b
+      name: Re-generate Artifacts Checksums Cron Job
+      jobClass: org.carlspring.strongbox.cron.jobs.RegenerateChecksumCronJob
+      cronExpression: 0 0 1 * * ?
+      oneTimeExecution: false
+      immediateExecution: false

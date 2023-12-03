@@ -1,0 +1,102 @@
+server:
+  port: 48080
+spring:
+  liquibase:
+    enabled: false
+  servlet:
+    multipart:
+      enabled: true
+strongbox:
+  basedir: .
+  home: ${strongbox.basedir}/strongbox
+  vault: ${strongbox.basedir}/strongbox-vault
+  etc: ${strongbox.home}/etc
+  temp: ${strongbox.home}/tmp
+  config:
+    file: ${strongbox.home}/etc/conf/strongbox.yaml
+  storage:
+    booter:
+      basedir: ${strongbox.vault}/storages
+  host: localhost
+  port: 48080
+  nuget:
+    download:
+      feed: false
+  version: @{project.version}
+  revision: @{strongbox.revision}
+  orientdb:
+    studio:
+      enabled: false
+      ip:
+        address: 127.0.0.1
+      port: 2480
+  server:
+    database:
+      path: ${strongbox.vault}/db
+  users:
+    external:
+      cache:
+        seconds: 300
+  sse:
+    timeoutMillis: 600000
+# Changes to these properties must also be applied to [strongbox/strongbox-web-integration-tests] and possibly the pipeline.
+# Please ping us on our chat channel (https://chat.carlspring.org/) to confirm.
+logging:
+  debug: false
+  console:
+    enabled: true
+  file: 
+    enabled: true
+    size:
+      single: 128MB
+      total: 1GB
+    history: 31
+  dir: ${strongbox.vault}/logs
+# TODO: replace with logging.file.name after upgrading to 2.2.X (https://github.com/strongbox/strongbox/pull/1440#discussion_r335779316)
+logging.file: ${logging.dir}/strongbox.log
+java:
+  io:
+    tmpdir: ${strongbox.vault}/tmp
+ehcache:
+  disk:
+    store:
+      dir: ${strongbox.vault}/cache
+management:
+  endpoint:
+    health:
+      show-details: always
+    shutdown:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,beans,metrics,trace,scheduledtasks,threaddump,loggers
+      base-path: /api/monitoring
+cacheManagerConfiguration:
+  groupConfig:
+    name: strongbox
+    password: password
+  enableMulticastConfig: false
+  multicast:
+    multicastGroup: 224.2.2.3
+    multicastPort: 54327
+    multicastTimeoutSeconds: 2
+    multicastTimeToLive: 32
+    trustedInterfaces: en0,en1
+    loopbackModeEnabled: false
+  instanceId: strongbox
+  caches:
+    remoteRepositoryAliveness:
+      maxSizeLimit: 1000
+      maxSizePolicy: FREE_HEAP_SIZE
+      evictionPolicy: LFU
+    tags:
+      maxSizeLimit: 1000
+      maxSizePolicy: FREE_HEAP_SIZE
+      evictionPolicy: LFU
+    authentications:
+      cacheLocalEntries: true
+      evictionConfigSize: 1000
+      evictionConfigMaxSizePolicy: ENTRY_COUNT
+      invalidateOnChange: true
+      timeToLiveSeconds: 10

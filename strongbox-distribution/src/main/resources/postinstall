@@ -1,0 +1,5 @@
+mkdir /opt/strongbox-vault
+groupadd strongbox
+useradd -d /opt/strongbox -g strongbox --system strongbox
+chown -R strongbox:strongbox /opt/strongbox
+chown -R strongbox:strongbox /opt/strongbox-vault

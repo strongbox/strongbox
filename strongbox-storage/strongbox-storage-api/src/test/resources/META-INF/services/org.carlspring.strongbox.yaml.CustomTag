@@ -1,0 +1,2 @@
+org.carlspring.strongbox.storage.repository.aws.MutableAwsConfiguration
+org.carlspring.strongbox.storage.repository.gcs.MutableGoogleCloudConfiguration

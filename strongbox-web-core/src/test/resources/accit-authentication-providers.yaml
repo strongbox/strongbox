@@ -1,0 +1,14 @@
+strongbox:
+  authentication:
+    authenticationProviderFirst:
+      order: 0
+      enabled: true
+    authenticationProviderSecond:
+      order: 1
+      enabled: true
+    authenticationProviderThird:
+      order: 2
+      enabled: false      
+    yamlUserDetailService:
+      order: 0
+      enabled: true

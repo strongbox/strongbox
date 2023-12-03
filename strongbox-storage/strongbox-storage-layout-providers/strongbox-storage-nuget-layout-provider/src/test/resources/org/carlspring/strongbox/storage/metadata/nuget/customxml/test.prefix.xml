@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<a1:root xmlns:a1="element_namespace1">
+    <a2:l xmlns:a2="element_namespace2"/>
+    <a3:p xmlns:a3="element_namespace1"/>
+    <a4:k xmlns:a4="element_namespace2" xmlns:t1="attribute_namespace1" t1:val="value">
+        <a5:y xmlns:a5="element_namespace2">            
+        </a5:y> 
+    </a4:k>
+</a1:root>

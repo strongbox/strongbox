@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.carlspring.strongbox</groupId>
+        <artifactId>strongbox-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+
+    <artifactId>strongbox-authentication-providers</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Strongbox: Authentication Providers</name>
+
+    <licenses>
+        <license>
+            <name>Apache 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>Carlspring Consulting &amp; Development Ltd.</name>
+        <url>http://www.carlspring.org/</url>
+    </organization>
+
+    <inceptionYear>2019</inceptionYear>
+
+    <scm>
+        <url>https://github.com/strongbox/strongbox/</url>
+        <connection>scm:git:git://github.com/strongbox/strongbox.git</connection>
+        <developerConnection>scm:git:git://github.com/strongbox/strongbox.git</developerConnection>
+    </scm>
+
+    <modules>
+        <module>strongbox-default-authentication-provider</module>
+        <module>strongbox-ldap-authentication-provider</module>
+    </modules>
+
+</project>
