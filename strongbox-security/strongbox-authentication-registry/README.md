@@ -1,1 +1,0 @@
-Strongbox authentication registry.
